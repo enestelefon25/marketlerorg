@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Marketler.org</string>
+    <string name="loading">Yükleniyor…</string>
+
+    <string name="offline_title">İnternet bağlantısı yok</string>
+    <string name="offline_message">Lütfen Wi‑Fi veya mobil veri bağlantınızı kontrol edip tekrar deneyin.</string>
+    <string name="error_title">Sayfa yüklenemedi</string>
+    <string name="error_message">Marketler.org şu anda yanıt vermiyor. Biraz sonra tekrar deneyin.</string>
+    <string name="ssl_error_title">Güvenli bağlantı kurulamadı</string>
+    <string name="ssl_error_message">Sunucunun güvenlik sertifikası doğrulanamadı. Güvenliğiniz için bağlantı durduruldu.</string>
+    <string name="retry">Tekrar dene</string>
+
+    <string name="exit_title">Uygulamadan çık</string>
+    <string name="exit_message">Marketler.org uygulamasından çıkmak istiyor musunuz?</string>
+    <string name="exit_confirm">Çık</string>
+    <string name="cancel">Vazgeç</string>
+
+    <string name="download_started">İndiriliyor: %1$s</string>
+    <string name="download_completed">İndirme tamamlandı: %1$s</string>
+    <string name="download_failed">İndirme başarısız oldu</string>
+    <string name="download_open">Aç</string>
+    <string name="download_unsupported">Bu dosya türü uygulama içinden indirilemiyor.</string>
+    <string name="download_permission_denied">İndirme için depolama izni gerekli.</string>
+
+    <string name="file_chooser_title">Dosya seç</string>
+    <string name="no_app_for_link">Bu bağlantıyı açabilecek bir uygulama bulunamadı.</string>
+    <string name="insecure_link_blocked">Güvenli olmayan (HTTP) bağlantı engellendi.</string>
+</resources>

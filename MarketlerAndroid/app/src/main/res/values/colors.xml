@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Marka renkleri. Sitenin gerçek renkleriyle değiştirilebilir. -->
+    <color name="brand_primary">#1E7D3A</color>
+    <color name="brand_primary_dark">#145A29</color>
+    <color name="brand_on_primary">#FFFFFF</color>
+    <color name="brand_accent">#F5A623</color>
+    <color name="screen_background">#FFFFFF</color>
+    <color name="text_primary">#1F2328</color>
+    <color name="text_secondary">#5B636B</color>
+</resources>

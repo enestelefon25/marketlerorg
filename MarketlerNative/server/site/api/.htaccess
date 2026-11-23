@@ -1,0 +1,38 @@
+# MARKETLER.ORG mobil API (salt okunur). Yalnızca v1/index.php dışarıdan çalıştırılabilir.
+Options -Indexes
+RewriteEngine On
+
+# HTTPS zorunlu (site kökündeki kuralın aynısı; alt klasör .htaccess'i üst klasör kurallarını devralmadığı için tekrarlanır)
+RewriteCond %{HTTPS} !=on
+RewriteCond %{HTTP:X-Forwarded-Proto} !https
+RewriteCond %{HTTP:CF-Visitor} !"scheme":"https"
+RewriteRule ^ https://marketler.org%{REQUEST_URI} [L,R=301]
+
+# /api/v1/<kaynak>/<id> -> v1/index.php (iç yönlendirme döngüsünü engelle)
+RewriteCond %{ENV:REDIRECT_STATUS} ^$
+RewriteRule ^v1/ v1/index.php [L,QSA]
+
+# lib/ ve endpoints/ altındaki dosyalar doğrudan çağrılamaz
+<FilesMatch "\.php$">
+  <IfModule mod_authz_core.c>
+    Require all denied
+  </IfModule>
+  <IfModule !mod_authz_core.c>
+    Order deny,allow
+    Deny from all
+  </IfModule>
+</FilesMatch>
+<Files "index.php">
+  <IfModule mod_authz_core.c>
+    Require all granted
+  </IfModule>
+  <IfModule !mod_authz_core.c>
+    Order allow,deny
+    Allow from all
+  </IfModule>
+</Files>
+
+<IfModule mod_headers.c>
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set Referrer-Policy "no-referrer"
+</IfModule>

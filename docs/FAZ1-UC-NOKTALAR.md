@@ -573,3 +573,11 @@ Yalnızca sohbet yanıtı (ör. "merhaba" veya "bu hafta hangi kataloglar var?")
 | `/catalogs*`, `/markets*` | `kataloglar.php`, `index.php?m=`, `katalog.php` HTML'inden ayrıştırılan katalog ve ürün sırası |
 
 Bu testler yerelde, sentetik veriyle ve gönderilen PHP dosyalarının kendisi çalıştırılarak yapılacak. Siteye istek gönderilmeyecek.
+
+---
+
+## Uygulama notları (FAZ 1 kodlaması sırasında netleşen ayrıntılar)
+- **`/products/{id}` fiyat geçmişi:** Site `as_hist()` için tüm ürünleri okur. API yalnızca **aynı marketin** ürünlerini okur. `as_hkey` market kodunu içerdiği için sonuç birebir aynıdır (test C ve D ile doğrulandı). Önbellek kullanılmaz.
+- **`/compare/similar`:** Site bu bölümü önbelleğe almıyor. Web ile aynı sonuç için API de **önbelleksiz** hesaplar (önceki taslaktaki "10 dakika önbellek" kaldırıldı).
+- **`/assistant` → `links[]`:** `web_url` alanı eklendi (mutlak katalog adresi).
+- **`/catalogs/{slug}`:** Dosyası sunucuda bulunmayan yerel sayfalar da `pages_skipped` sayısına eklenir.

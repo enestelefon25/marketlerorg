@@ -103,6 +103,19 @@ function mk_seed($pdo, $scenario, $siteDirs) {
   $add('bim', 'soon', 'Yaylaköy Süt 1 L', 33.25, 'gida');
   $add('bim', 'pending', 'GİZLİ ONAY BEKLEYEN ÜRÜN 1 L', 1.50, 'gida');
   $add('a101', 'hidden', 'GİZLİ YÖNETİCİ ÜRÜNÜ 500 g', 2.50, 'gida');
+  /* SAYFALAMA / EŞİTLİK: üç markette aynı ad + aynı fiyat (ORDER BY c.cdate DESC,i.name ASC ve fiyat sıralamasında bilerek eşitlik) */
+  foreach (['Alfa', 'Beta', 'Gama', 'Delta', 'Epsilon', 'Zeta', 'Eta', 'Teta', 'İota', 'Kapa'] as $w)
+    foreach (['bim', 'a101', 'sok'] as $st) $add($st, 'live', "Eşitlik $w Paketi 1 kg", 49.90, 'diger');
+  /* TÜRKÇE KARAKTER ve AD YAZIMI farkları */
+  $add('bim', 'live', 'İnci Kaynak Su 5 L', 24.50, 'gida');
+  $add('sok', 'live', 'ISITEK Mini Fırın 20 L', 1899, 'elektronik');
+  $add('a101', 'live', 'Şekerci Toz Şeker 1 kg', 39.90, 'gida');
+  $add('a101', 'live', 'Çaydağı Siyah Çay 1 kg', 149, 'gida');
+  $add('sok', 'live', 'Öğün Süzme Yoğurt 1 kg', 89.90, 'gida');
+  $add('bim', 'past', 'Dağköy Peynir 500 g', 119, 'gida');        /* geçen hafta */
+  $add('bim', 'live', 'DAĞKÖY PEYNİR 500 G', 115, 'gida');        /* bu hafta büyük harfle yazılmış: hash FARKLI */
+  $add('bim', 'past', 'Kırmızı Mercimek 1 kg', 64.90, 'gida');    /* geçen hafta */
+  $add('bim', 'live', 'Kırmızı Mercimek 1 kg', 59.90, 'gida');    /* bu hafta aynı yazım: hash AYNI (yalnızca aday) */
   /* LIKE joker karakteri içeren ad */
   $add('a101', 'live', 'Yüzde%50 Kampanya_Sepeti 1 kg', 99, 'diger');
   /* ürün görselleri: onaylı + dosya var / kaldırılmış / onaylı ama dosya yok */

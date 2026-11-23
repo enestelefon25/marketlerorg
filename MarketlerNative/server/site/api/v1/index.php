@@ -7,6 +7,7 @@ require __DIR__.'/config.php';
 require __DIR__.'/lib/response.php';
 require __DIR__.'/lib/input.php';
 require __DIR__.'/lib/ratelimit.php';
+register_shutdown_function('mk_shutdown');
 
 /* HTTPS zorunlu (sitenin site_url() içindeki algılamayla aynı) */
 $https = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || (($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '') === 'https') || strpos($_SERVER['HTTP_CF_VISITOR'] ?? '', 'https') !== false;

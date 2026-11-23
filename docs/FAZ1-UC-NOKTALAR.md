@@ -8,12 +8,24 @@
 
 ## 0. Liste: 16 → 14 uç nokta
 
-İnceleme sonucunda iki uç nokta, başka bir uç noktanın zaten döndürdüğü veriyi tekrar ettiği için çıkarıldı:
+İnceleme sonucunda iki uç nokta çıkarıldı: döndürecekleri verinin **tamamı** başka uç noktalarda zaten bulunuyor. Aşağıdaki tablo, kaldırılan her alanın nereden alınacağını gösteriyor. Bu karşılıkların eksiksiz olduğunu otomatik testler doğruluyor (`tests/run.php`, C3 grubu).
 
-| Çıkarılan | Neden | Verisi artık nerede |
+**`GET /meta` (kaldırıldı)**
+
+| Alan | Karşılığı | Doğrulayan test |
 |---|---|---|
-| `GET /meta` | Tek gerçek bilgisi "veri en son ne zaman güncellendi". `min_app_version` ilk sürümde kullanılmayacaktı | `GET /home` → `data.data_updated_at`; her yanıtta zaten `meta.generated_at` var |
-| `GET /compare/{item_id}` | `GET /products/{id}` aynı grubu `data.compare` alanında döndürüyor | `GET /products/{id}` |
+| `api_version` | **Her** yanıtta `meta.api_version` (`"1.0"`) | C3: o ana kadar alınan bütün yanıtlar (başarılı ve hata) tek tek denetlenir |
+| `server_time` | **Her** yanıtta `meta.generated_at` (ISO 8601, +03:00) | C3 |
+| `data_updated_at` (son veri toplama) | `GET /home` → `data.data_updated_at` (`settings.src_run`) | C3 |
+| `ttl` (önbellek süreleri) | Her yanıttaki `Cache-Control: max-age=…` başlığı. Uygulama süreyi buradan okur | C3 |
+| `min_app_version` | İlk sürümde **gerek yok** (zorunlu güncelleme yok). Gerekirse sonraki bir sürümde `meta` alanına eklenir | – |
+
+**`GET /compare/{item_id}` (kaldırıldı)**
+
+| Alan | Karşılığı | Doğrulayan test |
+|---|---|---|
+| Ürünün kesin eşleşme grubu | `GET /products/{id}` → `data.compare` (aynı `CompareGroup` nesnesi) | C3: `/compare` listesindeki **bütün** grupların **bütün** kalemleri için `/products/{id}.compare` alanının grupla birebir aynı olduğu doğrulanır |
+| "Eşleşme yok" bilgisi | `data.compare = null` ve `data.compare_reason` metni | C3: grupta olmayan bütün aktif kalemler |
 
 Kalan 14 uç noktanın her biri ayrı bir ekranı veya işlevi karşılıyor ve birbirinin yerine geçmiyor:
 
@@ -256,7 +268,7 @@ Kalan 14 uç noktanın her biri ayrı bir ekranı veya işlevi karşılıyor ve 
 
 **İki modu var:**
 - **Liste modu:** Ara ekranı. `ara.php` ile birebir aynı davranır.
-- **Favori modu:** `fav` parametresi verilirse. Favori anahtarlarının güncel karşılığını döndürür.
+- **Favori modu:** `fav` parametresi verilirse. Kaydedilen favorilerin bugünkü durumunu döndürür.
 
 | Parametre | Site adı | Kural | Varsayılan |
 |---|---|---|---|
@@ -268,7 +280,7 @@ Kalan 14 uç noktanın her biri ayrı bir ekranı veya işlevi karşılıyor ve 
 | `date` | `d` | `YYYY-MM-DD`; verilirse `status` yerine geçer | – |
 | `sort` | `o` | `new` \| `asc` \| `desc` | `new` |
 | `page`, `limit` | `off` | limit 1–50 | 1, 24 |
-| `fav` | – | Favori modu: en çok 50 adet `storeId:hash` (virgülle). Hash `[0-9a-f]{32}`, storeId pozitif tam sayı | – |
+| `fav` | – | Favori modu: en çok 50 adet `itemId:storeId:hash` (virgülle). Kimlikler pozitif tam sayı, hash `[0-9a-f]{32}` | – |
 
 **Önbellek:** `public, max-age=300`
 
@@ -279,25 +291,35 @@ Liste modu:
   "meta": { "generated_at": "…", "page": 1, "limit": 24, "total": 135 } }
 ```
 
-Favori modu: `?fav=1:3f2a9c0e5b7d41a8c6e2f0b9d1a4c7e3,2:9b1c…`
+Favori modu: `?fav=40112:1:3f2a…c7e3`
+
 ```json
 { "success": true,
-  "data": {
-    "found": [ { "fav_key": "1:3f2a9c0e5b7d41a8c6e2f0b9d1a4c7e3", "item": { "…Item…": "" } } ],
-    "missing": [ "2:9b1c…" ]
-  },
-  "meta": { "generated_at": "…" } }
+  "data": [
+    { "fav_key": "40112:1:3f2a…c7e3",
+      "state": "suresi_doldu",
+      "message": "Bu ürünün kampanyası sona erdi. Başka bir katalogda aynı adla kayıtlı ürün var; aynı ürün olduğu doğrulanamadığı için favoriniz değiştirilmedi.",
+      "item": { "…Item (favorinin KENDİSİ, item_id ile)…": "" },
+      "name_changed": false,
+      "candidates": [ { "match": "ayni_market_ayni_ad", "confirmed": false, "item": { "…Item…": "" } } ] }
+  ],
+  "meta": { "generated_at": "…", "api_version": "1.0" } }
 ```
 
-**Favori modu kuralları** (kullanıcı kararı):
-- Her anahtar için market + hash eşleşen ve **yayındaki** kataloglarda bulunan kalemlerden **bir tane** seçilir. Öncelik: önce aktif, sonra yaklaşan, sonra süresi dolmuş; aynı durumdakiler arasında en yeni başlangıç tarihi.
-- `missing` içindeki anahtarlar için uygulama, favoriye eklerken sakladığı **adı** gösterir ve "Bu ürün şu an güncel kataloglarda bulunamadı" notunu ekler.
-- Benzer adla veya tahminle eşleştirme **yapılmaz**.
+**Favori kuralları** (kullanıcı kararları):
+- Uygulama her favori için şunları saklar: `store_id`, `item_id`, `hash` ve **favoriye eklendiği andaki ürün adı**. Veritabanında tablo veya kolon değişikliği yoktur; bilgiler telefonda tutulur.
+- Favorinin **kendisi** her zaman `item_id` ile bulunur. Kayıtlı market uyuşmazsa aynı kalem sayılmaz.
+- `state` alanı: `aktif`, `yaklasan`, `suresi_doldu` ya da `bulunamadi` (silinmiş, gizlenmiş veya onay bekleyen katalogda).
+- `name_changed`: Yönetici kalemin adını değiştirdiyse `true` olur; kalem yine aynı `item_id` ile bulunur.
+- **`items.hash` ve `as_hkey` kalıcı ürün kimliği DEĞİLDİR.** Hash yalnızca arama ipucudur: aynı market ve aynı hash'e sahip **başka** kalemler `candidates` listesinde döner (en çok 3; önce aktif olanlar). Bunlar `confirmed: false` olarak işaretlidir.
+- Aynı ürün olduğu kesin doğrulanamadığı için favori **otomatik değiştirilmez**. Uygulama adayı yalnızca öneri olarak gösterebilir; değiştirme kararı kullanıcınındır.
+- Kalem bulunamazsa uygulama **kaydettiği adı** ve `message` metnini gösterir. Eski favori silinmez.
+- Benzer adla veya tahminle eşleştirme yapılmaz. Örnek: "Dağköy Peynir 500 g" ile "DAĞKÖY PEYNİR 500 G" farklı hash alır ve aday olarak bile gösterilmez (Türkçe "I" sorunu, bkz. test raporu).
 
 **PHP fonksiyonları:**
-- **(kopya)** `ara.php` WHERE / ORDER kurgusu, değiştirilmeden: `PSEL`, `CEND`, `pnum()`, `today()`
+- **(kopya)** `ara.php` WHERE / ORDER kurgusu: `PSEL`, `CEND`, `pnum()`, `today()`. Sıralamada onaylanan düzeltme dahil: eşitlikte son ölçüt `i.id ASC`; site ve API aynı.
 - Toplam sayım sorgusu ara.php ile aynı
-- Favori modu: `PSEL.' AND s.id=? AND i.hash=?'` + `cstatus()`
+- Favori modu: `PSEL.' AND i.id IN (…)'` (favorinin kendisi), `PSEL.' AND (c.store_id=? AND i.hash=?) …'` (adaylar), `cstatus()`
 
 ---
 
@@ -581,3 +603,5 @@ Bu testler yerelde, sentetik veriyle ve gönderilen PHP dosyalarının kendisi �
 - **`/compare/similar`:** Site bu bölümü önbelleğe almıyor. Web ile aynı sonuç için API de **önbelleksiz** hesaplar (önceki taslaktaki "10 dakika önbellek" kaldırıldı).
 - **`/assistant` → `links[]`:** `web_url` alanı eklendi (mutlak katalog adresi).
 - **`/catalogs/{slug}`:** Dosyası sunucuda bulunmayan yerel sayfalar da `pages_skipped` sayısına eklenir.
+- **Hız sınırı ve Cloudflare:** Sınır, gerçek ziyaretçi IP'sine göre uygulanır. `CF-Connecting-IP` başlığı **yalnızca** isteği doğrudan gönderen adres (`REMOTE_ADDR`) `config.php` içindeki Cloudflare IP aralıklarındaysa **ve** başlık geçerli bir IP adresiyse kullanılır. Aksi halde başlık yok sayılır ve bağlantı adresi esas alınır. Sunucuda `mod_remoteip` zaten etkinse `REMOTE_ADDR` ziyaretçi adresi olur, bu kural da doğru çalışır. Cloudflare IP listesi canlıya almadan önce resmi listeyle karşılaştırılmalıdır.
+- **Hata durumlarında JSON:** Ölümcül PHP hatası veya site kodunun düz metin basıp çıkması (ör. `inc.php` veritabanı bağlantı hatası) gibi durumlarda da yanıt standart JSON hata zarfında döner (`500 INTERNAL_ERROR` / `503 SERVICE_UNAVAILABLE`).

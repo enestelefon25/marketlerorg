@@ -4,7 +4,8 @@
      --site : sitenin DEĞİŞTİRİLMEMİŞ kopyası (canlı sunucu değil). Betik bu klasöre YAZMAZ; geçici klasöre kopyalar.
    Gereken: PHP CLI (curl, gd, pdo_mysql, mbstring), yerel MariaDB/MySQL (varsayılan: localhost, root, parolasız; ortam değişkenleri:
             MK_TEST_DB_HOST, MK_TEST_DB_USER, MK_TEST_DB_PASS). Test veritabanı adı: mk_api_test (her çalıştırmada SİLİNİP yeniden kurulur).
-   Aşamalar: A kurulum · B ortak-veri.php bayt karşılaştırma · C işlev · D web↔API eşdeğerlik · E güvenlik · F salt okunurluk · G statik · H hash/hkey
+   Aşamalar: A kurulum · B ortak-veri.php bayt karşılaştırma · B2 ara.php eşitlik düzeltmesi ve sayfalama · C işlev (C3: kaldırılan uç noktaların karşılığı)
+             · D web↔API eşdeğerlik · T Türkçe karakter · E güvenlik (Cloudflare IP, hata JSON'u) · F salt okunurluk (SELECT-yetkili kullanıcı, sağlama toplamı) · G statik · H hash/hkey
    Canlı sisteme hiçbir bağlantı yapılmaz. */
 
 error_reporting(E_ALL); ini_set('display_errors', '1'); date_default_timezone_set('Europe/Istanbul');
@@ -20,7 +21,8 @@ $R = []; $CUR = '';
 function grp($g) { global $CUR; $CUR = $g; echo "\n== $g\n"; }
 function check($name, $ok, $detail = '') { global $R, $CUR; $R[] = [$CUR, $name, (bool)$ok, $detail]; echo ($ok ? '  ✓ ' : '  ✗ ').$name.($ok || $detail === '' ? '' : "  → $detail")."\n"; return (bool)$ok; }
 function sh($c) { exec($c.' 2>&1', $o, $rc); return [$rc, implode("\n", $o)]; }
-$ALLBODY = '';
+$ALLBODY = ''; $APIRESP = [];
+$INST = ['old' => 8081, 'new' => 8082, 'newrl' => 8083, 'newcf' => 8084, 'newro' => 8085, 'hata1' => 8086, 'hata2' => 8087, 'hata3' => 8088];
 function http($port, $method, $path, $body = null, $hdr = []) {
   global $ALLBODY; $c = curl_init("http://127.0.0.1:$port$path");
   $h = array_merge(['Host: marketler.org'], $hdr); $rh = [];
@@ -28,17 +30,19 @@ function http($port, $method, $path, $body = null, $hdr = []) {
     CURLOPT_HEADERFUNCTION => function ($ch, $l) use (&$rh) { $p = strpos($l, ':'); if ($p) $rh[strtolower(trim(substr($l, 0, $p)))] = trim(substr($l, $p + 1)); return strlen($l); }]);
   if ($body !== null) curl_setopt($c, CURLOPT_POSTFIELDS, $body);
   $b = curl_exec($c); $st = curl_getinfo($c, CURLINFO_HTTP_CODE); curl_close($c);
-  if (strpos($path, '/api/v1/') === 0) $ALLBODY .= "\n".$b;   /* sızıntı taraması yalnızca API yanıtları */
+  if (strpos($path, '/api/v1/') === 0) { $ALLBODY .= "\n".$b; $GLOBALS['APIRESP'][] = [$port, $method, $path, $st, $rh, (string)$b]; }   /* sızıntı taraması ve zarf denetimi yalnızca API yanıtları */
   return [$st, $rh, (string)$b];
 }
 function api($method, $path, $body = null, $hdr = []) { list($s, $h, $b) = http(8082, $method, '/api/v1/'.$path, $body, $hdr); return [$s, json_decode($b, true), $h, $b]; }
 function web($port, $path) { return http($port, 'GET', $path)[2]; }
 function pdo() { global $DBH, $DBU, $DBP, $DB; static $p; if (!$p) { $p = new PDO("mysql:host=$DBH;dbname=$DB;charset=utf8mb4", $DBU, $DBP, [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]); } return $p; }
 function clear_caches() {
-  global $WORK; foreach (['old', 'new', 'newrl'] as $d) @unlink("$WORK/$d/img/cmpcache.json");
+  global $WORK, $INST; foreach (array_keys($INST) as $d) @unlink("$WORK/$d/img/cmpcache.json");
   foreach (array_merge(glob(sys_get_temp_dir().'/mk_feat_v2_*') ?: [], glob(sys_get_temp_dir().'/mk_oneri_*') ?: [], glob(sys_get_temp_dir().'/mk_api_rl/*') ?: []) as $f) @unlink($f);
 }
-function seed($sc) { global $WORK; clear_caches(); return mk_seed(pdo(), $sc, ["$WORK/old", "$WORK/new", "$WORK/newrl"]); }
+function seed($sc) { global $WORK, $INST; clear_caches(); return mk_seed(pdo(), $sc, array_map(function ($d) use ($WORK) { return "$WORK/$d"; }, array_keys($INST))); }
+function apiat($port, $method, $path, $body = null, $hdr = []) { list($s, $h, $b) = http($port, $method, '/api/v1/'.$path, $body, $hdr); return [$s, json_decode($b, true), $h, $b]; }
+function ids($items) { return array_column($items, 'id'); }
 function dom($html) { $d = new DOMDocument(); @$d->loadHTML('<?xml encoding="utf-8"?>'.$html); return new DOMXPath($d); }
 function txt($n) { return trim(preg_replace('/\s+/u', ' ', $n->textContent)); }
 /* sitedeki pcard() kartları: [ad, fiyat metni] */
@@ -50,28 +54,39 @@ function tie_norm($h) {   /* ardışık, aynı <h3> adlı ürün kartlarını ke
     sort($run); return implode('', array_merge($o, $run)); }, $h);
 }
 function msort($a) { sort($a); return $a; }
+function tie_cards($c) { $o = []; $run = []; $last = null; foreach ($c as $x) { if ($x[0] !== $last && $run) { sort($run); $o = array_merge($o, $run); $run = []; } $run[] = $x; $last = $x[0]; } sort($run); return array_merge($o, $run); }
 function api_cards($items) { return array_map(function ($i) { return [$i['name'], $i['price_text']]; }, $items); }
 
 /* ---------------- A. kurulum ---------------- */
 grp('A. Kurulum');
 sh('rm -rf '.escapeshellarg($WORK)); mkdir($WORK, 0777, true);
-foreach (['old', 'new', 'newrl'] as $d) { sh('cp -a '.escapeshellarg($SRC).' '.escapeshellarg("$WORK/$d")); @unlink("$WORK/$d/img/cmpcache.json"); }
-foreach (['new', 'newrl'] as $d) sh('cp -a '.escapeshellarg($SITE_NEW_FILES).'/. '.escapeshellarg("$WORK/$d/"));
+foreach (array_keys($INST) as $d) { sh('cp -a '.escapeshellarg($SRC).' '.escapeshellarg("$WORK/$d")); @unlink("$WORK/$d/img/cmpcache.json"); }
+foreach (array_keys($INST) as $d) if ($d !== 'old') sh('cp -a '.escapeshellarg($SITE_NEW_FILES).'/. '.escapeshellarg("$WORK/$d/"));
 $cfg = "<?php\ndefine('DB_HOST','".addslashes($DBH)."');\ndefine('DB_NAME','$DB');\ndefine('DB_USER','".addslashes($DBU)."');\ndefine('DB_PASS','".addslashes($DBP)."');\n";
-foreach (['old', 'new', 'newrl'] as $d) file_put_contents("$WORK/$d/config.php", $cfg);
+foreach (array_keys($INST) as $d) file_put_contents("$WORK/$d/config.php", $cfg);
+/* SELECT dışında hiçbir yetkisi olmayan kullanıcıyla çalışan örnek (bağımsız salt okunurluk doğrulaması) */
+file_put_contents("$WORK/newro/config.php", "<?php\ndefine('DB_HOST','".addslashes($DBH)."');\ndefine('DB_NAME','$DB');\ndefine('DB_USER','mk_test_ro');\ndefine('DB_PASS','yerel-test-ro');\n");
 $ac = file_get_contents("$WORK/new/api/v1/config.php");
-file_put_contents("$WORK/new/api/v1/config.php", str_replace(["MK_API_ALLOW_HTTP = false", "'std' => 60, 'heavy' => 20, 'suggest' => 120"], ["MK_API_ALLOW_HTTP = true", "'std' => 100000, 'heavy' => 100000, 'suggest' => 100000"], $ac));
-file_put_contents("$WORK/newrl/api/v1/config.php", str_replace("'std' => 60", "'std' => 5", $ac));   /* HTTP kapalı, düşük sınır */
+$open = str_replace(["MK_API_ALLOW_HTTP = false", "'std' => 60, 'heavy' => 20, 'suggest' => 120"], ["MK_API_ALLOW_HTTP = true", "'std' => 100000, 'heavy' => 100000, 'suggest' => 100000"], $ac);
+foreach (['new', 'newro', 'hata1', 'hata2', 'hata3'] as $d) file_put_contents("$WORK/$d/api/v1/config.php", $open);
+file_put_contents("$WORK/newrl/api/v1/config.php", str_replace("'std' => 60", "'std' => 5", $ac));   /* HTTP kapalı, düşük sınır, varsayılan Cloudflare listesi (127.0.0.1 GÜVENİLİR DEĞİL) */
+file_put_contents("$WORK/newcf/api/v1/config.php", str_replace(["MK_API_ALLOW_HTTP = false", "'std' => 60", "const MK_API_TRUSTED_PROXIES = ["], ["MK_API_ALLOW_HTTP = true", "'std' => 5", "const MK_API_TRUSTED_PROXIES = ['127.0.0.1/32', "], $ac));   /* yerel adres Cloudflare'miş gibi güvenilir */
+/* HATA ENJEKSİYONU (yalnızca geçici test kopyalarında): */
+file_put_contents("$WORK/hata1/ortak-veri.php", "<?php\ntanimsiz_fonksiyon_olumcul_hata();\n");   /* ölümcül PHP hatası */
+file_put_contents("$WORK/hata2/ortak-veri.php", "<?php\nhttp_response_code(503); header('Content-Type: text/plain; charset=utf-8'); exit('Site kısa süreliğine bakımda. Lütfen birkaç dakika sonra tekrar deneyin.');\n");   /* inc.php db() hatasının birebir davranışı */
+file_put_contents("$WORK/hata3/config.php", "<?php\ndefine('DB_HOST','".addslashes($DBH)."');\ndefine('DB_NAME','olmayan_veritabani_xyz');\ndefine('DB_USER','".addslashes($DBU)."');\ndefine('DB_PASS','".addslashes($DBP)."');\n");   /* veritabanına ulaşılamıyor */
 $m = "mariadb -h".escapeshellarg($DBH)." -u".escapeshellarg($DBU).($DBP !== '' ? ' -p'.escapeshellarg($DBP) : '');
 list($rc, $o) = sh("$m -e 'DROP DATABASE IF EXISTS $DB; CREATE DATABASE $DB CHARACTER SET utf8mb4'"); check('test veritabanı oluşturuldu', $rc === 0, $o);
 list($rc, $o) = sh("$m $DB < ".escapeshellarg(__DIR__.'/fixtures/schema.sql')); check('kullanıcının şema dökümü yüklendi (yalnızca yapı)', $rc === 0, $o);
+list($rc, $o) = sh("$m -e \"CREATE USER IF NOT EXISTS 'mk_test_ro'@'localhost' IDENTIFIED BY 'yerel-test-ro'; REVOKE ALL PRIVILEGES, GRANT OPTION FROM 'mk_test_ro'@'localhost'; GRANT SELECT ON $DB.* TO 'mk_test_ro'@'localhost'; SHOW GRANTS FOR 'mk_test_ro'@'localhost';\"");
+check('yalnızca SELECT yetkili test kullanıcısı (mk_test_ro) hazır', $rc === 0 && strpos($o, 'GRANT SELECT ON') !== false && !preg_match('/INSERT|UPDATE|DELETE|ALL PRIVILEGES ON `?'.$DB.'/', $o), $o);
 $router = __DIR__.'/router.php'; $SRV = [];
-foreach (['old' => 8081, 'new' => 8082, 'newrl' => 8083] as $d => $port) {
+foreach ($INST as $d => $port) {
   $SRV[$d] = proc_open(['php', '-S', "127.0.0.1:$port", '-t', "$WORK/$d", $router], [1 => ['file', "$WORK/$d.out.log", 'w'], 2 => ['file', "$WORK/$d.err.log", 'w']], $pp, "$WORK/$d");
 }
 register_shutdown_function(function () use (&$SRV) { foreach ($SRV as $p) { if (is_resource($p)) proc_terminate($p); } });
-for ($i = 0; $i < 50; $i++) { $f = @fsockopen('127.0.0.1', 8083); if ($f) { fclose($f); break; } usleep(100000); }
-check('test sunucuları başladı (eski site :8081, yeni site + API :8082, hız sınırı/HTTPS testi :8083)', $i < 50);
+for ($i = 0; $i < 50; $i++) { $f = @fsockopen('127.0.0.1', 8088); if ($f) { fclose($f); break; } usleep(100000); }
+check('test sunucuları başladı (eski site, yeni site+API, hız sınırı, Cloudflare, SELECT-yetkili, 3 hata enjeksiyonu)', $i < 50);
 check('PHP sürümü (yerel test)', true, PHP_VERSION);
 echo '    PHP '.PHP_VERSION.' · '.pdo_version()."\n";
 function pdo_version() { try { return pdo()->query('SELECT VERSION()')->fetchColumn(); } catch (Throwable $e) { return '?'; } }
@@ -86,7 +101,11 @@ foreach (['0' => '0 indirimli', '2' => '1-3 indirimli (2)', '5' => '4+ indirimli
   if ($S) { $paths[] = '/katalog/'.$S['catalogs']['bim']['live'][1]; $paths[] = '/katalog/'.$S['catalogs']['a101']['past'][1]; }
   $diff = []; $nondet = [];
   foreach ($paths as $p) {
-    list($so, , $bo) = http(8081, 'GET', $p); list($sn, , $bn) = http(8082, 'GET', $p);
+    list($so, , $bo) = http(8081, 'GET', $p);
+    /* cmp_groups() (inc.php, DEĞİŞTİRİLMEDİ) eşit kayıtlarda belirsiz sıra üretir ve sonucu her site klasörünün kendi img/cmpcache.json dosyasına yazar.
+       Değişikliğin etkisini yalıtmak için yeni site, eski sitenin ürettiği karşılaştırma önbelleğini kullanır (veri ve anahtar aynı). */
+    if (is_file("$WORK/old/img/cmpcache.json")) copy("$WORK/old/img/cmpcache.json", "$WORK/new/img/cmpcache.json");
+    list($sn, , $bn) = http(8082, 'GET', $p);
     if ($so === $sn && $bo === $bn) continue;
     /* Bayt farkı varsa: ardışık ve ADI BİREBİR AYNI ürün kartları (<article class="pc">) kendi aralarında sıralanıp yeniden karşılaştırılır.
        Bu durum sitedeki ORDER BY eşitliğinden (ör. ara.php: c.cdate DESC,i.name ASC) kaynaklanır; başka her fark BAŞARISIZDIR. */
@@ -94,7 +113,7 @@ foreach (['0' => '0 indirimli', '2' => '1-3 indirimli (2)', '5' => '4+ indirimli
     $diff[] = "$p ($so/$sn, ".strlen($bo).'/'.strlen($bn).' bayt)';
   }
   $ok = check("senaryo '$lbl': ".count($paths).' sayfa eski ve yeni sitede aynı (ana sayfa iki kez: önbelleksiz + önbellekli)', !$diff, implode('; ', $diff)); if (!$ok) $failB++;
-  foreach ($nondet as $p => $n) { check("  bilgi: $p yalnızca aynı adlı ürün kartlarının kendi aralarındaki sırası farklı (sitedeki ORDER BY eşitliği; içerik aynı)", true); $NONDET[$p] = 1; }
+  foreach ($nondet as $p => $n) { check("  bilgi: $p içerik aynı; yalnızca aynı adlı kartların sırası farklı (onaylanan ara.php eşitlik düzeltmesi + eski sitenin belirsiz sırası)", strpos($p, '/ara.php') === 0); $NONDET[$p] = 1; }
   $exact = array_diff(array_unique($paths), array_keys($nondet));
   check("  '$lbl': ".count($exact).' sayfa BAYT BAYT aynı (ana sayfa dahil: '.(in_array('/', $exact, true) ? 'evet' : 'HAYIR').')', in_array('/', $exact, true) || $sc === 'x');
   $home = web(8082, '/');
@@ -106,6 +125,55 @@ $errs = trim(@file_get_contents("$WORK/new.err.log").@file_get_contents("$WORK/o
 $errs = preg_replace('/^.*(Accepted|Closing|\[200\]|\[404\]|\[30\d\]|\[4\d\d\]|\[50\d\]|Development Server|started).*$/m', '', $errs);
 check('eski ve yeni sitede PHP hata/uyarısı yok (sunucu günlüğü)', !preg_match('/(Fatal|Warning|Notice|Deprecated|Parse error)/', $errs), substr($errs, 0, 400));
 check('SONUÇ: ortak-veri.php değişikliği kabul koşulu (tüm senaryolar aynı)', $failB === 0);
+seed('2'); $v = []; for ($k = 0; $k < 8; $k++) { @unlink("$WORK/old/img/cmpcache.json"); $v[md5(web(8081, '/fiyat-karsilastirma.php'))] = 1; }
+check('  bilgi (mevcut site): karşılaştırma önbelleği her seferinde silinirse orijinal fiyat-karsilastirma.php 8 denemede '.count($v).' farklı çıktı verir (cmp_groups eşitlik sırası; inc.php değiştirilmedi)', true);
+
+/* ---------------- B2. ara.php eşitlik düzeltmesi ---------------- */
+grp('B2. ara.php: eşitlikte i.id (tekrarlanabilirlik, içerik korunumu, sayfalama)');
+$S = seed('2');
+$ARAQ = ['', 'q=s%C3%BCt', 'q=s%C3%BCt&o=asc', 'q=s%C3%BCt&o=desc', 'o=asc', 'o=desc', 'm=bim', 'm=sok&o=asc', 'k=diger', 'k=gida&st=hepsi', 'st=yaklasan', 'st=dolmus', 'st=hepsi', 'min=40&max=60', 'q=e%C5%9Fitlik', 'q=e%C5%9Fitlik&o=desc', 'q=%25', 'q=_'];
+$oldVar = 0; $newVar = 0; $contentOk = true; $badC = []; $oldPagBug = 0; $newPagBug = 0;
+foreach ($ARAQ as $qs) {
+  $o = []; $n = [];
+  for ($k = 0; $k < 6; $k++) { $o[md5(web(8081, '/ara.php?ajax=1&'.$qs))] = 1; $n[md5(web(8082, '/ara.php?ajax=1&'.$qs))] = 1; }
+  if (count($o) > 1) $oldVar++; if (count($n) > 1) $newVar++;
+  $wo = json_decode(web(8081, '/ara.php?ajax=1&'.$qs), true); $wn = json_decode(web(8082, '/ara.php?ajax=1&'.$qs), true);
+  /* toplam (COUNT sorgusu sıralamadan bağımsız) her sorguda aynı; tek sayfaya sığan sonuçlarda ürün kümesi aynı */
+  if ($wo['total'] !== $wn['total'] || ($wn['total'] <= 24 && msort(web_cards($wo['html'])) !== msort(web_cards($wn['html'])))) { $contentOk = false; $badC[] = $qs; }
+  /* sayfalarla gezinme: kart kimliği = ad + fiyat + market rengi + katalog bağlantısı */
+  foreach ([8081 => 'o', 8082 => 'n'] as $port => $who) {
+    $all = []; for ($off = 0; $off < $wn['total']; $off += 24) { preg_match_all('~<article class="pc"><div class="pt[^"]*" style="--c:([^"]+)">.*?<h3>([^<]+)</h3>.*?<b>([^<]+)</b>.*?href="([^"]+)"~s', json_decode(web($port, '/ara.php?ajax=1&'.$qs.'&off='.$off), true)['html'], $mm, PREG_SET_ORDER); foreach ($mm as $x) $all[] = $x[1].'|'.$x[2].'|'.$x[3].'|'.$x[4]; }
+    $bug = count($all) !== $wn['total'] || count(array_unique($all)) !== count($all);
+    if ($who === 'o' && $bug) $oldPagBug++; if ($who === 'n' && $bug) { $newPagBug++; $badC[] = "$qs (sayfalama)"; }
+  }
+}
+check('düzeltme sonrası '.count($ARAQ).' sorgunun her biri 6 tekrarda bayt bayt aynı', $newVar === 0, "$newVar sorgu değişken");
+check("  karşılaştırma: düzeltme öncesi (orijinal ara.php) $oldVar sorgu tekrarlarda farklı çıktı verdi", true);
+check('içerik korunumu: tüm sorgularda toplam aynı; tek sayfalık sonuçlarda ürün kümesi aynı', $contentOk, implode(', ', $badC));
+check("web sayfalaması (off=0,24,…): düzeltme sonrası $newPagBug sorguda tekrar/kayıp (0 beklenir)", $newPagBug === 0, implode(', ', $badC));
+check("  karşılaştırma: düzeltme öncesi $oldPagBug sorguda sayfalar arası tekrar/kayıp görüldü (giderilen hata)", true);
+$d = []; exec('diff '.escapeshellarg("$SRC/ara.php").' '.escapeshellarg("$SITE_NEW_FILES/ara.php"), $d);
+check('ara.php farkı yalnızca ORDER satırı (filtreler, WHERE ve sayfalama kodu aynı)', count($d) === 4 && $d[0] === '15c15' && strpos($d[3], ".',i.id ASC'") !== false && str_replace(['(', ").',i.id ASC';"], ['', ';'], preg_replace('~\s*/\*.*\*/$~', '', substr($d[3], 2))) === substr($d[1], 2), implode("\n", $d));
+/* sayfalama (API, ara.php ile aynı sorgu): küçük sayfalarla gezildiğinde tekrar/kayıp yok, sıra tek sayfadaki ile aynı */
+$pagOk = true; $badP = [];
+foreach (['', 'status=hepsi', 'sort=asc', 'sort=desc', 'q=e%C5%9Fitlik', 'q=e%C5%9Fitlik&sort=asc', 'category=diger&sort=desc', 'market=a101'] as $qs) {
+  list(, $all) = api('GET', 'products?limit=50&'.$qs); $tot = $all['meta']['total']; $full = [];
+  for ($pg = 1; ($pg - 1) * 50 < $tot; $pg++) { list(, $x) = api('GET', "products?limit=50&page=$pg&$qs"); $full = array_merge($full, ids($x['data'])); }
+  foreach ([3, 5, 7] as $lim) { $got = []; for ($pg = 1; ($pg - 1) * $lim < $tot; $pg++) { list(, $x) = api('GET', "products?limit=$lim&page=$pg&$qs"); $got = array_merge($got, ids($x['data'])); }
+    if ($got !== $full || count(array_unique($got)) !== $tot || count($got) !== $tot) { $pagOk = false; $badP[] = "$qs (limit $lim)"; } }
+}
+check('sayfalama: limit 3/5/7 ile gezilen sayfalar = tek liste; tekrar yok, kayıp yok (8 filtre/sıralama)', $pagOk, implode(', ', $badP));
+/* sıralama kuralı korunumu: mevcut ölçütler aynı, eşitlikte i.id artan */
+$ordOk = true;
+foreach (['' => 'new', 'sort=asc' => 'asc', 'sort=desc' => 'desc'] as $qs => $mode) {
+  list(, $x) = api('GET', 'products?limit=50&status=hepsi&'.$qs); $it = $x['data'];
+  for ($k = 1; $k < count($it); $k++) { $a = $it[$k - 1]; $b = $it[$k];
+    $ka = $mode === 'new' ? [-strtotime($a['catalog']['start_date']), $a['name']] : [$mode === 'asc' ? (float)$a['price'] : -(float)$a['price']];
+    $kb = $mode === 'new' ? [-strtotime($b['catalog']['start_date']), $b['name']] : [$mode === 'asc' ? (float)$b['price'] : -(float)$b['price']];
+    $c = $mode === 'new' ? ($ka[0] <=> $kb[0] ?: strcmp(mb_strtolower($ka[1]), mb_strtolower($kb[1])) <=> 0) : ($ka <=> $kb);
+    if ($c > 0 && $mode !== 'new') $ordOk = false; if ($c === 0 && $a['id'] > $b['id']) $ordOk = false; if ($mode === 'new' && $ka[0] > $kb[0]) $ordOk = false; }
+}
+check('sıralama kuralları korunuyor (tarih↓ad↑ / fiyat↑ / fiyat↓) ve eşitlikte kalem no artan', $ordOk);
 
 /* ---------------- C. işlev testleri ---------------- */
 grp('C. Uç nokta işlev testleri (senaryo: 2 indirimli)');
@@ -140,11 +208,20 @@ $ovac = null; foreach ($j['data'] as $it) if (strpos($it['name'], 'Ovaçiftlik')
 check('old_price < price → eski fiyat/indirim gösterilmez', $ovac && $ovac['old_price'] === null && $ovac['discount_pct'] === null);
 check('fiyat metin olarak (ör. "27.75") ve sitedeki biçimle', $ovac && $ovac['price'] === '27.75' && $ovac['price_text'] === '27,75 TL');
 check('birim fiyat (gıda, 1 L) → TL/L', $ovac && $ovac['unit_price']['unit'] === 'L' && $ovac['unit_price']['value'] === '27.75');
-$yb = $I['bim|live|Yaylaköy Süt 1 L']; $fk = '1:'.md5(mb_strtolower('Yaylaköy Süt 1 L'));
-list($s, $j) = api('GET', 'products?fav='.$fk.',2:'.str_repeat('a', 32));
-check('favori: market+hash → aktif katalogdaki kalem (geçmiş/yaklaşan değil)', $s === 200 && ($j['data']['found'][0]['item']['id'] ?? 0) === $yb, json_encode($j['data']['found'][0]['item']['catalog'] ?? null, JSON_UNESCAPED_UNICODE));
-check('favori: bulunamayan anahtar missing listesinde', ($j['data']['missing'] ?? []) === ['2:'.str_repeat('a', 32)]);
-list($s, $j) = api('GET', 'products?fav=1:'.md5(mb_strtolower('GİZLİ ONAY BEKLEYEN ÜRÜN 1 L'))); check('favori: gizli katalogdaki ürün bulunmaz', $s === 200 && count($j['data']['found']) === 0);
+/* Favori: itemId:storeId:hash. Favorinin kendisi item_id ile; hash yalnızca ADAY ipucu, otomatik eşleştirme yok. */
+$fav = function ($key, $name) use ($I) { list($st, $w) = explode('|', $key); return $I[$key].':'.['bim' => 1, 'a101' => 2, 'sok' => 3][$st].':'.md5(mb_strtolower($name)); };
+$kPast = $fav('bim|past|Yaylaköy Süt 1 L', 'Yaylaköy Süt 1 L'); $kLive = $fav('bim|live|Yaylaköy Süt 1 L', 'Yaylaköy Süt 1 L');
+list($s, $j) = api('GET', "products?fav=$kPast,$kLive,999999:2:".str_repeat('a', 32)); $F = $j['data'] ?? [];
+check('favori (geçen haftaki kalem): kendisi döner, durum "suresi_doldu", favori değiştirilmez', $s === 200 && $F[0]['state'] === 'suresi_doldu' && $F[0]['item']['id'] === $I['bim|past|Yaylaköy Süt 1 L']);
+check('  aynı market+hash taşıyan kalemler yalnızca ADAY (confirmed=false), otomatik eşleşme yok', count($F[0]['candidates']) === 2 && !array_filter($F[0]['candidates'], function ($c) { return $c['confirmed'] !== false || $c['match'] !== 'ayni_market_ayni_ad'; }) && $F[0]['candidates'][0]['item']['catalog']['status'] === 'live', json_encode(array_map(function ($c) { return $c['item']['catalog']['status']; }, $F[0]['candidates'] ?? [])));
+check('  kullanıcıya açık mesaj: süre doldu + aday doğrulanmadı', strpos((string)$F[0]['message'], 'sona erdi') !== false && strpos((string)$F[0]['message'], 'doğrulanamadığı için favoriniz değiştirilmedi') !== false, (string)$F[0]['message']);
+check('favori (aktif kalem): durum "aktif", mesaj yok', $F[1]['state'] === 'aktif' && $F[1]['message'] === null && $F[1]['name_changed'] === false);
+check('favori (silinmiş/olmayan kalem): durum "bulunamadi", item=null, açık mesaj', $F[2]['state'] === 'bulunamadi' && $F[2]['item'] === null && strpos($F[2]['message'], 'bulunamadı') !== false);
+list($s, $j) = api('GET', 'products?fav='.$I['bim|pending|GİZLİ ONAY BEKLEYEN ÜRÜN 1 L'].':1:'.md5(mb_strtolower('GİZLİ ONAY BEKLEYEN ÜRÜN 1 L'))); check('favori: gizli/onay bekleyen katalogdaki kalem gösterilmez (bulunamadi)', $s === 200 && $j['data'][0]['state'] === 'bulunamadi' && $j['data'][0]['item'] === null);
+list($s, $j) = api('GET', 'products?fav='.$I['bim|live|Yaylaköy Süt 1 L'].':2:'.md5(mb_strtolower('Yaylaköy Süt 1 L'))); check('favori: kayıtlı market uyuşmazsa aynı kalem sayılmaz', $s === 200 && $j['data'][0]['state'] === 'bulunamadi');
+$hid = $I['bim|live|Kavruk Türk Kahvesi 100 g']; pdo()->prepare("UPDATE items SET name='Kavruk Türk Kahvesi 100 g Yeni Ad', hash=? WHERE id=?")->execute([md5(mb_strtolower('Kavruk Türk Kahvesi 100 g Yeni Ad')), $hid]); clear_caches();
+list($s, $j) = api('GET', 'products?fav='.$hid.':1:'.md5(mb_strtolower('Kavruk Türk Kahvesi 100 g'))); check('favori: yönetici adı değiştirdiyse kalem yine bulunur, name_changed=true', $s === 200 && $j['data'][0]['state'] === 'aktif' && $j['data'][0]['name_changed'] === true);
+pdo()->prepare("UPDATE items SET name='Kavruk Türk Kahvesi 100 g', hash=? WHERE id=?")->execute([md5(mb_strtolower('Kavruk Türk Kahvesi 100 g')), $hid]); clear_caches();
 list($s, $j) = api('GET', 'products/'.$I['bim|live|Kavruk Türk Kahvesi 100 g']); $hs = $j['data']['history'] ?? null;
 check('/products/{id} fiyat geçmişi: önceki 59,90 TL, %-8', $s === 200 && $hs && $hs['prev_price'] === '59.90' && $hs['change_pct'] === -8, json_encode($hs, JSON_UNESCAPED_UNICODE));
 check('  geçmiş cümlesi sitedeki biçimde', $hs && strpos($hs['text'], 'Önceki katalogdan (') === 0 && strpos($hs['text'], '%8 daha ucuz') !== false, $hs['text'] ?? '');
@@ -182,6 +259,22 @@ list($s, $j) = api('GET', 'compare'); check('/compare boş', $s === 200 && $j['d
 list($s, $j) = api('GET', 'search?q=s%C3%BCt'); check('/search boş: match none', $s === 200 && $j['data']['match'] === 'none');
 list($s, $j) = api('POST', 'assistant', json_encode(['message' => 'süt'])); check('/assistant boş: ürün yok, hata yok', $s === 200 && $j['data']['items'] === []);
 
+/* ---------------- C3. kaldırılan uç noktaların (/meta, /compare/{id}) verisi başka yerden eksiksiz alınabiliyor mu ---------------- */
+grp('C3. Kaldırılan uç noktaların karşılığı');
+$S = seed('2');
+list($s) = api('GET', 'meta'); check('/meta yok (404)', $s === 404); list($s) = api('GET', 'compare/'.reset($S['items'])); check('/compare/{id} yok (404)', $s === 404);
+list(, $h) = api('GET', 'home'); check('/meta.data_updated_at → /home data.data_updated_at', $h['data']['data_updated_at'] === '2026-11-23 06:00:12');
+$okv = true; foreach ($APIRESP as $r) { $jj = json_decode($r[5], true); if ($r[3] !== 304 && (!is_array($jj) || ($jj['meta']['api_version'] ?? null) !== '1.0' || empty($jj['meta']['generated_at']))) $okv = false; }
+check('/meta.api_version ve server_time → HER yanıtta meta.api_version ve meta.generated_at (şu ana kadarki '.count($APIRESP).' yanıt)', $okv);
+list(, $h, $hd) = api('GET', 'categories'); check('/meta.ttl → her yanıtta Cache-Control max-age', strpos($hd['cache-control'] ?? '', 'max-age=3600') !== false);
+/* /compare/{id} yerine /products/{id}.compare: TÜM gruplardaki TÜM kalemler için birebir aynı grup */
+$all = []; for ($pg = 1; ; $pg++) { list(, $x) = api('GET', "compare?limit=50&page=$pg"); $all = array_merge($all, $x['data']); if ($pg * 50 >= $x['meta']['total']) break; }
+$miss = []; $inGroup = [];
+foreach ($all as $g) foreach ($g['rows'] as $r) { $inGroup[$r['id']] = 1; list(, $x) = api('GET', 'products/'.$r['id']); if (($x['data']['compare'] ?? null) !== $g) $miss[] = $r['id']; }
+check('/products/{id}.compare, /compare listesindeki grupla birebir aynı ('.count($inGroup).' kalem, '.count($all).' grup)', count($all) > 0 && !$miss, implode(',', $miss));
+$no = 0; $bad = 0; foreach ($S['items'] as $k => $id) { if (isset($inGroup[$id]) || strpos($k, '|live|') === false) continue; $no++; list(, $x) = api('GET', 'products/'.$id); if ($x['data']['compare'] !== null || !$x['data']['compare_reason']) $bad++; }
+check("  grupta olmayan $no aktif kalemde compare=null ve açıklama var", $no > 0 && $bad === 0);
+
 /* ---------------- D. web ↔ API eşdeğerlik ---------------- */
 foreach (['2', '5'] as $sc) {
   grp("D. Web ↔ API eşdeğerlik (senaryo: $sc indirimli)");
@@ -196,12 +289,11 @@ foreach (['2', '5'] as $sc) {
   $ac = $j['data']['top_compare'] ? array_map(function ($r) { return [$r['market']['name'], $r['price_text']]; }, $j['data']['top_compare']['rows']) : [];
   check('home: öne çıkan karşılaştırma aynı', $wc === $ac);
   /* ürün arama (ara.php ajax) */
-  foreach (['', 'q=s%C3%BCt', 'q=s%C3%BCt&o=asc', 'q=s%C3%BCt&o=desc', 'm=bim', 'k=gida&st=hepsi', 'st=yaklasan', 'st=dolmus', 'min=100&max=500', 'q=%25', 'q=_', 'q=Kampanya_Sepeti', 'st=hepsi&off=24'] as $qs) {
+  foreach (['', 'q=s%C3%BCt', 'q=s%C3%BCt&o=asc', 'q=s%C3%BCt&o=desc', 'm=bim', 'k=gida&st=hepsi', 'st=yaklasan', 'st=dolmus', 'min=100&max=500', 'q=%25', 'q=_', 'q=Kampanya_Sepeti', 'st=hepsi&off=24', 'q=e%C5%9Fitlik&o=asc', 'k=diger&off=24'] as $qs) {
     $ap = strtr($qs, ['m=' => 'market=', 'k=' => 'category=', 'st=' => 'status=', 'o=' => 'sort=', 'off=24' => 'page=2']);
     $w = json_decode(web(8082, '/ara.php?ajax=1&'.$qs), true); list(, $j) = api('GET', 'products?'.$ap);
     $wc = web_cards($w['html']); $acs = api_cards($j['data']);
-    $exactSame = $wc === $acs; $tieSame = array_column($wc, 0) === array_column($acs, 0) && msort($wc) === msort($acs);
-    check("products ↔ ara.php [$qs]: toplam ve kart sırası aynı".($exactSame ? '' : ' (yalnızca aynı adlı ürünlerin kendi aralarındaki sırası farklı — sitedeki ORDER BY eşitliği)'), $w['total'] === $j['meta']['total'] && $tieSame, "web {$w['total']} / api {$j['meta']['total']}");
+    check("products ↔ ara.php [$qs]: toplam ve kart sırası BİREBİR aynı", $w['total'] === $j['meta']['total'] && $wc === $acs, "web {$w['total']} / api {$j['meta']['total']}");
   }
   /* kategoriler */
   $x = dom(web(8082, '/ara.php')); $wo = []; foreach ($x->query('//select[@id="k"]/option[@value!=""]') as $o) $wo[] = $o->getAttribute('value');
@@ -260,11 +352,31 @@ foreach (['2', '5'] as $sc) {
   }
 }
 
+/* ---------------- T. Türkçe karakter ve ürün adı farkları ---------------- */
+grp('T. Türkçe karakter ve ürün adı farkları');
+$S = seed('2'); $I = $S['items'];
+$names = ['İnci Kaynak Su 5 L', 'ISITEK Mini Fırın 20 L', 'Şekerci Toz Şeker 1 kg', 'Çaydağı Siyah Çay 1 kg', 'Öğün Süzme Yoğurt 1 kg', 'DAĞKÖY PEYNİR 500 G', 'Eşitlik İota Paketi 1 kg'];
+list(, $j) = api('GET', 'products?status=hepsi&limit=50&q='); $got = []; for ($pg = 1; ($pg - 1) * 50 < $j['meta']['total']; $pg++) { list(, $x) = api('GET', "products?status=hepsi&limit=50&page=$pg"); $got = array_merge($got, array_column($x['data'], 'name')); }
+check('UTF-8: Türkçe adlar API\'de baytı baytına korunuyor ('.count($names).' ad)', !array_diff($names, $got));
+$raw = http(8082, 'GET', '/api/v1/products/'.$I['bim|live|İnci Kaynak Su 5 L'])[2]; check('  JSON, Türkçe karakterleri \\u kaçışı olmadan UTF-8 taşıyor', strpos($raw, 'İnci Kaynak Su 5 L') !== false && strpos($raw, '\\'.'u0130') === false && strpos($raw, '\\'.'u0131') === false);
+foreach (['İnci', 'inci', 'INCI', 'ISITEK', 'ısıtek', 'Isıtek', 'şeker', 'ŞEKER', 'Şeker', 'çay', 'ÇAY', 'dağköy', 'DAĞKÖY', 'yoğurt', 'YOĞURT', 'kırmızı', 'KIRMIZI', 'eşitlik iota'] as $q) {
+  $w = json_decode(web(8082, '/ara.php?ajax=1&st=hepsi&q='.urlencode($q)), true); list(, $a) = api('GET', 'products?status=hepsi&q='.urlencode($q));
+  $h = web(8082, '/asistan.php?q='.urlencode($q)); list(, $sx) = api('GET', 'search?q='.urlencode($q)); preg_match('~<b>(\d+) ürün bulundu</b>~', $h, $mm);
+  $wo = json_decode(web(8082, '/asistan.php?oneri=1&q='.urlencode($q)), true); list(, $su) = api('GET', 'suggest?q='.urlencode($q));
+  check("[$q] ara.php / asistan.php / öneri ile API aynı (".$w['total'].' / '.(int)($mm[1] ?? 0).' / '.count($wo['items']).' sonuç)',
+    $w['total'] === $a['meta']['total'] && web_cards($w['html']) === api_cards($a['data']) && (int)($mm[1] ?? 0) === $sx['meta']['total'] && web_cards($h) === api_cards($sx['data']['items'])
+    && array_column($wo['items'], 'n') === array_column($su['data'], 'name'));
+}
+$kp = $I['bim|past|Dağköy Peynir 500 g'].':1:'.md5(mb_strtolower('Dağköy Peynir 500 g')); $km = $I['bim|past|Kırmızı Mercimek 1 kg'].':1:'.md5(mb_strtolower('Kırmızı Mercimek 1 kg'));
+list(, $j) = api('GET', "products?fav=$kp,$km"); $F = $j['data'];
+check('favori "Dağköy Peynir 500 g" (geçen hafta) → bu hafta "DAĞKÖY PEYNİR 500 G" ile EŞLEŞTİRİLMEZ (hash farklı, aday yok)', $F[0]['state'] === 'suresi_doldu' && $F[0]['candidates'] === []);
+check('favori "Kırmızı Mercimek 1 kg" → aynı yazımlı yeni kalem yalnızca ADAY, confirmed=false', $F[1]['state'] === 'suresi_doldu' && count($F[1]['candidates']) === 1 && $F[1]['candidates'][0]['confirmed'] === false && $F[1]['candidates'][0]['item']['id'] === $I['bim|live|Kırmızı Mercimek 1 kg']);
+
 /* ---------------- E. güvenlik ---------------- */
 grp('E. Güvenlik testleri');
 seed('2');
 foreach (["products?market=bim'%20OR%20'1'='1", "products?category=gida';--", 'products?page=0', 'products?page=-1', 'products?limit=51', 'products?limit=abc', 'products?status=x', 'products?sort=price;drop',
-  'products?q='.str_repeat('a', 121), 'products?q=%ff%fe', 'products?fav=1:xyz', 'products?fav='.implode(',', array_map(function ($i) { return '1:'.md5((string)$i); }, range(1, 51))), 'catalogs?market=../etc', 'search?q=', 'search?q='.urlencode(str_repeat('ş', 121)), 'products?date=2026-1-1'] as $p) {
+  'products?q='.str_repeat('a', 121), 'products?q=%ff%fe', 'products?fav=1:xyz', 'products?fav=1:1:xyz', 'products?fav=0:1:'.md5('a'), 'products?fav=1:'.md5('a'), 'products?fav='.implode(',', array_map(function ($i) { return "$i:1:".md5((string)$i); }, range(1, 51))), 'catalogs?market=../etc', 'search?q=', 'search?q='.urlencode(str_repeat('ş', 121)), 'products?date=2026-1-1'] as $p) {
   list($s, $j) = api('GET', $p); check("400 INVALID_PARAMETER: $p", $s === 400 && ($j['error']['code'] ?? '') === 'INVALID_PARAMETER', (string)$s);
 }
 foreach (["products/1%20OR%201=1", "catalogs/x'%3B", 'products/0', 'products/abc', 'markets/BIM', 'bilinmeyen', 'compare/x', 'home/1', '', 'lib/bootstrap.php', 'endpoints/home.php', 'config.php'] as $p) { list($s, $j) = api('GET', $p); check("404: /api/v1/$p", $s === 404, (string)$s); }
@@ -281,6 +393,31 @@ list($s, $j) = api('GET', 'products?q=%3Cscript%3Ealert(1)%3C/script%3E'); check
 list($s, , $b) = http(8083, 'GET', '/api/v1/markets'); $j = json_decode($b, true); check('HTTPS yoksa 400 HTTPS_REQUIRED', $s === 400 && ($j['error']['code'] ?? '') === 'HTTPS_REQUIRED');
 $got429 = false; for ($try = 0; $try < 2 && !$got429; $try++) { if (time() % 60 > 50) sleep(61 - time() % 60); $st = []; for ($i = 0; $i < 7; $i++) { list($s, $h) = http(8083, 'GET', '/api/v1/markets', null, ['X-Forwarded-Proto: https']); $st[] = $s; if ($s === 429) { $got429 = isset($h['retry-after']); break; } } }
 check('hız sınırı: 5 istek/dk sonrası 429 + Retry-After', $got429, implode(',', $st));
+/* Cloudflare: güvenilmeyen kaynaktan gelen CF-Connecting-IP YOK SAYILIR */
+clear_caches(); if (time() % 60 > 45) sleep(61 - time() % 60);
+$st = []; for ($i = 1; $i <= 7; $i++) { list($s) = http(8083, 'GET', '/api/v1/markets', null, ['X-Forwarded-Proto: https', "CF-Connecting-IP: 198.51.100.$i"]); $st[] = $s; }
+check('Cloudflare dışı kaynak: her istekte farklı sahte CF-Connecting-IP gönderilse de sınır aşılamaz (6. istek 429)', $st[5] === 429, implode(',', $st));
+/* güvenilir kaynak (test: 127.0.0.1 Cloudflare listesine eklenmiş örnek) */
+clear_caches(); if (time() % 60 > 45) sleep(61 - time() % 60);
+$a = []; $b = []; for ($i = 0; $i < 6; $i++) { $a[] = http(8084, 'GET', '/api/v1/markets', null, ['CF-Connecting-IP: 203.0.113.10'])[0]; } for ($i = 0; $i < 5; $i++) $b[] = http(8084, 'GET', '/api/v1/markets', null, ['CF-Connecting-IP: 2001:db8::7'])[0];
+check('güvenilir Cloudflare kaynağı: sınır ziyaretçi IP\'sine göre (A: 6. istek 429; B (IPv6) etkilenmez)', $a[5] === 429 && !in_array(429, $b, true), implode(',', $a).' | '.implode(',', $b));
+clear_caches(); if (time() % 60 > 45) sleep(61 - time() % 60);
+$c = []; for ($i = 0; $i < 7; $i++) $c[] = http(8084, 'GET', '/api/v1/markets', null, ['CF-Connecting-IP: '.($i % 2 ? 'gecersiz-ip' : '999.1.1.1')])[0];
+check('güvenilir kaynak + geçersiz CF-Connecting-IP değeri → başlık yok sayılır, bağlantı adresi sayılır (6. istek 429)', $c[5] === 429, implode(',', $c));
+$u = 'define("MK_API",1); const MK_API_TRUSTED_PROXIES=[]; require '.var_export("$WORK/new/api/v1/lib/ratelimit.php", true).'; $t=[["173.245.48.1","173.245.48.0/20",1],["173.245.64.0","173.245.48.0/20",0],["104.16.0.1","104.16.0.0/13",1],["104.24.0.1","104.16.0.0/13",0],["162.159.255.255","162.158.0.0/15",1],["2606:4700:10::1","2606:4700::/32",1],["2606:4701::1","2606:4700::/32",0],["2a06:98c7:ffff::1","2a06:98c0::/29",1],["2a06:98c8::1","2a06:98c0::/29",0],["10.0.0.1","2606:4700::/32",0],["gecersiz","10.0.0.0/8",0],["10.1.2.3","10.0.0.0/8",1]]; $ok=1; foreach($t as $x) if((int)mk_ip_in_cidr($x[0],$x[1])!==$x[2]){$ok=0; echo "HATA ".$x[0]." ".$x[1]."\n";} echo $ok?"TAMAM":"";';
+list($rc, $o) = sh('php -r '.escapeshellarg($u)); check('CIDR denetimi birim testi (IPv4/IPv6, sınır değerleri, geçersiz adres) — 12 durum', trim($o) === 'TAMAM', $o);
+/* hata durumlarında JSON korunur */
+list($s, , $hd, $b) = apiat(8086, 'GET', 'home'); $j = json_decode($b, true);
+check('ölümcül PHP hatası → JSON 500 INTERNAL_ERROR (ayrıntı sızmaz)', $s === 500 && ($j['error']['code'] ?? '') === 'INTERNAL_ERROR' && strpos($hd['content-type'] ?? '', 'application/json') === 0 && strpos($b, 'tanimsiz') === false && strpos($b, '/tmp') === false, "$s ".substr($b, 0, 120));
+list($s, , $hd, $b) = apiat(8087, 'GET', 'home'); $j = json_decode($b, true);
+check('site kodunun düz metin basıp çıkması (inc.php db() davranışı) → JSON 503 SERVICE_UNAVAILABLE', $s === 503 && ($j['error']['code'] ?? '') === 'SERVICE_UNAVAILABLE' && strpos($hd['content-type'] ?? '', 'application/json') === 0 && strpos($b, 'bakımda') === false, "$s ".substr($b, 0, 120));
+list($s, , $hd, $b) = apiat(8088, 'GET', 'products'); $j = json_decode($b, true);
+check('veritabanına ulaşılamıyor → JSON 503 + Retry-After', $s === 503 && ($j['error']['code'] ?? '') === 'SERVICE_UNAVAILABLE' && isset($hd['retry-after']), "$s ".substr($b, 0, 120));
+list($s, , $hd, $b) = apiat(8088, 'POST', 'assistant', json_encode(['message' => 'süt'])); check('  POST /assistant aynı durumda da JSON 503', $s === 503 && (json_decode($b, true)['success'] ?? null) === false);
+$bad = []; $nErr = 0;
+foreach ($APIRESP as $r) { if ($r[3] < 400) continue; $nErr++; $jj = json_decode($r[5], true);
+  if (!is_array($jj) || $jj['success'] !== false || !preg_match('/^[A-Z_]+$/', $jj['error']['code'] ?? '') || ($jj['error']['message'] ?? '') === '' || empty($jj['meta']['generated_at']) || strpos($r[4]['content-type'] ?? '', 'application/json') !== 0) $bad[] = $r[3].' '.$r[2]; }
+check("şu ana kadarki TÜM hata yanıtları ($nErr adet: 400/404/405/413/429/500/503) geçerli JSON hata zarfı", $nErr > 30 && !$bad, implode(' | ', array_slice($bad, 0, 5)));
 /* lib dosyaları doğrudan yüklenirse hiçbir şey yapmaz */
 $out = ''; foreach (glob("$WORK/new/api/v1/{lib,endpoints}/*.php", GLOB_BRACE) as $f) { list(, $o) = sh('php -r '.escapeshellarg('include '.var_export($f, true).';')); $out .= $o; }
 check('lib/ ve endpoints/ dosyaları MK_API olmadan çıktı üretmez/çalışmaz', $out === '', substr($out, 0, 200));
@@ -293,9 +430,17 @@ grp('F. Salt okunurluk (inc.php değiştirilmeden)');
 $p = pdo(); $me = (int)$p->query('SELECT CONNECTION_ID()')->fetchColumn();
 $p->exec("SET GLOBAL log_output='TABLE'"); $p->exec('TRUNCATE TABLE mysql.general_log'); $p->exec("SET GLOBAL general_log='ON'");
 $S = seed('2'); $p->exec('TRUNCATE TABLE mysql.general_log');
+$TBL = ['admin_log','catalogs','categories','items','item_media','link_blocks','logs','prices','product_links','products','settings','stores','users'];
+$cks = function () use ($p, $TBL) { $o = []; foreach ($p->query('CHECKSUM TABLE '.implode(',', $TBL).' EXTENDED')->fetchAll(PDO::FETCH_NUM) as $r) $o[$r[0]] = $r[1]; return $o; };
+$CK0 = $cks();
 foreach (['home', 'markets', 'markets/bim', 'catalogs', 'catalogs/'.$S['catalogs']['bim']['live'][1], 'categories', 'products', 'products?q=s%C3%BCt', 'products?fav=1:'.str_repeat('a', 32), 'products/'.reset($S['items']), 'search?q=s%C3%BCt', 'suggest?q=s%C3%BC', 'compare', 'compare/similar', 'pages/gizlilik'] as $c) api('GET', $c);
 foreach (['süt', 'merhaba', 'bu hafta hangi kataloglar var', "peki a101'de?"] as $mm) api('POST', 'assistant', json_encode(['message' => $mm, 'last_query' => 'süt']));
+/* aynı çağrılar SELECT-yetkili kullanıcıyla çalışan örnekte (:8085) */
+$roBad = [];
+foreach (['home', 'markets', 'markets/bim', 'catalogs', 'catalogs/'.$S['catalogs']['bim']['live'][1], 'categories', 'products', 'products?q=s%C3%BCt&sort=asc', 'products?fav='.reset($S['items']).':1:'.str_repeat('a', 32), 'products/'.reset($S['items']), 'search?q=s%C3%BCt', 'suggest?q=s%C3%BC', 'compare', 'compare/similar', 'pages/gizlilik'] as $c) { list($s, , , $b1) = apiat(8085, 'GET', $c); list(, , , $b2) = api('GET', $c); if ($s !== 200 || preg_replace('/"generated_at":"[^"]+"/', '', $b1) !== preg_replace('/"generated_at":"[^"]+"/', '', $b2)) $roBad[] = "$c ($s)"; }
+foreach (['süt', 'merhaba', "peki a101'de?"] as $mm) { list($s) = apiat(8085, 'POST', 'assistant', json_encode(['message' => $mm, 'last_query' => 'süt'])); if ($s !== 200) $roBad[] = "assistant $mm ($s)"; }
 $p->exec("SET GLOBAL general_log='OFF'");
+$CK1 = $cks();
 $rows = $p->query("SELECT thread_id, command_type, CONVERT(argument USING utf8mb4) a FROM mysql.general_log WHERE thread_id<>$me AND command_type IN ('Query','Execute','Prepare')")->fetchAll(PDO::FETCH_ASSOC);
 $bad = []; $nSel = 0; $nRo = 0; $threads = [];
 foreach ($rows as $r) { $a = trim($r['a']); $threads[$r['thread_id']] = 1;
@@ -305,6 +450,8 @@ echo "    (".count($threads)." bağlantı, $nSel SELECT, $nRo kilit ifadesi, ".c
 check('  her API bağlantısı kilitlendi (bağlantı başına 1 kilit; ön kontrol + inc.php bağlantısı)', $nRo === count($threads), "$nRo / ".count($threads));
 list($rc, $o) = sh('php '.escapeshellarg(__DIR__.'/readonly_probe.php').' '.escapeshellarg("$WORK/new"));
 check('T-RO-2 API önyüklemesinden sonra q("INSERT …") veritabanınca reddedilir (1792)', $rc === 0 && strpos($o, 'REDDEDILDI 1792') !== false, $o);
+check('T-RO-4 (bağımsız) YALNIZCA SELECT yetkili kullanıcıyla bütün uç noktalar çalışıyor ve root ile aynı yanıtı veriyor (18 çağrı)', !$roBad, implode(', ', $roBad));
+check('T-RO-5 (bağımsız) bütün API çağrılarından önce/sonra 13 tablonun sağlama toplamı (CHECKSUM TABLE) aynı', $CK0 === $CK1 && count($CK0) === 13, json_encode(array_diff_assoc($CK1, $CK0)));
 $before = [(int)$p->query('SELECT COUNT(*) FROM categories')->fetchColumn(), (int)$p->query('SELECT COUNT(*) FROM settings')->fetchColumn()];
 $p->exec("UPDATE settings SET v='4' WHERE k='schema_v'"); $p->exec('TRUNCATE TABLE mysql.general_log'); $p->exec("SET GLOBAL general_log='ON'");
 list($s, $j) = api('GET', 'home'); list($s2) = api('POST', 'assistant', json_encode(['message' => 'süt']));
@@ -341,7 +488,7 @@ $copies = [
   ['sayfa.php', [9], 'api/v1/endpoints/pages.php', []],
   ['tema-modern-ana.php', [66, 67, 68, 69, 70], 'api/v1/endpoints/home.php', []],
 ];
-foreach ($copies as $c) { $src = file("$SRC/{$c[0]}"); $dst = file_get_contents("$SITE_NEW_FILES/{$c[2]}"); $miss = [];
+foreach ($copies as $c) { $src = file(is_file("$SITE_NEW_FILES/{$c[0]}") && $c[0] === 'ara.php' ? "$SITE_NEW_FILES/{$c[0]}" : "$SRC/{$c[0]}");   /* ara.php: onaylanan düzeltilmiş sürümle karşılaştırılır */ $dst = file_get_contents("$SITE_NEW_FILES/{$c[2]}"); $miss = [];
   foreach ($c[1] as $ln) { $l = strtr(trim($src[$ln - 1]), $c[3]); if ($l !== '' && strpos($dst, $l) === false) $miss[] = $ln; }
   check("kopya bütünlüğü: {$c[0]} satır ".min($c[1]).'-'.max($c[1])." → {$c[2]}", !$miss, 'eksik/değişmiş satır: '.implode(',', $miss)); }
 /* ortak-veri.php: taşınan blok orijinalde aynen var mı */

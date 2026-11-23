@@ -1,86 +1,108 @@
-# FAZ 1: API Geliştirme Raporu (değişiklik listesi, test sonuçları, doğrulanamayanlar)
+# FAZ 1: Son Teslim, Test Raporu (revizyon 2)
 
-**Ortam:** Bu bulut ortamı, PHP 8.3.6, MariaDB 10.11.14. Veri **sentetiktir**. Şema, kullanıcının gönderdiği yalnızca yapı dökümüdür.
-**Canlı sistem:** Hiçbir dosya yüklenmedi, canlı veritabanına bağlanılmadı.
-**Sonuç:** 255 kontrolün 255'i geçti (tam tablo en altta).
+**Ortam:** Bu bulut ortamı, PHP 8.3.6, MariaDB 10.11.14 (yetki denetimi açık). Veri **sentetik**. Şema, kullanıcının gönderdiği yalnızca yapı dökümü.
+**Canlı sistem:** Hiçbir dosya yüklenmedi, canlı veritabanına bağlanılmadı. Veritabanı şeması değişmedi. WebView projesine dokunulmadı. Android ekranlarına başlanmadı.
+**Sonuç:** Test takımı sıfırdan **iki kez** çalıştırıldı. Her çalıştırmada veritabanı, test sunucuları ve önbellekler yeniden kuruldu.
+- Çalıştırma 1: **319/319**
+- Çalıştırma 2: **320/320**
+- Fark, sayısı veriye göre değişen bir bilgi satırından ibaret (bölüm 4). Başarı ölçütleri iki çalıştırmada aynı.
 
-## 1. Değişiklik listesi
+## 1. Revizyon 2'de yapılan değişiklikler
 
-| Dosya | Durum | Not |
+| # | Karar | Yapılan | Dosya |
+|---|---|---|---|
+| 1 | Favori: hash yalnızca ipucu | Favori artık `itemId:storeId:hash` ile sorgulanıyor. Favorinin **kendisi** `item_id` ile bulunuyor. Aynı market ve hash'e sahip başka kalemler yalnızca `candidates` (`confirmed:false`) olarak dönüyor; **otomatik eşleştirme yok**. Durumlar: `aktif`, `yaklasan`, `suresi_doldu`, `bulunamadi`; her biri açık bir mesajla. Yönetici adı değiştirdiyse `name_changed:true`. | `api/v1/endpoints/products.php` |
+| 2 | `ara.php` eşitlik düzeltmesi | Mevcut sıralama ölçütleri aynen korundu; yalnızca sonlarına `,i.id ASC` eklendi. API kopyası da aynı. | `site/ara.php` (yalnızca 15. satır), `products.php` |
+| 3 | Cloudflare | `CF-Connecting-IP` başlığı **yalnızca** isteği doğrudan gönderen adres (`REMOTE_ADDR`) Cloudflare IP aralıklarındaysa **ve** başlık geçerli bir IP ise kullanılıyor; aksi halde yok sayılıyor. IPv4 ve IPv6 CIDR denetimi var. | `api/v1/config.php`, `lib/ratelimit.php` |
+| 4 | Kaldırılan uç noktalar | `meta.api_version` her yanıta eklendi. Kaldırılan `/meta` ve `/compare/{id}` alanlarının alan alan karşılığı ve gerekçesi belgelendi; karşılıkların eksiksizliği testle doğrulandı. | `lib/response.php`, `docs/FAZ1-UC-NOKTALAR.md` |
+| 5 | Hata durumlarında JSON | Ölümcül PHP hatası ve `inc.php`'nin düz metin basıp çıkması durumunda da yanıt JSON hata zarfında dönüyor (500 / 503). | `lib/response.php`, `index.php` |
+
+## 2. Yeniden yapılan testler (istenen 7 başlık)
+
+| Başlık | Nasıl doğrulandı | Sonuç |
 |---|---|---|
-| `MarketlerNative/server/site/ortak-veri.php` | Yeni | `mt_featured()` + `MT_MIN_GAIN`, içerik değişmeden |
-| `MarketlerNative/server/site/tema-modern-ana.php` | Değişen kopya | Yalnızca blok yerine 1 `require_once` satırı |
-| `MarketlerNative/server/site/api/**` | Yeni (23 dosya) | 14 uç nokta, 6 kütüphane, `index.php`, `config.php`, `.htaccess` |
-| `MarketlerNative/server/tests/**` | Yeni | Test betiği, sentetik veri, şema dökümü |
-| `MarketlerNative/server/README.md` | Yeni | Dosya dosya açıklama, test ve geri alma |
-| `docs/FAZ1-UYGULAMA-PLANI.md`, `docs/FAZ1-TEST-RAPORU.md` | Yeni | |
-| `MarketlerAndroid/` (WebView) | **Dokunulmadı** | Testle doğrulandı (G grubu) |
-| `inc.php`, `eslestirme.php`, `asistan*.php`, `sayfa.php`, `ara.php`, `cron.php`, `admin*` | **Dokunulmadı** | |
-| Veritabanı şeması | **Değişmedi** | |
+| **API hiç yazma yapmıyor** | (a) MariaDB sorgu günlüğü: 104 API bağlantısı, 356 sorgu → hepsi `SELECT`, her bağlantıda bir `READ ONLY` kilidi, 0 başka ifade. (b) Önyükleme sonrası `INSERT` denemesini veritabanı reddetti (1792). (c) **Bağımsız:** API, **yalnızca SELECT yetkisi olan** bir veritabanı kullanıcısıyla çalıştırıldı; 18 çağrının hepsi başarılı ve tam yetkili kullanıcıyla aynı yanıtı verdi. (d) **Bağımsız:** Bütün API çağrılarından önce ve sonra 13 tablonun `CHECKSUM TABLE` değeri aynı. | ✅ |
+| **`schema_v` farklıyken güvenli durma** | `schema_v='4'` iken API `GET` ve `POST` isteklerinde 503 döndü. `inc.php` yüklenmedi; sorgu günlüğünde 0 yazma; tablo satır sayıları değişmedi. Karşılaştırma: aynı durumda site sayfası şemayı güncelliyor (`'4'`→`'5'`). | ✅ |
+| **Web ile API eşitliği** | İki senaryoda 14 uç nokta sitedeki karşılığıyla karşılaştırıldı: 15 ürün arama filtresi (**artık birebir sıra**), 8 akıllı arama, 5 öneri, 10 sohbet, karşılaştırma, benzer ürünler, kataloglar, katalog detayı, market sayfası, sayfa metinleri. | ✅ |
+| **Türkçe karakter ve ad farkları** | 7 Türkçe ad API'de baytı baytına korunuyor ve JSON'da `\u` kaçışı yok. 18 Türkçe sorguda (`İnci/inci/INCI`, `ISITEK/ısıtek/Isıtek`, `şeker/ŞEKER`, `çay/ÇAY`, `dağköy/DAĞKÖY`, `kırmızı/KIRMIZI`…) `ara.php`, `asistan.php` ve öneri sonuçları API ile birebir aynı. "Dağköy Peynir" ile "DAĞKÖY PEYNİR" favoride eşleştirilmiyor; aynı yazımlı yeni kalem yalnızca aday. | ✅ |
+| **Sayfalama tutarlılığı** | 18 `ara.php` sorgusunun her biri 6 tekrarda bayt bayt aynı. Web'de 24'lük sayfalar boyunca tekrar veya kayıp yok. API'de 8 filtre/sıralama için limit 3, 5 ve 7 ile gezilen sayfaların birleşimi tek listeyle birebir aynı; tekrar yok, kayıp yok. Sıralama kuralları (tarih↓ad↑ / fiyat↑ / fiyat↓) korunuyor, eşitlikte kalem no artan. `ara.php` farkının yalnızca ORDER satırı olduğu otomatik denetlendi. | ✅ |
+| **Cloudflare IP ve hız sınırı** | Güvenilmeyen kaynaktan, her istekte farklı sahte `CF-Connecting-IP` gönderilse de 6. istek 429 aldı. Güvenilir kaynakta sınır ziyaretçi IP'sine göre işliyor (bir ziyaretçinin sınırı diğerini etkilemiyor, IPv6 dahil). Güvenilir kaynak + geçersiz başlık değeri → başlık yok sayılıyor. CIDR birim testi 12/12 (IPv4/IPv6 sınır değerleri). | ✅ |
+| **Hata durumlarında JSON** | Hata enjeksiyonu (yalnızca geçici test kopyalarında): ölümcül PHP hatası → JSON 500; site kodunun düz metin basıp çıkması → JSON 503; veritabanına ulaşılamıyor → JSON 503 + `Retry-After`. Testler boyunca alınan **63 hata yanıtının hepsi** (400/404/405/413/429/500/503) geçerli JSON hata zarfı. Ayrıntı veya sunucu yolu sızmıyor. | ✅ |
 
-## 2. Koşullarınıza göre sonuçlar
+## 3. Kaldırılan uç noktaların karşılığı (C3)
+- `/meta` ve `/compare/{id}` → 404.
+- O ana kadar alınan **her** yanıtta `meta.api_version` ve `meta.generated_at` var.
+- `/home` yanıtında `data_updated_at` var; önbellek süresi `Cache-Control` başlığında.
+- `/compare` listesindeki **bütün** grupların **bütün** kalemleri için `/products/{id}.compare` alanı grupla birebir aynı. Grupta olmayan aktif kalemlerde `compare=null` ve açıklama dönüyor.
 
-| Koşul | Sonuç | Kanıt (test grubu) |
-|---|---|---|
-| API salt okunur; `inc.php` değiştirilmeden | ✅ | **F:** Sorgu günlüğünde 38 API bağlantısı ve 119 sorgu vardı: hepsi `SELECT`; her bağlantı `READ ONLY` ile kilitlendi; 0 yazma. Önyükleme sonrası `INSERT` denemesini veritabanı reddetti (1792). `schema_v='4'` iken API 503 döndü ve **hiçbir yazma yapılmadı**. Aynı durumda sitenin kendisi şemayı güncelledi; bu, korumanın neden gerekli olduğunu gösteriyor. |
-| `mt_featured()` içerik değişmeden taşındı; 4 senaryoda bayt bayt aynı | ✅ | **B:** Senaryolar: 0 indirimli, 2 indirimli, 5 indirimli, boş site. Ana sayfa (önbelleksiz ve önbellekli) ve diğer 14–15 sayfa **bayt bayt aynı**. **G:** taşınan blok orijinal dosyada karakteri karakterine mevcut; yeni dosya = orijinal − blok + 1 satır. |
-| Mevcut eşleştirme korunur, yeni algoritma yok | ✅ | **D:** `/compare` ile `fiyat-karsilastirma.php` aynı gruplar, sıra, fiyatlar, "en düşük" işareti ve tasarruf cümlesi. **C:** engellenen eşleşme görünmüyor, elle kurulan grup görünüyor. |
-| Web ile API aynı veri ve kurallar | ✅ | **D:** 2 senaryoda 14 uç noktanın hepsi sitedeki karşılığıyla karşılaştırıldı: 13 farklı ürün arama filtresi, 8 akıllı arama, 5 öneri, 10 sohbet örneği, kataloglar, katalog detayı, market sayfası, sayfa metinleri. |
-| Kopyalanan mantık (karar A) bozulmadı | ✅ | **G:** `ara.php`, `asistan.php`, `sayfa.php` ve `tema-modern-ana.php` dosyalarından kopyalanan 55 satır hedef dosyalarda birebir mevcut. |
-| Olmayan görsel ve eski fiyat üretilmez | ✅ | **C:** onaylı ama dosyası olmayan görsel → `null`; kaldırılmış görsel → `null`; `old_price < price` → indirim yok. Uzak (başka siteden) broşür adresi API yanıtında hiç yok. |
-| Favori: market + hash, tahmin yok | ✅ | **C:** aktif katalogdaki kalem seçiliyor; bulunamayan anahtar `missing` listesine düşüyor; gizli katalogdaki ürün bulunmuyor. |
-| Güvenlik | ✅ | **E:** 16 geçersiz parametre → 400; 12 geçersiz yol → 404 (lib/ ve endpoints/ dosyaları dahil); 5 yanlış yöntem → 405; SQL enjeksiyonu metinleri düz metin olarak işlendi; gövde > 2 KB → 413; HTTPS yoksa 400; hız sınırı 429. Bütün API yanıtlarında gizli ayar, yönetici bilgisi, gizli katalog, hata ayrıntısı veya sunucu yolu **yok**. |
+## 4. Bulgular
 
-## 3. Bulgular (bilginize; hiçbirine dokunulmadı)
+1. **`cmp_groups()` eşitlik sırası (sitede zaten var, `inc.php` değiştirilmedi).**
+   - Karşılaştırma önbelleği her seferinde silindiğinde değiştirilmemiş site `fiyat-karsilastirma.php` için 8 denemede 2–3 farklı çıktı üretti. Önbellek dururken çıktı sabit.
+   - Neden: fonksiyon ürünleri yalnızca `c.cdate DESC` ile sıralıyor. Eşit fiyatlı kayıtların sırası ve fiyat farkı eşit grupların sırası belirsiz.
+   - Canlıda site ve API aynı `cmpcache.json` dosyasını kullandığı için **ikisi birbiriyle tutarlı**; yalnızca önbellek yenilendiğinde sıra değişebiliyor.
+   - Testte bunu yalıtmak için yeni site, eski sitenin karşılaştırma önbelleğini kullandı.
+   - Öneri: `ara.php` düzeltmesindeki gibi sıralamaya `i.id` eklemek. Bu `inc.php` değişikliği gerektirdiği için **onayınıza bırakıldı**.
+2. **`ara.php` belirsizliği aralıklı.** Bu iki çalıştırmada eski `ara.php` 6'şar tekrarda farklı çıktı vermedi. Belirsizlik eski ve yeni site arasındaki eşitlik sırası farkında görüldü; daha önceki elle yapılan denemede de 6 tekrarda 2 farklı çıktı görülmüştü. Düzeltme, benzersiz `i.id` ölçütü sayesinde yapısı gereği kararlıdır; testler bunu doğruladı.
+3. **`items.hash` Türkçe "I" sorunu** (önceki rapordan, değişmedi). Favori tasarımı bu yüzden hash'e güvenmiyor.
+4. **Cloudflare IP listesi** geliştiricinin bilgisinden yazıldı; bu ortamdan `cloudflare.com` adresine erişilemedi. Canlıya almadan önce https://www.cloudflare.com/ips/ ile karşılaştırılmalı.
 
-1. **`items.hash` Türkçe büyük "I" harfinde kararsız.** `mb_strtolower("ISITEK")` sonucu "isitek" oluyor, "ısıtek" değil. Kaynak bir hafta adı büyük harfle yazarsa hash değişir ve favori o haftanın ürününü bulamaz. Ayrıca boşluk, "1,5"/"1.5" ve Türkçe karakter farkları da hash'i değiştiriyor.
-   - `as_hkey` daha toleranslı ama **aynı şey değil**: H testindeki 10 örneğin 6'sında sonuçları farklı.
-   - Kararınız gereği favori yalnızca market + hash ile eşleşiyor. Gerçek verideki tekrar oranı **ölçülemedi** (bkz. 4).
-2. **`ara.php` sıralamasında eşitlik belirsizliği (sitede zaten var).** `ORDER BY c.cdate DESC, i.name ASC` ölçütünde aynı tarih ve aynı ada sahip ürünlerin (ör. üç markette aynı ürün) sırası istekten isteğe değişebiliyor. Değişiklik yapılmamış sitede de gözlendi.
-   - Sayfalar arası geçişte bu ürünlerden biri iki sayfada görünebilir ya da hiç görünmeyebilir.
-   - API, web ile aynı davranmak için aynı sorguyu kullanıyor.
-   - Öneri: her iki tarafa `, i.id` eklemek. Bu `ara.php` değişikliği gerektirdiği için **onayınıza bırakıldı**.
-3. **Hız sınırı ve Cloudflare.** `.htaccess` kuralları sitenin Cloudflare arkasında olabileceğini gösteriyor. Öyleyse PHP, ziyaretçinin değil Cloudflare'in IP adresini görür ve hız sınırı bütün kullanıcılara ortak uygulanır.
-   - Yönetici girişindeki sınır için de aynı durum geçerli.
-   - Canlıya almadan önce sunucuda `mod_remoteip` (gerçek IP) ayarı kontrol edilmeli.
-4. **API, sitenin önbellek dosyalarını paylaşır.** `img/cmpcache.json`, öne çıkanlar ve öneri havuzu dosyaları site ile aynı biçimde okunur ve yazılır; ayrıca hız sınırı sayaçları geçici klasöre yazılır. **Veritabanına yazma yoktur.**
+## 5. Doğrulanamayanlar
+| Konu | Durum |
+|---|---|
+| Hosting PHP sürümü; PHP 7.4 / 8.4 ile çalışma | Yalnızca 8.3 ile test edildi; 8.0+ sözdizimi kullanılmadığı otomatik denetlendi. Gerçek sürüm cPanel → MultiPHP Manager'dan öğrenilmeli |
+| Gerçek veritabanı sürümü, `products`/`prices` sayıları, hash'in gerçek verideki tekrar oranı | D.3 sorgularının sonucu bekleniyor |
+| Gerçek veri hacminde performans | Sentetik veri küçük |
+| Apache `.htaccess` yönlendirmesi ve gerçek Cloudflare arkasında IP davranışı | Testler PHP'nin yerleşik sunucusunda yapıldı; canlı öncesi bir alt klasörde deneme önerilir |
 
-## 4. Doğrulanamayanlar
+## 6. Değişiklik listesi (FAZ 1 son)
+| Dosya | Durum |
+|---|---|
+| `MarketlerNative/server/site/ortak-veri.php` | Yeni (taşınan `mt_featured()`, içerik aynı) |
+| `MarketlerNative/server/site/tema-modern-ana.php` | Değişen kopya (blok → 1 `require_once`) |
+| `MarketlerNative/server/site/ara.php` | Değişen kopya (15. satır: `,i.id ASC`) |
+| `MarketlerNative/server/site/api/**` | Yeni: 14 uç nokta, 6 kütüphane, `index.php`, `config.php`, `.htaccess` |
+| `MarketlerNative/server/tests/**` | Test betiği, sentetik veri, şema dökümü |
+| `docs/FAZ1-UC-NOKTALAR.md`, `docs/FAZ1-TEST-RAPORU.md`, `MarketlerNative/server/README.md` | Güncellendi |
+| `inc.php`, `eslestirme.php`, `asistan*.php`, `sayfa.php`, `cron.php`, `admin*`, veritabanı şeması, `MarketlerAndroid/` | **Değişmedi** |
 
-| Konu | Neden | Gereken |
-|---|---|---|
-| Gerçek hosting PHP sürümü | Siteye erişim yok | cPanel → MultiPHP Manager ekranındaki sürüm |
-| PHP 7.4 ve 8.4 ile çalışma | Bu ortamda yalnızca 8.3 var. WebAssembly PHP denemesi ortamın izin denetimince engellendi | Kod 8.0+ sözdizimi kullanmıyor (otomatik tarama). Gerçek sürüm öğrenilince o sürümle test |
-| Gerçek veritabanı sürümü | – | `D3-sayim-sorgulari.sql` içindeki T1 sorgusu |
-| `products` / `prices` kayıt sayısı | – | T1 sorgusu |
-| Hash'in gerçek veride haftalar arası kararlılığı | Gerçek veri yok | T2–T4 sorguları (yalnızca sayı döner) |
-| Gerçek veriyle performans (ör. `as_hist` tüm ürünleri okuyor) | Gerçek veri hacmi bilinmiyor | Anonim örnek veya canlı öncesi bir hazırlık (staging) ortamı |
-| Apache `.htaccess` yönlendirmesi | Testler PHP'nin yerleşik sunucusunda çalıştı (`tests/router.php`) | Canlıya almadan önce bir alt klasörde deneme |
+## 7. Test sonuçları (Çalıştırma 2, tam liste)
 
-## 5. Test sonuçları (tam liste)
-
-Toplam 255 kontrol · 255 geçti · 0 başarısız
+Toplam 320 kontrol · 320 geçti · 0 başarısız
 
 | Grup | Kontrol | Sonuç |
 |---|---|---|
 | A. Kurulum | test veritabanı oluşturuldu | ✓ |
 | A. Kurulum | kullanıcının şema dökümü yüklendi (yalnızca yapı) | ✓ |
-| A. Kurulum | test sunucuları başladı (eski site :8081, yeni site + API :8082, hız sınırı/HTTPS testi :8083) | ✓ |
+| A. Kurulum | yalnızca SELECT yetkili test kullanıcısı (mk_test_ro) hazır | ✓ |
+| A. Kurulum | test sunucuları başladı (eski site, yeni site+API, hız sınırı, Cloudflare, SELECT-yetkili, 3 hata enjeksiyonu) | ✓ |
 | A. Kurulum | PHP sürümü (yerel test) | ✓ |
 | B. mt_featured() taşıması — eski/yeni HTML bayt karşılaştırması (4 senaryo) | senaryo '0 indirimli': 17 sayfa eski ve yeni sitede aynı (ana sayfa iki kez: önbelleksiz + önbellekli) | ✓ |
-| B. mt_featured() taşıması — eski/yeni HTML bayt karşılaştırması (4 senaryo) |   bilgi: /ara.php yalnızca aynı adlı ürün kartlarının kendi aralarındaki sırası farklı (sitedeki ORDER BY eşitliği; içerik aynı) | ✓ |
-| B. mt_featured() taşıması — eski/yeni HTML bayt karşılaştırması (4 senaryo) |   '0 indirimli': 15 sayfa BAYT BAYT aynı (ana sayfa dahil: evet) | ✓ |
+| B. mt_featured() taşıması — eski/yeni HTML bayt karşılaştırması (4 senaryo) |   bilgi: /ara.php içerik aynı; yalnızca aynı adlı kartların sırası farklı (onaylanan ara.php eşitlik düzeltmesi + eski sitenin belirsiz sırası) | ✓ |
+| B. mt_featured() taşıması — eski/yeni HTML bayt karşılaştırması (4 senaryo) |   bilgi: /ara.php?q=s%C3%BCt içerik aynı; yalnızca aynı adlı kartların sırası farklı (onaylanan ara.php eşitlik düzeltmesi + eski sitenin belirsiz sırası) | ✓ |
+| B. mt_featured() taşıması — eski/yeni HTML bayt karşılaştırması (4 senaryo) |   '0 indirimli': 14 sayfa BAYT BAYT aynı (ana sayfa dahil: evet) | ✓ |
 | B. mt_featured() taşıması — eski/yeni HTML bayt karşılaştırması (4 senaryo) | senaryo '1-3 indirimli (2)': 17 sayfa eski ve yeni sitede aynı (ana sayfa iki kez: önbelleksiz + önbellekli) | ✓ |
-| B. mt_featured() taşıması — eski/yeni HTML bayt karşılaştırması (4 senaryo) |   bilgi: /ara.php yalnızca aynı adlı ürün kartlarının kendi aralarındaki sırası farklı (sitedeki ORDER BY eşitliği; içerik aynı) | ✓ |
-| B. mt_featured() taşıması — eski/yeni HTML bayt karşılaştırması (4 senaryo) |   '1-3 indirimli (2)': 15 sayfa BAYT BAYT aynı (ana sayfa dahil: evet) | ✓ |
+| B. mt_featured() taşıması — eski/yeni HTML bayt karşılaştırması (4 senaryo) |   bilgi: /ara.php içerik aynı; yalnızca aynı adlı kartların sırası farklı (onaylanan ara.php eşitlik düzeltmesi + eski sitenin belirsiz sırası) | ✓ |
+| B. mt_featured() taşıması — eski/yeni HTML bayt karşılaştırması (4 senaryo) |   bilgi: /ara.php?q=s%C3%BCt içerik aynı; yalnızca aynı adlı kartların sırası farklı (onaylanan ara.php eşitlik düzeltmesi + eski sitenin belirsiz sırası) | ✓ |
+| B. mt_featured() taşıması — eski/yeni HTML bayt karşılaştırması (4 senaryo) |   '1-3 indirimli (2)': 14 sayfa BAYT BAYT aynı (ana sayfa dahil: evet) | ✓ |
 | B. mt_featured() taşıması — eski/yeni HTML bayt karşılaştırması (4 senaryo) | senaryo '4+ indirimli (5)': 17 sayfa eski ve yeni sitede aynı (ana sayfa iki kez: önbelleksiz + önbellekli) | ✓ |
-| B. mt_featured() taşıması — eski/yeni HTML bayt karşılaştırması (4 senaryo) |   bilgi: /ara.php yalnızca aynı adlı ürün kartlarının kendi aralarındaki sırası farklı (sitedeki ORDER BY eşitliği; içerik aynı) | ✓ |
-| B. mt_featured() taşıması — eski/yeni HTML bayt karşılaştırması (4 senaryo) |   '4+ indirimli (5)': 15 sayfa BAYT BAYT aynı (ana sayfa dahil: evet) | ✓ |
+| B. mt_featured() taşıması — eski/yeni HTML bayt karşılaştırması (4 senaryo) |   bilgi: /ara.php içerik aynı; yalnızca aynı adlı kartların sırası farklı (onaylanan ara.php eşitlik düzeltmesi + eski sitenin belirsiz sırası) | ✓ |
+| B. mt_featured() taşıması — eski/yeni HTML bayt karşılaştırması (4 senaryo) |   bilgi: /ara.php?q=s%C3%BCt içerik aynı; yalnızca aynı adlı kartların sırası farklı (onaylanan ara.php eşitlik düzeltmesi + eski sitenin belirsiz sırası) | ✓ |
+| B. mt_featured() taşıması — eski/yeni HTML bayt karşılaştırması (4 senaryo) |   '4+ indirimli (5)': 14 sayfa BAYT BAYT aynı (ana sayfa dahil: evet) | ✓ |
 | B. mt_featured() taşıması — eski/yeni HTML bayt karşılaştırması (4 senaryo) | senaryo 'ürünsüz / katalogsuz': 15 sayfa eski ve yeni sitede aynı (ana sayfa iki kez: önbelleksiz + önbellekli) | ✓ |
 | B. mt_featured() taşıması — eski/yeni HTML bayt karşılaştırması (4 senaryo) |   'ürünsüz / katalogsuz': 14 sayfa BAYT BAYT aynı (ana sayfa dahil: evet) | ✓ |
 | B. mt_featured() taşıması — eski/yeni HTML bayt karşılaştırması (4 senaryo) |   'ürünsüz / katalogsuz' ana sayfa boş durum kartı | ✓ |
 | B. mt_featured() taşıması — eski/yeni HTML bayt karşılaştırması (4 senaryo) | eski ve yeni sitede PHP hata/uyarısı yok (sunucu günlüğü) | ✓ |
 | B. mt_featured() taşıması — eski/yeni HTML bayt karşılaştırması (4 senaryo) | SONUÇ: ortak-veri.php değişikliği kabul koşulu (tüm senaryolar aynı) | ✓ |
+| B. mt_featured() taşıması — eski/yeni HTML bayt karşılaştırması (4 senaryo) |   bilgi (mevcut site): karşılaştırma önbelleği her seferinde silinirse orijinal fiyat-karsilastirma.php 8 denemede 2 farklı çıktı verir (cmp_groups eşitlik sırası; inc.php değiştirilmedi) | ✓ |
+| B2. ara.php: eşitlikte i.id (tekrarlanabilirlik, içerik korunumu, sayfalama) | düzeltme sonrası 18 sorgunun her biri 6 tekrarda bayt bayt aynı | ✓ |
+| B2. ara.php: eşitlikte i.id (tekrarlanabilirlik, içerik korunumu, sayfalama) |   karşılaştırma: düzeltme öncesi (orijinal ara.php) 0 sorgu tekrarlarda farklı çıktı verdi | ✓ |
+| B2. ara.php: eşitlikte i.id (tekrarlanabilirlik, içerik korunumu, sayfalama) | içerik korunumu: tüm sorgularda toplam aynı; tek sayfalık sonuçlarda ürün kümesi aynı | ✓ |
+| B2. ara.php: eşitlikte i.id (tekrarlanabilirlik, içerik korunumu, sayfalama) | web sayfalaması (off=0,24,…): düzeltme sonrası 0 sorguda tekrar/kayıp (0 beklenir) | ✓ |
+| B2. ara.php: eşitlikte i.id (tekrarlanabilirlik, içerik korunumu, sayfalama) |   karşılaştırma: düzeltme öncesi 0 sorguda sayfalar arası tekrar/kayıp görüldü (giderilen hata) | ✓ |
+| B2. ara.php: eşitlikte i.id (tekrarlanabilirlik, içerik korunumu, sayfalama) | ara.php farkı yalnızca ORDER satırı (filtreler, WHERE ve sayfalama kodu aynı) | ✓ |
+| B2. ara.php: eşitlikte i.id (tekrarlanabilirlik, içerik korunumu, sayfalama) | sayfalama: limit 3/5/7 ile gezilen sayfalar = tek liste; tekrar yok, kayıp yok (8 filtre/sıralama) | ✓ |
+| B2. ara.php: eşitlikte i.id (tekrarlanabilirlik, içerik korunumu, sayfalama) | sıralama kuralları korunuyor (tarih↓ad↑ / fiyat↑ / fiyat↓) ve eşitlikte kalem no artan | ✓ |
 | C. Uç nokta işlev testleri (senaryo: 2 indirimli) | /home 200 + zarf | ✓ |
 | C. Uç nokta işlev testleri (senaryo: 2 indirimli) | /home markets=3, live=3, soon=3 | ✓ |
 | C. Uç nokta işlev testleri (senaryo: 2 indirimli) | /home featured başlık (2 indirimli → "Öne çıkan fırsatlar") | ✓ |
@@ -107,9 +129,14 @@ Toplam 255 kontrol · 255 geçti · 0 başarısız
 | C. Uç nokta işlev testleri (senaryo: 2 indirimli) | old_price < price → eski fiyat/indirim gösterilmez | ✓ |
 | C. Uç nokta işlev testleri (senaryo: 2 indirimli) | fiyat metin olarak (ör. "27.75") ve sitedeki biçimle | ✓ |
 | C. Uç nokta işlev testleri (senaryo: 2 indirimli) | birim fiyat (gıda, 1 L) → TL/L | ✓ |
-| C. Uç nokta işlev testleri (senaryo: 2 indirimli) | favori: market+hash → aktif katalogdaki kalem (geçmiş/yaklaşan değil) | ✓ |
-| C. Uç nokta işlev testleri (senaryo: 2 indirimli) | favori: bulunamayan anahtar missing listesinde | ✓ |
-| C. Uç nokta işlev testleri (senaryo: 2 indirimli) | favori: gizli katalogdaki ürün bulunmaz | ✓ |
+| C. Uç nokta işlev testleri (senaryo: 2 indirimli) | favori (geçen haftaki kalem): kendisi döner, durum "suresi_doldu", favori değiştirilmez | ✓ |
+| C. Uç nokta işlev testleri (senaryo: 2 indirimli) |   aynı market+hash taşıyan kalemler yalnızca ADAY (confirmed=false), otomatik eşleşme yok | ✓ |
+| C. Uç nokta işlev testleri (senaryo: 2 indirimli) |   kullanıcıya açık mesaj: süre doldu + aday doğrulanmadı | ✓ |
+| C. Uç nokta işlev testleri (senaryo: 2 indirimli) | favori (aktif kalem): durum "aktif", mesaj yok | ✓ |
+| C. Uç nokta işlev testleri (senaryo: 2 indirimli) | favori (silinmiş/olmayan kalem): durum "bulunamadi", item=null, açık mesaj | ✓ |
+| C. Uç nokta işlev testleri (senaryo: 2 indirimli) | favori: gizli/onay bekleyen katalogdaki kalem gösterilmez (bulunamadi) | ✓ |
+| C. Uç nokta işlev testleri (senaryo: 2 indirimli) | favori: kayıtlı market uyuşmazsa aynı kalem sayılmaz | ✓ |
+| C. Uç nokta işlev testleri (senaryo: 2 indirimli) | favori: yönetici adı değiştirdiyse kalem yine bulunur, name_changed=true | ✓ |
 | C. Uç nokta işlev testleri (senaryo: 2 indirimli) | /products/{id} fiyat geçmişi: önceki 59,90 TL, %-8 | ✓ |
 | C. Uç nokta işlev testleri (senaryo: 2 indirimli) |   geçmiş cümlesi sitedeki biçimde | ✓ |
 | C. Uç nokta işlev testleri (senaryo: 2 indirimli) |   eşleşme yoksa compare=null + açıklama | ✓ |
@@ -141,23 +168,32 @@ Toplam 255 kontrol · 255 geçti · 0 başarısız
 | C2. Boş site (katalog yok) | /compare boş | ✓ |
 | C2. Boş site (katalog yok) | /search boş: match none | ✓ |
 | C2. Boş site (katalog yok) | /assistant boş: ürün yok, hata yok | ✓ |
+| C3. Kaldırılan uç noktaların karşılığı | /meta yok (404) | ✓ |
+| C3. Kaldırılan uç noktaların karşılığı | /compare/{id} yok (404) | ✓ |
+| C3. Kaldırılan uç noktaların karşılığı | /meta.data_updated_at → /home data.data_updated_at | ✓ |
+| C3. Kaldırılan uç noktaların karşılığı | /meta.api_version ve server_time → HER yanıtta meta.api_version ve meta.generated_at (şu ana kadarki 327 yanıt) | ✓ |
+| C3. Kaldırılan uç noktaların karşılığı | /meta.ttl → her yanıtta Cache-Control max-age | ✓ |
+| C3. Kaldırılan uç noktaların karşılığı | /products/{id}.compare, /compare listesindeki grupla birebir aynı (37 kalem, 13 grup) | ✓ |
+| C3. Kaldırılan uç noktaların karşılığı |   grupta olmayan 26 aktif kalemde compare=null ve açıklama var | ✓ |
 | D. Web ↔ API eşdeğerlik (senaryo: 2 indirimli) | home: öne çıkanlar (ad, fiyat, sıra) aynı | ✓ |
 | D. Web ↔ API eşdeğerlik (senaryo: 2 indirimli) | home: öne çıkanlar başlığı aynı | ✓ |
 | D. Web ↔ API eşdeğerlik (senaryo: 2 indirimli) | home: güncel kataloglar aynı | ✓ |
 | D. Web ↔ API eşdeğerlik (senaryo: 2 indirimli) | home: öne çıkan karşılaştırma aynı | ✓ |
-| D. Web ↔ API eşdeğerlik (senaryo: 2 indirimli) | products ↔ ara.php []: toplam ve kart sırası aynı | ✓ |
-| D. Web ↔ API eşdeğerlik (senaryo: 2 indirimli) | products ↔ ara.php [q=s%C3%BCt]: toplam ve kart sırası aynı | ✓ |
-| D. Web ↔ API eşdeğerlik (senaryo: 2 indirimli) | products ↔ ara.php [q=s%C3%BCt&o=asc]: toplam ve kart sırası aynı | ✓ |
-| D. Web ↔ API eşdeğerlik (senaryo: 2 indirimli) | products ↔ ara.php [q=s%C3%BCt&o=desc]: toplam ve kart sırası aynı | ✓ |
-| D. Web ↔ API eşdeğerlik (senaryo: 2 indirimli) | products ↔ ara.php [m=bim]: toplam ve kart sırası aynı | ✓ |
-| D. Web ↔ API eşdeğerlik (senaryo: 2 indirimli) | products ↔ ara.php [k=gida&st=hepsi]: toplam ve kart sırası aynı | ✓ |
-| D. Web ↔ API eşdeğerlik (senaryo: 2 indirimli) | products ↔ ara.php [st=yaklasan]: toplam ve kart sırası aynı | ✓ |
-| D. Web ↔ API eşdeğerlik (senaryo: 2 indirimli) | products ↔ ara.php [st=dolmus]: toplam ve kart sırası aynı | ✓ |
-| D. Web ↔ API eşdeğerlik (senaryo: 2 indirimli) | products ↔ ara.php [min=100&max=500]: toplam ve kart sırası aynı | ✓ |
-| D. Web ↔ API eşdeğerlik (senaryo: 2 indirimli) | products ↔ ara.php [q=%25]: toplam ve kart sırası aynı | ✓ |
-| D. Web ↔ API eşdeğerlik (senaryo: 2 indirimli) | products ↔ ara.php [q=_]: toplam ve kart sırası aynı | ✓ |
-| D. Web ↔ API eşdeğerlik (senaryo: 2 indirimli) | products ↔ ara.php [q=Kampanya_Sepeti]: toplam ve kart sırası aynı | ✓ |
-| D. Web ↔ API eşdeğerlik (senaryo: 2 indirimli) | products ↔ ara.php [st=hepsi&off=24]: toplam ve kart sırası aynı | ✓ |
+| D. Web ↔ API eşdeğerlik (senaryo: 2 indirimli) | products ↔ ara.php []: toplam ve kart sırası BİREBİR aynı | ✓ |
+| D. Web ↔ API eşdeğerlik (senaryo: 2 indirimli) | products ↔ ara.php [q=s%C3%BCt]: toplam ve kart sırası BİREBİR aynı | ✓ |
+| D. Web ↔ API eşdeğerlik (senaryo: 2 indirimli) | products ↔ ara.php [q=s%C3%BCt&o=asc]: toplam ve kart sırası BİREBİR aynı | ✓ |
+| D. Web ↔ API eşdeğerlik (senaryo: 2 indirimli) | products ↔ ara.php [q=s%C3%BCt&o=desc]: toplam ve kart sırası BİREBİR aynı | ✓ |
+| D. Web ↔ API eşdeğerlik (senaryo: 2 indirimli) | products ↔ ara.php [m=bim]: toplam ve kart sırası BİREBİR aynı | ✓ |
+| D. Web ↔ API eşdeğerlik (senaryo: 2 indirimli) | products ↔ ara.php [k=gida&st=hepsi]: toplam ve kart sırası BİREBİR aynı | ✓ |
+| D. Web ↔ API eşdeğerlik (senaryo: 2 indirimli) | products ↔ ara.php [st=yaklasan]: toplam ve kart sırası BİREBİR aynı | ✓ |
+| D. Web ↔ API eşdeğerlik (senaryo: 2 indirimli) | products ↔ ara.php [st=dolmus]: toplam ve kart sırası BİREBİR aynı | ✓ |
+| D. Web ↔ API eşdeğerlik (senaryo: 2 indirimli) | products ↔ ara.php [min=100&max=500]: toplam ve kart sırası BİREBİR aynı | ✓ |
+| D. Web ↔ API eşdeğerlik (senaryo: 2 indirimli) | products ↔ ara.php [q=%25]: toplam ve kart sırası BİREBİR aynı | ✓ |
+| D. Web ↔ API eşdeğerlik (senaryo: 2 indirimli) | products ↔ ara.php [q=_]: toplam ve kart sırası BİREBİR aynı | ✓ |
+| D. Web ↔ API eşdeğerlik (senaryo: 2 indirimli) | products ↔ ara.php [q=Kampanya_Sepeti]: toplam ve kart sırası BİREBİR aynı | ✓ |
+| D. Web ↔ API eşdeğerlik (senaryo: 2 indirimli) | products ↔ ara.php [st=hepsi&off=24]: toplam ve kart sırası BİREBİR aynı | ✓ |
+| D. Web ↔ API eşdeğerlik (senaryo: 2 indirimli) | products ↔ ara.php [q=e%C5%9Fitlik&o=asc]: toplam ve kart sırası BİREBİR aynı | ✓ |
+| D. Web ↔ API eşdeğerlik (senaryo: 2 indirimli) | products ↔ ara.php [k=diger&off=24]: toplam ve kart sırası BİREBİR aynı | ✓ |
 | D. Web ↔ API eşdeğerlik (senaryo: 2 indirimli) | categories ↔ ara.php kategori seçimi (sıra) | ✓ |
 | D. Web ↔ API eşdeğerlik (senaryo: 2 indirimli) | search ↔ asistan.php [en ucuz süt]: toplam, kartlar, 'Anladığım' | ✓ |
 | D. Web ↔ API eşdeğerlik (senaryo: 2 indirimli) | search ↔ asistan.php [bim süt 1 lt]: toplam, kartlar, 'Anladığım' | ✓ |
@@ -197,19 +233,21 @@ Toplam 255 kontrol · 255 geçti · 0 başarısız
 | D. Web ↔ API eşdeğerlik (senaryo: 5 indirimli) | home: öne çıkanlar başlığı aynı | ✓ |
 | D. Web ↔ API eşdeğerlik (senaryo: 5 indirimli) | home: güncel kataloglar aynı | ✓ |
 | D. Web ↔ API eşdeğerlik (senaryo: 5 indirimli) | home: öne çıkan karşılaştırma aynı | ✓ |
-| D. Web ↔ API eşdeğerlik (senaryo: 5 indirimli) | products ↔ ara.php []: toplam ve kart sırası aynı | ✓ |
-| D. Web ↔ API eşdeğerlik (senaryo: 5 indirimli) | products ↔ ara.php [q=s%C3%BCt]: toplam ve kart sırası aynı | ✓ |
-| D. Web ↔ API eşdeğerlik (senaryo: 5 indirimli) | products ↔ ara.php [q=s%C3%BCt&o=asc]: toplam ve kart sırası aynı | ✓ |
-| D. Web ↔ API eşdeğerlik (senaryo: 5 indirimli) | products ↔ ara.php [q=s%C3%BCt&o=desc]: toplam ve kart sırası aynı | ✓ |
-| D. Web ↔ API eşdeğerlik (senaryo: 5 indirimli) | products ↔ ara.php [m=bim]: toplam ve kart sırası aynı | ✓ |
-| D. Web ↔ API eşdeğerlik (senaryo: 5 indirimli) | products ↔ ara.php [k=gida&st=hepsi]: toplam ve kart sırası aynı | ✓ |
-| D. Web ↔ API eşdeğerlik (senaryo: 5 indirimli) | products ↔ ara.php [st=yaklasan]: toplam ve kart sırası aynı | ✓ |
-| D. Web ↔ API eşdeğerlik (senaryo: 5 indirimli) | products ↔ ara.php [st=dolmus]: toplam ve kart sırası aynı | ✓ |
-| D. Web ↔ API eşdeğerlik (senaryo: 5 indirimli) | products ↔ ara.php [min=100&max=500]: toplam ve kart sırası aynı | ✓ |
-| D. Web ↔ API eşdeğerlik (senaryo: 5 indirimli) | products ↔ ara.php [q=%25]: toplam ve kart sırası aynı | ✓ |
-| D. Web ↔ API eşdeğerlik (senaryo: 5 indirimli) | products ↔ ara.php [q=_]: toplam ve kart sırası aynı | ✓ |
-| D. Web ↔ API eşdeğerlik (senaryo: 5 indirimli) | products ↔ ara.php [q=Kampanya_Sepeti]: toplam ve kart sırası aynı | ✓ |
-| D. Web ↔ API eşdeğerlik (senaryo: 5 indirimli) | products ↔ ara.php [st=hepsi&off=24]: toplam ve kart sırası aynı | ✓ |
+| D. Web ↔ API eşdeğerlik (senaryo: 5 indirimli) | products ↔ ara.php []: toplam ve kart sırası BİREBİR aynı | ✓ |
+| D. Web ↔ API eşdeğerlik (senaryo: 5 indirimli) | products ↔ ara.php [q=s%C3%BCt]: toplam ve kart sırası BİREBİR aynı | ✓ |
+| D. Web ↔ API eşdeğerlik (senaryo: 5 indirimli) | products ↔ ara.php [q=s%C3%BCt&o=asc]: toplam ve kart sırası BİREBİR aynı | ✓ |
+| D. Web ↔ API eşdeğerlik (senaryo: 5 indirimli) | products ↔ ara.php [q=s%C3%BCt&o=desc]: toplam ve kart sırası BİREBİR aynı | ✓ |
+| D. Web ↔ API eşdeğerlik (senaryo: 5 indirimli) | products ↔ ara.php [m=bim]: toplam ve kart sırası BİREBİR aynı | ✓ |
+| D. Web ↔ API eşdeğerlik (senaryo: 5 indirimli) | products ↔ ara.php [k=gida&st=hepsi]: toplam ve kart sırası BİREBİR aynı | ✓ |
+| D. Web ↔ API eşdeğerlik (senaryo: 5 indirimli) | products ↔ ara.php [st=yaklasan]: toplam ve kart sırası BİREBİR aynı | ✓ |
+| D. Web ↔ API eşdeğerlik (senaryo: 5 indirimli) | products ↔ ara.php [st=dolmus]: toplam ve kart sırası BİREBİR aynı | ✓ |
+| D. Web ↔ API eşdeğerlik (senaryo: 5 indirimli) | products ↔ ara.php [min=100&max=500]: toplam ve kart sırası BİREBİR aynı | ✓ |
+| D. Web ↔ API eşdeğerlik (senaryo: 5 indirimli) | products ↔ ara.php [q=%25]: toplam ve kart sırası BİREBİR aynı | ✓ |
+| D. Web ↔ API eşdeğerlik (senaryo: 5 indirimli) | products ↔ ara.php [q=_]: toplam ve kart sırası BİREBİR aynı | ✓ |
+| D. Web ↔ API eşdeğerlik (senaryo: 5 indirimli) | products ↔ ara.php [q=Kampanya_Sepeti]: toplam ve kart sırası BİREBİR aynı | ✓ |
+| D. Web ↔ API eşdeğerlik (senaryo: 5 indirimli) | products ↔ ara.php [st=hepsi&off=24]: toplam ve kart sırası BİREBİR aynı | ✓ |
+| D. Web ↔ API eşdeğerlik (senaryo: 5 indirimli) | products ↔ ara.php [q=e%C5%9Fitlik&o=asc]: toplam ve kart sırası BİREBİR aynı | ✓ |
+| D. Web ↔ API eşdeğerlik (senaryo: 5 indirimli) | products ↔ ara.php [k=diger&off=24]: toplam ve kart sırası BİREBİR aynı | ✓ |
 | D. Web ↔ API eşdeğerlik (senaryo: 5 indirimli) | categories ↔ ara.php kategori seçimi (sıra) | ✓ |
 | D. Web ↔ API eşdeğerlik (senaryo: 5 indirimli) | search ↔ asistan.php [en ucuz süt]: toplam, kartlar, 'Anladığım' | ✓ |
 | D. Web ↔ API eşdeğerlik (senaryo: 5 indirimli) | search ↔ asistan.php [bim süt 1 lt]: toplam, kartlar, 'Anladığım' | ✓ |
@@ -245,6 +283,28 @@ Toplam 255 kontrol · 255 geçti · 0 başarısız
 | D. Web ↔ API eşdeğerlik (senaryo: 5 indirimli) | pages/hakkimizda ↔ sayfa.php | ✓ |
 | D. Web ↔ API eşdeğerlik (senaryo: 5 indirimli) | pages/iletisim ↔ sayfa.php | ✓ |
 | D. Web ↔ API eşdeğerlik (senaryo: 5 indirimli) | pages/kosullar ↔ sayfa.php | ✓ |
+| T. Türkçe karakter ve ürün adı farkları | UTF-8: Türkçe adlar API'de baytı baytına korunuyor (7 ad) | ✓ |
+| T. Türkçe karakter ve ürün adı farkları |   JSON, Türkçe karakterleri \u kaçışı olmadan UTF-8 taşıyor | ✓ |
+| T. Türkçe karakter ve ürün adı farkları | [İnci] ara.php / asistan.php / öneri ile API aynı (1 / 1 / 1 sonuç) | ✓ |
+| T. Türkçe karakter ve ürün adı farkları | [inci] ara.php / asistan.php / öneri ile API aynı (1 / 1 / 1 sonuç) | ✓ |
+| T. Türkçe karakter ve ürün adı farkları | [INCI] ara.php / asistan.php / öneri ile API aynı (1 / 1 / 1 sonuç) | ✓ |
+| T. Türkçe karakter ve ürün adı farkları | [ISITEK] ara.php / asistan.php / öneri ile API aynı (5 / 5 / 4 sonuç) | ✓ |
+| T. Türkçe karakter ve ürün adı farkları | [ısıtek] ara.php / asistan.php / öneri ile API aynı (5 / 5 / 4 sonuç) | ✓ |
+| T. Türkçe karakter ve ürün adı farkları | [Isıtek] ara.php / asistan.php / öneri ile API aynı (5 / 5 / 4 sonuç) | ✓ |
+| T. Türkçe karakter ve ürün adı farkları | [şeker] ara.php / asistan.php / öneri ile API aynı (1 / 1 / 1 sonuç) | ✓ |
+| T. Türkçe karakter ve ürün adı farkları | [ŞEKER] ara.php / asistan.php / öneri ile API aynı (1 / 1 / 1 sonuç) | ✓ |
+| T. Türkçe karakter ve ürün adı farkları | [Şeker] ara.php / asistan.php / öneri ile API aynı (1 / 1 / 1 sonuç) | ✓ |
+| T. Türkçe karakter ve ürün adı farkları | [çay] ara.php / asistan.php / öneri ile API aynı (2 / 2 / 2 sonuç) | ✓ |
+| T. Türkçe karakter ve ürün adı farkları | [ÇAY] ara.php / asistan.php / öneri ile API aynı (2 / 2 / 2 sonuç) | ✓ |
+| T. Türkçe karakter ve ürün adı farkları | [dağköy] ara.php / asistan.php / öneri ile API aynı (2 / 1 / 1 sonuç) | ✓ |
+| T. Türkçe karakter ve ürün adı farkları | [DAĞKÖY] ara.php / asistan.php / öneri ile API aynı (2 / 1 / 1 sonuç) | ✓ |
+| T. Türkçe karakter ve ürün adı farkları | [yoğurt] ara.php / asistan.php / öneri ile API aynı (1 / 1 / 1 sonuç) | ✓ |
+| T. Türkçe karakter ve ürün adı farkları | [YOĞURT] ara.php / asistan.php / öneri ile API aynı (1 / 1 / 1 sonuç) | ✓ |
+| T. Türkçe karakter ve ürün adı farkları | [kırmızı] ara.php / asistan.php / öneri ile API aynı (2 / 1 / 1 sonuç) | ✓ |
+| T. Türkçe karakter ve ürün adı farkları | [KIRMIZI] ara.php / asistan.php / öneri ile API aynı (2 / 1 / 1 sonuç) | ✓ |
+| T. Türkçe karakter ve ürün adı farkları | [eşitlik iota] ara.php / asistan.php / öneri ile API aynı (3 / 3 / 3 sonuç) | ✓ |
+| T. Türkçe karakter ve ürün adı farkları | favori "Dağköy Peynir 500 g" (geçen hafta) → bu hafta "DAĞKÖY PEYNİR 500 G" ile EŞLEŞTİRİLMEZ (hash farklı, aday yok) | ✓ |
+| T. Türkçe karakter ve ürün adı farkları | favori "Kırmızı Mercimek 1 kg" → aynı yazımlı yeni kalem yalnızca ADAY, confirmed=false | ✓ |
 | E. Güvenlik testleri | 400 INVALID_PARAMETER: products?market=bim'%20OR%20'1'='1 | ✓ |
 | E. Güvenlik testleri | 400 INVALID_PARAMETER: products?category=gida';-- | ✓ |
 | E. Güvenlik testleri | 400 INVALID_PARAMETER: products?page=0 | ✓ |
@@ -256,7 +316,10 @@ Toplam 255 kontrol · 255 geçti · 0 başarısız
 | E. Güvenlik testleri | 400 INVALID_PARAMETER: products?q=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa | ✓ |
 | E. Güvenlik testleri | 400 INVALID_PARAMETER: products?q=%ff%fe | ✓ |
 | E. Güvenlik testleri | 400 INVALID_PARAMETER: products?fav=1:xyz | ✓ |
-| E. Güvenlik testleri | 400 INVALID_PARAMETER: products?fav=1:c4ca4238a0b923820dcc509a6f75849b,1:c81e728d9d4c2f636f067f89cc14862c,1:eccbc87e4b5ce2fe28308fd9f2a7baf3,1:a87ff679a2f3e71d9181a67b7542122c,1:e4da3b7fbbce2345d7772b0674a318d5,1:1679091c5a880faf6fb5e6087eb1b2dc,1:8f14e45fceea167a5a36dedd4bea2543,1:c9f0f895fb98ab9159f51fd0297e236d,1:45c48cce2e2d7fbdea1afc51c7c6ad26,1:d3d9446802a44259755d38e6d163e820,1:6512bd43d9caa6e02c990b0a82652dca,1:c20ad4d76fe97759aa27a0c99bff6710,1:c51ce410c124a10e0db5e4b97fc2af39,1:aab3238922bcc25a6f606eb525ffdc56,1:9bf31c7ff062936a96d3c8bd1f8f2ff3,1:c74d97b01eae257e44aa9d5bade97baf,1:70efdf2ec9b086079795c442636b55fb,1:6f4922f45568161a8cdf4ad2299f6d23,1:1f0e3dad99908345f7439f8ffabdffc4,1:98f13708210194c475687be6106a3b84,1:3c59dc048e8850243be8079a5c74d079,1:b6d767d2f8ed5d21a44b0e5886680cb9,1:37693cfc748049e45d87b8c7d8b9aacd,1:1ff1de774005f8da13f42943881c655f,1:8e296a067a37563370ded05f5a3bf3ec,1:4e732ced3463d06de0ca9a15b6153677,1:02e74f10e0327ad868d138f2b4fdd6f0,1:33e75ff09dd601bbe69f351039152189,1:6ea9ab1baa0efb9e19094440c317e21b,1:34173cb38f07f89ddbebc2ac9128303f,1:c16a5320fa475530d9583c34fd356ef5,1:6364d3f0f495b6ab9dcf8d3b5c6e0b01,1:182be0c5cdcd5072bb1864cdee4d3d6e,1:e369853df766fa44e1ed0ff613f563bd,1:1c383cd30b7c298ab50293adfecb7b18,1:19ca14e7ea6328a42e0eb13d585e4c22,1:a5bfc9e07964f8dddeb95fc584cd965d,1:a5771bce93e200c36f7cd9dfd0e5deaa,1:d67d8ab4f4c10bf22aa353e27879133c,1:d645920e395fedad7bbbed0eca3fe2e0,1:3416a75f4cea9109507cacd8e2f2aefc,1:a1d0c6e83f027327d8461063f4ac58a6,1:17e62166fc8586dfa4d1bc0e1742c08b,1:f7177163c833dff4b38fc8d2872f1ec6,1:6c8349cc7260ae62e3b1396831a8398f,1:d9d4f495e875a2e075a1a4a6e1b9770f,1:67c6a1e7ce56d3d6fa748ab6d9af3fd7,1:642e92efb79421734881b53e1e1b18b6,1:f457c545a9ded88f18ecee47145a72c0,1:c0c7c76d30bd3dcaefc96f40275bdc0a,1:2838023a778dfaecdc212708f721b788 | ✓ |
+| E. Güvenlik testleri | 400 INVALID_PARAMETER: products?fav=1:1:xyz | ✓ |
+| E. Güvenlik testleri | 400 INVALID_PARAMETER: products?fav=0:1:0cc175b9c0f1b6a831c399e269772661 | ✓ |
+| E. Güvenlik testleri | 400 INVALID_PARAMETER: products?fav=1:0cc175b9c0f1b6a831c399e269772661 | ✓ |
+| E. Güvenlik testleri | 400 INVALID_PARAMETER: products?fav=1:1:c4ca4238a0b923820dcc509a6f75849b,2:1:c81e728d9d4c2f636f067f89cc14862c,3:1:eccbc87e4b5ce2fe28308fd9f2a7baf3,4:1:a87ff679a2f3e71d9181a67b7542122c,5:1:e4da3b7fbbce2345d7772b0674a318d5,6:1:1679091c5a880faf6fb5e6087eb1b2dc,7:1:8f14e45fceea167a5a36dedd4bea2543,8:1:c9f0f895fb98ab9159f51fd0297e236d,9:1:45c48cce2e2d7fbdea1afc51c7c6ad26,10:1:d3d9446802a44259755d38e6d163e820,11:1:6512bd43d9caa6e02c990b0a82652dca,12:1:c20ad4d76fe97759aa27a0c99bff6710,13:1:c51ce410c124a10e0db5e4b97fc2af39,14:1:aab3238922bcc25a6f606eb525ffdc56,15:1:9bf31c7ff062936a96d3c8bd1f8f2ff3,16:1:c74d97b01eae257e44aa9d5bade97baf,17:1:70efdf2ec9b086079795c442636b55fb,18:1:6f4922f45568161a8cdf4ad2299f6d23,19:1:1f0e3dad99908345f7439f8ffabdffc4,20:1:98f13708210194c475687be6106a3b84,21:1:3c59dc048e8850243be8079a5c74d079,22:1:b6d767d2f8ed5d21a44b0e5886680cb9,23:1:37693cfc748049e45d87b8c7d8b9aacd,24:1:1ff1de774005f8da13f42943881c655f,25:1:8e296a067a37563370ded05f5a3bf3ec,26:1:4e732ced3463d06de0ca9a15b6153677,27:1:02e74f10e0327ad868d138f2b4fdd6f0,28:1:33e75ff09dd601bbe69f351039152189,29:1:6ea9ab1baa0efb9e19094440c317e21b,30:1:34173cb38f07f89ddbebc2ac9128303f,31:1:c16a5320fa475530d9583c34fd356ef5,32:1:6364d3f0f495b6ab9dcf8d3b5c6e0b01,33:1:182be0c5cdcd5072bb1864cdee4d3d6e,34:1:e369853df766fa44e1ed0ff613f563bd,35:1:1c383cd30b7c298ab50293adfecb7b18,36:1:19ca14e7ea6328a42e0eb13d585e4c22,37:1:a5bfc9e07964f8dddeb95fc584cd965d,38:1:a5771bce93e200c36f7cd9dfd0e5deaa,39:1:d67d8ab4f4c10bf22aa353e27879133c,40:1:d645920e395fedad7bbbed0eca3fe2e0,41:1:3416a75f4cea9109507cacd8e2f2aefc,42:1:a1d0c6e83f027327d8461063f4ac58a6,43:1:17e62166fc8586dfa4d1bc0e1742c08b,44:1:f7177163c833dff4b38fc8d2872f1ec6,45:1:6c8349cc7260ae62e3b1396831a8398f,46:1:d9d4f495e875a2e075a1a4a6e1b9770f,47:1:67c6a1e7ce56d3d6fa748ab6d9af3fd7,48:1:642e92efb79421734881b53e1e1b18b6,49:1:f457c545a9ded88f18ecee47145a72c0,50:1:c0c7c76d30bd3dcaefc96f40275bdc0a,51:1:2838023a778dfaecdc212708f721b788 | ✓ |
 | E. Güvenlik testleri | 400 INVALID_PARAMETER: catalogs?market=../etc | ✓ |
 | E. Güvenlik testleri | 400 INVALID_PARAMETER: search?q= | ✓ |
 | E. Güvenlik testleri | 400 INVALID_PARAMETER: search?q=%C5%9F%C5%9F%C5%9F%C5%9F%C5%9F%C5%9F%C5%9F%C5%9F%C5%9F%C5%9F%C5%9F%C5%9F%C5%9F%C5%9F%C5%9F%C5%9F%C5%9F%C5%9F%C5%9F%C5%9F%C5%9F%C5%9F%C5%9F%C5%9F%C5%9F%C5%9F%C5%9F%C5%9F%C5%9F%C5%9F%C5%9F%C5%9F%C5%9F%C5%9F%C5%9F%C5%9F%C5%9F%C5%9F%C5%9F%C5%9F%C5%9F%C5%9F%C5%9F%C5%9F%C5%9F%C5%9F%C5%9F%C5%9F%C5%9F%C5%9F%C5%9F%C5%9F%C5%9F%C5%9F%C5%9F%C5%9F%C5%9F%C5%9F%C5%9F%C5%9F%C5%9F%C5%9F%C5%9F%C5%9F%C5%9F%C5%9F%C5%9F%C5%9F%C5%9F%C5%9F%C5%9F%C5%9F%C5%9F%C5%9F%C5%9F%C5%9F%C5%9F%C5%9F%C5%9F%C5%9F%C5%9F%C5%9F%C5%9F%C5%9F%C5%9F%C5%9F%C5%9F%C5%9F%C5%9F%C5%9F%C5%9F%C5%9F%C5%9F%C5%9F%C5%9F%C5%9F%C5%9F%C5%9F%C5%9F%C5%9F%C5%9F%C5%9F%C5%9F%C5%9F%C5%9F%C5%9F%C5%9F%C5%9F%C5%9F%C5%9F%C5%9F%C5%9F%C5%9F%C5%9F%C5%9F%C5%9F%C5%9F%C5%9F%C5%9F%C5%9F%C5%9F | ✓ |
@@ -292,11 +355,22 @@ Toplam 255 kontrol · 255 geçti · 0 başarısız
 | E. Güvenlik testleri | HTML/JS girdisi JSON içinde çalıştırılabilir çıktı üretmez | ✓ |
 | E. Güvenlik testleri | HTTPS yoksa 400 HTTPS_REQUIRED | ✓ |
 | E. Güvenlik testleri | hız sınırı: 5 istek/dk sonrası 429 + Retry-After | ✓ |
+| E. Güvenlik testleri | Cloudflare dışı kaynak: her istekte farklı sahte CF-Connecting-IP gönderilse de sınır aşılamaz (6. istek 429) | ✓ |
+| E. Güvenlik testleri | güvenilir Cloudflare kaynağı: sınır ziyaretçi IP'sine göre (A: 6. istek 429; B (IPv6) etkilenmez) | ✓ |
+| E. Güvenlik testleri | güvenilir kaynak + geçersiz CF-Connecting-IP değeri → başlık yok sayılır, bağlantı adresi sayılır (6. istek 429) | ✓ |
+| E. Güvenlik testleri | CIDR denetimi birim testi (IPv4/IPv6, sınır değerleri, geçersiz adres) — 12 durum | ✓ |
+| E. Güvenlik testleri | ölümcül PHP hatası → JSON 500 INTERNAL_ERROR (ayrıntı sızmaz) | ✓ |
+| E. Güvenlik testleri | site kodunun düz metin basıp çıkması (inc.php db() davranışı) → JSON 503 SERVICE_UNAVAILABLE | ✓ |
+| E. Güvenlik testleri | veritabanına ulaşılamıyor → JSON 503 + Retry-After | ✓ |
+| E. Güvenlik testleri |   POST /assistant aynı durumda da JSON 503 | ✓ |
+| E. Güvenlik testleri | şu ana kadarki TÜM hata yanıtları (63 adet: 400/404/405/413/429/500/503) geçerli JSON hata zarfı | ✓ |
 | E. Güvenlik testleri | lib/ ve endpoints/ dosyaları MK_API olmadan çıktı üretmez/çalışmaz | ✓ |
 | E. Güvenlik testleri | sızıntı yok (gizli ayar, yönetici, gizli katalog, hata ayrıntısı, sunucu yolu, uzak görsel) | ✓ |
 | F. Salt okunurluk (inc.php değiştirilmeden) | T-RO-1 sorgu günlüğü: API bağlantılarında yalnızca SELECT + oturum kilidi | ✓ |
 | F. Salt okunurluk (inc.php değiştirilmeden) |   her API bağlantısı kilitlendi (bağlantı başına 1 kilit; ön kontrol + inc.php bağlantısı) | ✓ |
 | F. Salt okunurluk (inc.php değiştirilmeden) | T-RO-2 API önyüklemesinden sonra q("INSERT …") veritabanınca reddedilir (1792) | ✓ |
+| F. Salt okunurluk (inc.php değiştirilmeden) | T-RO-4 (bağımsız) YALNIZCA SELECT yetkili kullanıcıyla bütün uç noktalar çalışıyor ve root ile aynı yanıtı veriyor (18 çağrı) | ✓ |
+| F. Salt okunurluk (inc.php değiştirilmeden) | T-RO-5 (bağımsız) bütün API çağrılarından önce/sonra 13 tablonun sağlama toplamı (CHECKSUM TABLE) aynı | ✓ |
 | F. Salt okunurluk (inc.php değiştirilmeden) | T-RO-3 schema_v='4' iken API 503 döner, inc.php yüklenmez, hiçbir yazma olmaz | ✓ |
 | F. Salt okunurluk (inc.php değiştirilmeden) |   karşılaştırma: aynı durumda SİTE (inc.php) şemayı günceller (schema_v '4'→'5') — korumanın neden gerekli olduğunu gösterir | ✓ |
 | G. Statik denetimler | API ve ortak-veri.php içinde yazma SQL anahtar kelimesi yok | ✓ |

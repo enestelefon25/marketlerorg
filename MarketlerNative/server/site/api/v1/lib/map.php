@@ -65,7 +65,7 @@ function mk_item($r) {
   $disc = ($r['old_price'] && $r['old_price'] > $r['price']);   /* pcard() kuralı: indirim yalnızca old_price > price ise */
   $u = as_uprice($r['name'], (float)$r['price'], $r['cn']);
   $img = item_img($r['id']);
-  return ['id' => (int)$r['id'], 'fav_key' => ((int)($r['sid'] ?? 0)).':'.($r['hash'] ?? ''), 'hash' => $r['hash'] ?? null,
+  return ['id' => (int)$r['id'], 'fav_key' => (int)$r['id'].':'.((int)($r['sid'] ?? 0)).':'.($r['hash'] ?? ''),   /* tek standart: itemId:storeId:hash (= /products?fav= biçimi) */ 'hash' => $r['hash'] ?? null,
     'name' => $r['name'], 'category' => ['slug' => $r['ks'] ?? null, 'name' => $r['cn']],
     'market' => mk_market_ref($r['sid'] ?? 0, $r['ss'], $r['sn'], $r['color']),
     'price' => mk_money($r['price']), 'price_text' => tl($r['price']),

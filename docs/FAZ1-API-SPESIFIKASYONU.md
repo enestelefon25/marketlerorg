@@ -11,7 +11,7 @@
 ## A. Genel kurallar
 
 ### A.1 Adres, yöntem, biçim
-- Temel adres: `https://marketler.org/api/v1/`. Yalnızca HTTPS; HTTP isteği 301 ile HTTPS'e yönlendirilir (mevcut `.htaccess` kuralı).
+- Temel adres: `https://marketler.org/api/v1/`. Yalnızca HTTPS; HTTP isteği 301 ile HTTPS'e yönlendirilir (mevcut `.htaccess` kuralı). PHP tarafında HTTPS yalnızca doğrudan bağlantıdan (`HTTPS` sunucu değişkeni) ya da **güvenilir vekilin** (Cloudflare IP aralıkları) bildirdiği `X-Forwarded-Proto` / `CF-Visitor` başlığından kabul edilir; başka kaynaktan gelen bu başlıklar yok sayılır ve istek `400 HTTPS_REQUIRED` alır (revizyon 3).
 - Yöntemler:
   - `GET`: 15 uç nokta
   - `POST`: yalnızca `/assistant`
@@ -102,7 +102,7 @@ Gizli bir katalog veya ürün istendiğinde, varlığını sızdırmamak için `
 | Alan | Tür | Kaynak / kural |
 |---|---|---|
 | `id` | int | `items.id` |
-| `fav_key` | string | `"{store_id}:{hash}"` (bkz. bölüm D) |
+| `fav_key` | string | `"{item_id}:{store_id}:{hash}"`: tek standart; `/products?fav=` aynı biçimi bekler (revizyon 3). Hash kalıcı kimlik değildir, bkz. `FAZ1-UC-NOKTALAR.md` bölüm 7 |
 | `hash` | string(32) | `items.hash` |
 | `name` | string | `items.name` |
 | `category` | `{slug, name}` | `categories` (`PSEL` → `cn`) |
@@ -209,11 +209,11 @@ Her uç noktada, sitede karşılığı olan sayfa ile aynı veriyi verdiği FAZ 
 | `date` | `d` | `YYYY-MM-DD` (verilirse `status` yerine geçer) | – |
 | `sort` | `o` | `new\|asc\|desc` (`new` = sitedeki boş değer) | `new` |
 | `page`, `limit` | `off` | limit ≤50 | 1, 24 |
-| `fav` | – | En çok 50 adet `storeId:hash`, virgülle ayrılmış | – |
+| `fav` | – | En çok 50 adet `itemId:storeId:hash`, virgülle ayrılmış (güncel kurallar: `FAZ1-UC-NOKTALAR.md` bölüm 7) | – |
 
 - **data:** `Item[]`, `meta.total`.
 - **Mevcut:** `ara.php` WHERE kurgusu ve `PSEL`, sıralama beyaz listesi (`i.price ASC/DESC`, varsayılan `c.cdate DESC, i.name ASC`).
-- **`fav` modu** (favoriler ekranı için): Her anahtar için o market + hash ile eşleşen, **görünür kataloglardaki** kalemler bulunur. Her anahtar için tek kalem döner. Öncelik sırası: önce `live`, sonra `soon`, sonra `past`; aynı durumda en yeni `cdate`. Yanıtta `fav_key` alanıyla eşleştirilir. Bulunamayan anahtar `data.missing: string[]` içinde döner.
+- **`fav` modu** (favoriler ekranı için) — *Bu madde revizyon 2/3 ile değişti; geçerli kurallar `FAZ1-UC-NOKTALAR.md` bölüm 7'dedir. Aşağıdaki ilk taslak yalnızca tarihçe için korunmuştur:* Her anahtar için o market + hash ile eşleşen, **görünür kataloglardaki** kalemler bulunur. Her anahtar için tek kalem döner. Öncelik sırası: önce `live`, sonra `soon`, sonra `past`; aynı durumda en yeni `cdate`. Yanıtta `fav_key` alanıyla eşleştirilir. Bulunamayan anahtar `data.missing: string[]` içinde döner.
 - **Not (G5):** Site `%` ve `_` karakterlerini kaçışlamıyor. **Web ile aynı sonucu vermek için API de kaçışlamayacak.** Bu karakterler SQL enjeksiyonu riski taşımaz; yalnızca joker karakter olarak çalışır. Kaçışlama istenirse site ile birlikte değiştirilmelidir.
 
 ### 9. `GET /products/{id}`

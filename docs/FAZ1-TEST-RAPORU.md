@@ -1,81 +1,141 @@
-# FAZ 1: Son Teslim, Test Raporu (revizyon 2)
+# FAZ 1: Test Raporu (revizyon 3)
 
-**Ortam:** Bu bulut ortamı, PHP 8.3.6, MariaDB 10.11.14 (yetki denetimi açık). Veri **sentetik**. Şema, kullanıcının gönderdiği yalnızca yapı dökümü.
-**Canlı sistem:** Hiçbir dosya yüklenmedi, canlı veritabanına bağlanılmadı. Veritabanı şeması değişmedi. WebView projesine dokunulmadı. Android ekranlarına başlanmadı.
-**Sonuç:** Test takımı sıfırdan **iki kez** çalıştırıldı. Her çalıştırmada veritabanı, test sunucuları ve önbellekler yeniden kuruldu.
-- Çalıştırma 1: **319/319**
-- Çalıştırma 2: **320/320**
-- Fark, sayısı veriye göre değişen bir bilgi satırından ibaret (bölüm 4). Başarı ölçütleri iki çalıştırmada aynı.
+**Ortam:** Bu bulut ortamı (izole kapsayıcı), PHP 8.3.6, MariaDB 10.11.14 (yetki denetimi açık). Veri **sentetik**; şema kullanıcının gönderdiği yalnızca yapı dökümü.
+**Canlı sistem:** Hiçbir dosya yüklenmedi; canlı veritabanına bağlanılmadı. Veritabanı şeması, `inc.php`, `eslestirme.php`, `cron.php`, admin dosyaları ve WebView projesi değişmedi. Android ekranlarına başlanmadı. **Canlıya yükleme onayı yok.**
 
-## 1. Revizyon 2'de yapılan değişiklikler
+## Sonuç
 
-| # | Karar | Yapılan | Dosya |
-|---|---|---|---|
-| 1 | Favori: hash yalnızca ipucu | Favori artık `itemId:storeId:hash` ile sorgulanıyor. Favorinin **kendisi** `item_id` ile bulunuyor. Aynı market ve hash'e sahip başka kalemler yalnızca `candidates` (`confirmed:false`) olarak dönüyor; **otomatik eşleştirme yok**. Durumlar: `aktif`, `yaklasan`, `suresi_doldu`, `bulunamadi`; her biri açık bir mesajla. Yönetici adı değiştirdiyse `name_changed:true`. | `api/v1/endpoints/products.php` |
-| 2 | `ara.php` eşitlik düzeltmesi | Mevcut sıralama ölçütleri aynen korundu; yalnızca sonlarına `,i.id ASC` eklendi. API kopyası da aynı. | `site/ara.php` (yalnızca 15. satır), `products.php` |
-| 3 | Cloudflare | `CF-Connecting-IP` başlığı **yalnızca** isteği doğrudan gönderen adres (`REMOTE_ADDR`) Cloudflare IP aralıklarındaysa **ve** başlık geçerli bir IP ise kullanılıyor; aksi halde yok sayılıyor. IPv4 ve IPv6 CIDR denetimi var. | `api/v1/config.php`, `lib/ratelimit.php` |
-| 4 | Kaldırılan uç noktalar | `meta.api_version` her yanıta eklendi. Kaldırılan `/meta` ve `/compare/{id}` alanlarının alan alan karşılığı ve gerekçesi belgelendi; karşılıkların eksiksizliği testle doğrulandı. | `lib/response.php`, `docs/FAZ1-UC-NOKTALAR.md` |
-| 5 | Hata durumlarında JSON | Ölümcül PHP hatası ve `inc.php`'nin düz metin basıp çıkması durumunda da yanıt JSON hata zarfında dönüyor (500 / 503). | `lib/response.php`, `index.php` |
+| Çalıştırma (her biri sıfırdan, benzersiz veritabanı/kullanıcı/klasör ile) | Önceki testler | Yeni (R3) testler | Toplam | Çalıştırma sonrası artık kaynak |
+|---|---|---|---|---|
+| 1 | 322/322 | 59/59 | **381/381** | Yok (veritabanı, kullanıcı, klasör silindi; sorgu günlüğü ayarları geri yüklendi) |
+| 2 | 322/322 | 59/59 | **381/381** | Yok |
 
-## 2. Yeniden yapılan testler (istenen 7 başlık)
+**Önceki 320 testin korunması:** Revizyon 2'deki bütün kontroller ad ad eşleştirildi.
+- **Değişmeden korunan:** 317 kontrol.
+- **Değiştirilip güçlendirilen:** Kurulum grubundaki 3 kontrol, yeni güvenlik kuralları nedeniyle.
+  - "test veritabanı oluşturuldu" → "test veritabanı oluşturuldu + işaret tablosu".
+  - "`mk_test_ro` kullanıcısı hazır" → "bu çalıştırmaya özel `mk_ro_<belirteç>` kullanıcısı".
+  - "test sunucuları başladı" → 11 örnekle.
+- **Önceki bölüme eklenen:** Kurulum grubuna 2 kontrol (yerel sunucu denetimi, benzersiz adlar).
+- Bu yüzden önceki bölüm 320 yerine 322 kontrol içeriyor.
 
-| Başlık | Nasıl doğrulandı | Sonuç |
+## 1. Değişiklik listesi (revizyon 2 → 3)
+
+| Dosya | Satırlar (yeni dosyada) | Değişiklik |
 |---|---|---|
-| **API hiç yazma yapmıyor** | (a) MariaDB sorgu günlüğü: 104 API bağlantısı, 356 sorgu → hepsi `SELECT`, her bağlantıda bir `READ ONLY` kilidi, 0 başka ifade. (b) Önyükleme sonrası `INSERT` denemesini veritabanı reddetti (1792). (c) **Bağımsız:** API, **yalnızca SELECT yetkisi olan** bir veritabanı kullanıcısıyla çalıştırıldı; 18 çağrının hepsi başarılı ve tam yetkili kullanıcıyla aynı yanıtı verdi. (d) **Bağımsız:** Bütün API çağrılarından önce ve sonra 13 tablonun `CHECKSUM TABLE` değeri aynı. | ✅ |
-| **`schema_v` farklıyken güvenli durma** | `schema_v='4'` iken API `GET` ve `POST` isteklerinde 503 döndü. `inc.php` yüklenmedi; sorgu günlüğünde 0 yazma; tablo satır sayıları değişmedi. Karşılaştırma: aynı durumda site sayfası şemayı güncelliyor (`'4'`→`'5'`). | ✅ |
-| **Web ile API eşitliği** | İki senaryoda 14 uç nokta sitedeki karşılığıyla karşılaştırıldı: 15 ürün arama filtresi (**artık birebir sıra**), 8 akıllı arama, 5 öneri, 10 sohbet, karşılaştırma, benzer ürünler, kataloglar, katalog detayı, market sayfası, sayfa metinleri. | ✅ |
-| **Türkçe karakter ve ad farkları** | 7 Türkçe ad API'de baytı baytına korunuyor ve JSON'da `\u` kaçışı yok. 18 Türkçe sorguda (`İnci/inci/INCI`, `ISITEK/ısıtek/Isıtek`, `şeker/ŞEKER`, `çay/ÇAY`, `dağköy/DAĞKÖY`, `kırmızı/KIRMIZI`…) `ara.php`, `asistan.php` ve öneri sonuçları API ile birebir aynı. "Dağköy Peynir" ile "DAĞKÖY PEYNİR" favoride eşleştirilmiyor; aynı yazımlı yeni kalem yalnızca aday. | ✅ |
-| **Sayfalama tutarlılığı** | 18 `ara.php` sorgusunun her biri 6 tekrarda bayt bayt aynı. Web'de 24'lük sayfalar boyunca tekrar veya kayıp yok. API'de 8 filtre/sıralama için limit 3, 5 ve 7 ile gezilen sayfaların birleşimi tek listeyle birebir aynı; tekrar yok, kayıp yok. Sıralama kuralları (tarih↓ad↑ / fiyat↑ / fiyat↓) korunuyor, eşitlikte kalem no artan. `ara.php` farkının yalnızca ORDER satırı olduğu otomatik denetlendi. | ✅ |
-| **Cloudflare IP ve hız sınırı** | Güvenilmeyen kaynaktan, her istekte farklı sahte `CF-Connecting-IP` gönderilse de 6. istek 429 aldı. Güvenilir kaynakta sınır ziyaretçi IP'sine göre işliyor (bir ziyaretçinin sınırı diğerini etkilemiyor, IPv6 dahil). Güvenilir kaynak + geçersiz başlık değeri → başlık yok sayılıyor. CIDR birim testi 12/12 (IPv4/IPv6 sınır değerleri). | ✅ |
-| **Hata durumlarında JSON** | Hata enjeksiyonu (yalnızca geçici test kopyalarında): ölümcül PHP hatası → JSON 500; site kodunun düz metin basıp çıkması → JSON 503; veritabanına ulaşılamıyor → JSON 503 + `Retry-After`. Testler boyunca alınan **63 hata yanıtının hepsi** (400/404/405/413/429/500/503) geçerli JSON hata zarfı. Ayrıntı veya sunucu yolu sızmıyor. | ✅ |
+| `site/api/v1/lib/map.php` | 68 | `fav_key` = `itemId:storeId:hash` (tek standart; `/products?fav=` ile aynı) |
+| `site/api/v1/lib/proxy.php` | 1–42 (yeni) | Güvenilir vekil doğrulaması: `mk_ip_in_cidr`, `mk_from_trusted_proxy`, `mk_client_ip`, `mk_is_https` |
+| `site/api/v1/index.php` | 9, 13–14 | `proxy.php` yükleniyor. HTTPS yalnızca doğrudan bağlantıdan ya da **güvenilir vekil** başlığından kabul ediliyor; eski koşulsuz `X-Forwarded-Proto` / `CF-Visitor` kabulü kaldırıldı |
+| `site/api/v1/lib/ratelimit.php` | 2–4, 7–9, 14–15, 18–23 | IP fonksiyonları `proxy.php` dosyasına taşındı. Sayaç klasörü/dosyası hatasında **güvenli hata** (`mk_rate_fail`: 503 + `Retry-After` + sunucu günlüğü) |
+| `tests/guard.php` | 1–40 (yeni) | Test betiği güvenlik korumaları (yerel sunucu, ad kalıpları, varlık denetimi, silme güvencesi, klasör silme güvencesi) |
+| `tests/run.php` | 32 bölüm (3–120 kurulum, R3-S/F/H/R/Z grupları, F grubu sorgu günlüğü, rapor) | Güvenli kurulum/temizlik, benzersiz kaynaklar, `TRUNCATE` kaldırıldı, örnek başına `TMPDIR`, yeni test grupları, ayrı rapor tabloları |
+| `docs/FAZ1-API-SPESIFIKASYONU.md` | 14, 105, 212, 216 | HTTPS kuralı, `fav_key` biçimi, `fav` parametresi, eski favori maddesinin tarihçe notu |
+| `docs/FAZ1-UC-NOKTALAR.md` | 59–60, 87 | Favori anahtarı standardı notu, `meta.api_version`, örnek JSON'daki `fav_key` |
+| `MarketlerNative/server/README.md` | 16, 21–22, 26–27, 36–38, 41, 45–53 | `proxy.php`, `guard.php` satırları; "yalnızca izole yerel test ortamı" uyarısı; test betiği güvenliği bölümü |
 
-## 3. Kaldırılan uç noktaların karşılığı (C3)
-- `/meta` ve `/compare/{id}` → 404.
-- O ana kadar alınan **her** yanıtta `meta.api_version` ve `meta.generated_at` var.
-- `/home` yanıtında `data_updated_at` var; önbellek süresi `Cache-Control` başlığında.
-- `/compare` listesindeki **bütün** grupların **bütün** kalemleri için `/products/{id}.compare` alanı grupla birebir aynı. Grupta olmayan aktif kalemlerde `compare=null` ve açıklama dönüyor.
+**Değişmeyen site davranışı:** Bu revizyonda site dosyalarına (`ara.php`, `tema-modern-ana.php`, `ortak-veri.php`) dokunulmadı. B grubu (eski ve yeni site HTML karşılaştırması) ve D grubu (web ile API eşdeğerliği) yeniden geçti.
 
-## 4. Bulgular
+## 2. Yeni testler (R3), özet
 
-1. **`cmp_groups()` eşitlik sırası (sitede zaten var, `inc.php` değiştirilmedi).**
-   - Karşılaştırma önbelleği her seferinde silindiğinde değiştirilmemiş site `fiyat-karsilastirma.php` için 8 denemede 2–3 farklı çıktı üretti. Önbellek dururken çıktı sabit.
-   - Neden: fonksiyon ürünleri yalnızca `c.cdate DESC` ile sıralıyor. Eşit fiyatlı kayıtların sırası ve fiyat farkı eşit grupların sırası belirsiz.
-   - Canlıda site ve API aynı `cmpcache.json` dosyasını kullandığı için **ikisi birbiriyle tutarlı**; yalnızca önbellek yenilendiğinde sıra değişebiliyor.
-   - Testte bunu yalıtmak için yeni site, eski sitenin karşılaştırma önbelleğini kullandı.
-   - Öneri: `ara.php` düzeltmesindeki gibi sıralamaya `i.id` eklemek. Bu `inc.php` değişikliği gerektirdiği için **onayınıza bırakıldı**.
-2. **`ara.php` belirsizliği aralıklı.** Bu iki çalıştırmada eski `ara.php` 6'şar tekrarda farklı çıktı vermedi. Belirsizlik eski ve yeni site arasındaki eşitlik sırası farkında görüldü; daha önceki elle yapılan denemede de 6 tekrarda 2 farklı çıktı görülmüştü. Düzeltme, benzersiz `i.id` ölçütü sayesinde yapısı gereği kararlıdır; testler bunu doğruladı.
-3. **`items.hash` Türkçe "I" sorunu** (önceki rapordan, değişmedi). Favori tasarımı bu yüzden hash'e güvenmiyor.
-4. **Cloudflare IP listesi** geliştiricinin bilgisinden yazıldı; bu ortamdan `cloudflare.com` adresine erişilemedi. Canlıya almadan önce https://www.cloudflare.com/ips/ ile karşılaştırılmalı.
+| Grup | Kapsam | Sonuç |
+|---|---|---|
+| **R3-S Test betiği güvenliği** | 11 adreste yerel sunucu denetimi; ad kalıpları; silme koruması (yanlış belirteç, `mysql` / `information_schema`, işaret tablosu olmayan tuzak veritabanı, başka çalıştırmanın belirteci); kullanıcı çakışması; klasör silme sınırı; `MK_TEST_DB_HOST=10.0.0.5 / db.example.com / localhost:3307` ile **gerçek alt süreç** çalıştırma → çıkış kodu 3, hiçbir kaynak oluşmadı | 13/13 |
+| **R3-F Favori anahtarı** | **Olumlu:** 8 uç noktadan toplanan bütün ürün nesnelerinde `fav_key` = `itemId:storeId:hash`; 50 anahtarın değiştirilmeden geri sorgulanması; aktif kalem. **Olumsuz:** eski `storeId:hash` biçimi dahil 10 hatalı biçim → 400; yanlış market → `bulunamadi`; farklı hash → kalem `item_id` ile bulunur, `name_changed=true`, aday üretilmez. **Davranış korundu:** otomatik eşleştirme yok | 17/17 |
+| **R3-H HTTPS sahte başlık** | Canlı ayarda (127.0.0.1 güvenilir değil) 7 sahte başlık birleşimi → 400 `HTTPS_REQUIRED`. Güvenilir vekil benzetiminde 8 senaryo (geçerli `X-Forwarded-Proto` / `CF-Visitor` → 200; eksik, `http` veya bozuk değer → 400). Depodaki `MK_API_ALLOW_HTTP=false`. `.htaccess` ile çelişki yok | 17/17 |
+| **R3-R Hız sınırı dosya sistemi hatası** | Sayaç klasörü oluşturulamıyor / sayaç dosyası açılamıyor → GET ve POST 503 + `Retry-After`, sunucu günlüğünde kayıt; normal ortamda 200 | 7/7 |
+| **R3-Z Temizlik** | Test veritabanı, kullanıcı ve klasör silindi; sorgu günlüğü ayarları geri yüklendi; başka veritabanına/kullanıcıya dokunulmadı | 5/5 |
 
-## 5. Doğrulanamayanlar
-| Konu | Durum |
-|---|---|
-| Hosting PHP sürümü; PHP 7.4 / 8.4 ile çalışma | Yalnızca 8.3 ile test edildi; 8.0+ sözdizimi kullanılmadığı otomatik denetlendi. Gerçek sürüm cPanel → MultiPHP Manager'dan öğrenilmeli |
-| Gerçek veritabanı sürümü, `products`/`prices` sayıları, hash'in gerçek verideki tekrar oranı | D.3 sorgularının sonucu bekleniyor |
-| Gerçek veri hacminde performans | Sentetik veri küçük |
-| Apache `.htaccess` yönlendirmesi ve gerçek Cloudflare arkasında IP davranışı | Testler PHP'nin yerleşik sunucusunda yapıldı; canlı öncesi bir alt klasörde deneme önerilir |
+## 3. Açık kalan riskler
 
-## 6. Değişiklik listesi (FAZ 1 son)
-| Dosya | Durum |
-|---|---|
-| `MarketlerNative/server/site/ortak-veri.php` | Yeni (taşınan `mt_featured()`, içerik aynı) |
-| `MarketlerNative/server/site/tema-modern-ana.php` | Değişen kopya (blok → 1 `require_once`) |
-| `MarketlerNative/server/site/ara.php` | Değişen kopya (15. satır: `,i.id ASC`) |
-| `MarketlerNative/server/site/api/**` | Yeni: 14 uç nokta, 6 kütüphane, `index.php`, `config.php`, `.htaccess` |
-| `MarketlerNative/server/tests/**` | Test betiği, sentetik veri, şema dökümü |
-| `docs/FAZ1-UC-NOKTALAR.md`, `docs/FAZ1-TEST-RAPORU.md`, `MarketlerNative/server/README.md` | Güncellendi |
-| `inc.php`, `eslestirme.php`, `asistan*.php`, `sayfa.php`, `cron.php`, `admin*`, veritabanı şeması, `MarketlerAndroid/` | **Değişmedi** |
+| # | Risk | Durum / gereken |
+|---|---|---|
+| 1 | **Cloudflare IP listesi** geliştiricinin bilgisinden yazıldı; bu ortamdan doğrulanamadı | Canlı öncesi https://www.cloudflare.com/ips/ ile karşılaştırılmalı; liste değiştikçe güncellenmeli |
+| 2 | **`mod_remoteip` + Cloudflare "Flexible SSL"** birleşimi: `mod_remoteip` `REMOTE_ADDR` değerini ziyaretçi adresine çevirir. Sunucuya bağlantı HTTP ise API vekil başlığına güvenmez ve **bütün istekleri 400 ile reddeder** | Hosting ayarı öğrenilmeli. Cloudflare "Full / Full (strict)" ile sorun yok (doğrudan HTTPS) |
+| 3 | **`cmp_groups()` eşitlik sırası** (`inc.php`, mevcut): karşılaştırma önbelleği yenilenince eşit fiyatlı satırların ve fiyat farkı eşit grupların sırası değişebiliyor. Site ve API aynı önbelleği kullandığından ikisi tutarlı | Düzeltme `inc.php` değişikliği gerektirir; onayınıza bırakıldı. Testler önbelleği eşitleyerek bu etkiyi yalıtıyor |
+| 4 | **`items.hash` Türkçe "I" / yazım farkları**: favori hash ile eşleşmiyor (tasarım gereği; yalnızca aday) | Gerçek tekrar oranı D.3 sorgularıyla ölçülecek |
+| 5 | **PHP sürümü**: yalnızca 8.3 ile test edildi | cPanel → MultiPHP Manager'dan sürüm öğrenilip o sürümle test edilmeli |
+| 6 | **Gerçek veri hacmi ve Apache**: testler sentetik veriyle ve PHP'nin yerleşik sunucusunda yapıldı | Canlı öncesi bir alt klasörde deneme önerilir |
+| 7 | **Hız sınırı güvenli hata davranışı**: geçici klasör dolarsa veya yazılamazsa API 503 döner (bilinçli tercih: sınırsız çalışmaktansa durmak) | İzleme: sunucu günlüğünde `MARKETLER API hız sınırı hatası` |
+| 8 | **Test betiği yönetici yetkisi ister** (veritabanı/kullanıcı oluşturma, `SET GLOBAL general_log`) | README'de "yalnızca izole yerel test ortamı" olarak belirtildi; betik uzak sunucuyu koşulsuz reddeder |
 
-## 7. Test sonuçları (Çalıştırma 2, tam liste)
+## 4. Test sonuçları (Çalıştırma 2, tam liste)
 
-Toplam 320 kontrol · 320 geçti · 0 başarısız
+Toplam 381 kontrol · 381 geçti · 0 başarısız (önceki testler 322/322 · yeni R3 testleri 59/59)
+
+### Yeni testler (revizyon 3)
 
 | Grup | Kontrol | Sonuç |
 |---|---|---|
-| A. Kurulum | test veritabanı oluşturuldu | ✓ |
+| R3-S. Test betiği güvenliği | yerel sunucu denetimi: 11 adres (yalnızca localhost/127.0.0.1/::1 kabul) | ✓ |
+| R3-S. Test betiği güvenliği | veritabanı adı denetimi: 8 ad (yalnızca mk_api_test_<12 hex>) | ✓ |
+| R3-S. Test betiği güvenliği | kullanıcı adı denetimi: 5 ad (var olan/genel kullanıcılar reddedilir) | ✓ |
+| R3-S. Test betiği güvenliği | silme koruması: yanlış belirteç → silinmez | ✓ |
+| R3-S. Test betiği güvenliği | silme koruması: kalıba uymayan ad (mysql, information_schema) → silinmez | ✓ |
+| R3-S. Test betiği güvenliği | silme koruması: kalıba uyan ama işaret tablosu OLMAYAN veritabanı → silinmez | ✓ |
+| R3-S. Test betiği güvenliği | silme koruması: başka çalıştırmanın belirteci → silinmez | ✓ |
+| R3-S. Test betiği güvenliği | kullanıcı çakışması algılanır (var olan kullanıcı → betik durur, yetkisine dokunulmaz) | ✓ |
+| R3-S. Test betiği güvenliği | silinecek klasör denetimi: yalnızca bu çalıştırmanın geçici klasörü | ✓ |
+| R3-S. Test betiği güvenliği | uzak sunucu reddi: MK_TEST_DB_HOST=10.0.0.5 → çıkış kodu 3, bağlantı yok | ✓ |
+| R3-S. Test betiği güvenliği | uzak sunucu reddi: MK_TEST_DB_HOST=db.example.com → çıkış kodu 3, bağlantı yok | ✓ |
+| R3-S. Test betiği güvenliği | uzak sunucu reddi: MK_TEST_DB_HOST=localhost:3307 → çıkış kodu 3, bağlantı yok | ✓ |
+| R3-S. Test betiği güvenliği |   reddedilen çalıştırmalar veritabanı/kullanıcı/klasör oluşturmadı | ✓ |
+| R3-F. Favori anahtarı (itemId:storeId:hash) | OLUMLU: 163 ürün nesnesinin hepsinde fav_key = "itemId:storeId:hash" (8 farklı uç nokta) | ✓ |
+| R3-F. Favori anahtarı (itemId:storeId:hash) | OLUMLU: ürün nesnesinden alınan fav_key DEĞİŞTİRİLMEDEN /products?fav= ile sorgulanabiliyor (50 anahtar, gidiş-dönüş aynı) | ✓ |
+| R3-F. Favori anahtarı (itemId:storeId:hash) | OLUMLU: aktif kalem → state=aktif, item.id aynı, adaylar onaysız | ✓ |
+| R3-F. Favori anahtarı (itemId:storeId:hash) | OLUMSUZ: eski biçim storeId:hash → 400 INVALID_PARAMETER | ✓ |
+| R3-F. Favori anahtarı (itemId:storeId:hash) | OLUMSUZ: itemId:hash (market yok) → 400 INVALID_PARAMETER | ✓ |
+| R3-F. Favori anahtarı (itemId:storeId:hash) | OLUMSUZ: fazla parça → 400 INVALID_PARAMETER | ✓ |
+| R3-F. Favori anahtarı (itemId:storeId:hash) | OLUMSUZ: büyük harf hash → 400 INVALID_PARAMETER | ✓ |
+| R3-F. Favori anahtarı (itemId:storeId:hash) | OLUMSUZ: kısa hash → 400 INVALID_PARAMETER | ✓ |
+| R3-F. Favori anahtarı (itemId:storeId:hash) | OLUMSUZ: itemId 0 → 400 INVALID_PARAMETER | ✓ |
+| R3-F. Favori anahtarı (itemId:storeId:hash) | OLUMSUZ: storeId 0 → 400 INVALID_PARAMETER | ✓ |
+| R3-F. Favori anahtarı (itemId:storeId:hash) | OLUMSUZ: negatif → 400 INVALID_PARAMETER | ✓ |
+| R3-F. Favori anahtarı (itemId:storeId:hash) | OLUMSUZ: boş öğe yalnızca → boş öğeler yok sayılır | ✓ |
+| R3-F. Favori anahtarı (itemId:storeId:hash) | OLUMSUZ: sayı olmayan itemId → 400 INVALID_PARAMETER | ✓ |
+| R3-F. Favori anahtarı (itemId:storeId:hash) | OLUMSUZ: boşluk → 400 INVALID_PARAMETER | ✓ |
+| R3-F. Favori anahtarı (itemId:storeId:hash) | OLUMSUZ: doğru biçim ama yanlış market → bulunamadi (başka marketin kalemi döndürülmez) | ✓ |
+| R3-F. Favori anahtarı (itemId:storeId:hash) | OLUMSUZ: doğru kalem ama farklı hash → kalem item_id ile bulunur, name_changed=true, hash ile ADAY ÜRETİLMEZ | ✓ |
+| R3-F. Favori anahtarı (itemId:storeId:hash) | DAVRANIŞ KORUNDU: geçen haftanın favorisi otomatik yeni kaleme çevrilmez (item.id = kayıtlı id, adaylar confirmed=false) | ✓ |
+| R3-H. HTTPS sahte başlık senaryoları | güvenilmeyen kaynak + sahte X-Forwarded-Proto: https → 400 HTTPS_REQUIRED | ✓ |
+| R3-H. HTTPS sahte başlık senaryoları | güvenilmeyen kaynak + sahte CF-Visitor: {"scheme":"https"} → 400 HTTPS_REQUIRED | ✓ |
+| R3-H. HTTPS sahte başlık senaryoları | güvenilmeyen kaynak + sahte X-Forwarded-Proto: https + CF-Visitor: {"scheme":"https"} → 400 HTTPS_REQUIRED | ✓ |
+| R3-H. HTTPS sahte başlık senaryoları | güvenilmeyen kaynak + sahte X-Forwarded-Proto: HTTPS, http → 400 HTTPS_REQUIRED | ✓ |
+| R3-H. HTTPS sahte başlık senaryoları | güvenilmeyen kaynak + sahte X-Forwarded-Ssl: on → 400 HTTPS_REQUIRED | ✓ |
+| R3-H. HTTPS sahte başlık senaryoları | güvenilmeyen kaynak + sahte Front-End-Https: on → 400 HTTPS_REQUIRED | ✓ |
+| R3-H. HTTPS sahte başlık senaryoları | güvenilmeyen kaynak + sahte X-Forwarded-Proto: https + CF-Connecting-IP: 1.2.3.4 → 400 HTTPS_REQUIRED | ✓ |
+| R3-H. HTTPS sahte başlık senaryoları | güvenilir vekil + X-Forwarded-Proto: https → 200 | ✓ |
+| R3-H. HTTPS sahte başlık senaryoları | güvenilir vekil + CF-Visitor: {"scheme":"https"} → 200 | ✓ |
+| R3-H. HTTPS sahte başlık senaryoları | güvenilir vekil + X-Forwarded-Proto: https, http → 200 | ✓ |
+| R3-H. HTTPS sahte başlık senaryoları | güvenilir vekil + başlık yok → 400 | ✓ |
+| R3-H. HTTPS sahte başlık senaryoları | güvenilir vekil + X-Forwarded-Proto: http → 400 | ✓ |
+| R3-H. HTTPS sahte başlık senaryoları | güvenilir vekil + CF-Visitor: {"scheme":"http"} → 400 | ✓ |
+| R3-H. HTTPS sahte başlık senaryoları | güvenilir vekil + CF-Visitor: https → 400 | ✓ |
+| R3-H. HTTPS sahte başlık senaryoları | güvenilir vekil + CF-Visitor: {"scheme":"httpsx"} → 400 | ✓ |
+| R3-H. HTTPS sahte başlık senaryoları | geliştirme ayarı (MK_API_ALLOW_HTTP=true) yalnızca test kopyasında; depodaki config.php değeri false | ✓ |
+| R3-H. HTTPS sahte başlık senaryoları | .htaccess ile çelişki yok: Apache yalnızca HTTP→HTTPS yönlendirir; PHP aynı başlıkları yalnızca güvenilir vekilden kabul eder (daha katı) | ✓ |
+| R3-R. Hız sınırı dosya sistemi hatası (güvenli hata) | sayaç klasörü oluşturulamadı → istek REDDEDİLİR: JSON 503 SERVICE_UNAVAILABLE + Retry-After (sınırlama sessizce kapanmaz) | ✓ |
+| R3-R. Hız sınırı dosya sistemi hatası (güvenli hata) |   aynı durumda POST /assistant da 503 | ✓ |
+| R3-R. Hız sınırı dosya sistemi hatası (güvenli hata) |   sunucu günlüğüne kayıt: "hız sınırı hatası: sayaç klasörü oluşturulamadı" | ✓ |
+| R3-R. Hız sınırı dosya sistemi hatası (güvenli hata) | sayaç dosyası açılamadı → istek REDDEDİLİR: JSON 503 SERVICE_UNAVAILABLE + Retry-After (sınırlama sessizce kapanmaz) | ✓ |
+| R3-R. Hız sınırı dosya sistemi hatası (güvenli hata) |   aynı durumda POST /assistant da 503 | ✓ |
+| R3-R. Hız sınırı dosya sistemi hatası (güvenli hata) |   sunucu günlüğüne kayıt: "hız sınırı hatası: sayaç dosyası açılamadı" | ✓ |
+| R3-R. Hız sınırı dosya sistemi hatası (güvenli hata) | normal ortamda (yazılabilir geçici klasör) aynı istek 200 | ✓ |
+| R3-Z. Temizlik (yalnızca bu çalıştırmanın oluşturdukları) | test veritabanı silindi (mk_api_test_44fdb70eb0d3) | ✓ |
+| R3-Z. Temizlik (yalnızca bu çalıştırmanın oluşturdukları) | test kullanıcısı silindi (mk_ro_44fdb70e) | ✓ |
+| R3-Z. Temizlik (yalnızca bu çalıştırmanın oluşturdukları) | geçici klasör silindi | ✓ |
+| R3-Z. Temizlik (yalnızca bu çalıştırmanın oluşturdukları) | sorgu günlüğü ayarları eski haline döndü (general_log=0, log_output=TABLE) | ✓ |
+| R3-Z. Temizlik (yalnızca bu çalıştırmanın oluşturdukları) | başka veritabanına/kullanıcıya dokunulmadı (betik başındaki liste ile aynı) | ✓ |
+
+### Önceki testler (revizyon 2'den korunan)
+
+| Grup | Kontrol | Sonuç |
+|---|---|---|
+| A. Kurulum | veritabanı sunucusu yerel: localhost | ✓ |
+| A. Kurulum | benzersiz adlar: veritabanı mk_api_test_44fdb70eb0d3 · kullanıcı mk_ro_44fdb70e · klasör mk_api_test_44fdb70eb0d3 | ✓ |
+| A. Kurulum | test veritabanı oluşturuldu + işaret tablosu (silme güvencesi) | ✓ |
 | A. Kurulum | kullanıcının şema dökümü yüklendi (yalnızca yapı) | ✓ |
-| A. Kurulum | yalnızca SELECT yetkili test kullanıcısı (mk_test_ro) hazır | ✓ |
-| A. Kurulum | test sunucuları başladı (eski site, yeni site+API, hız sınırı, Cloudflare, SELECT-yetkili, 3 hata enjeksiyonu) | ✓ |
+| A. Kurulum | yalnızca SELECT yetkili, bu çalıştırmaya özel test kullanıcısı (mk_ro_44fdb70e) | ✓ |
+| A. Kurulum | test sunucuları başladı (11 örnek: eski site, yeni site+API, hız sınırı, Cloudflare, SELECT-yetkili, HTTPS, 3 hata enjeksiyonu, 2 dosya sistemi hatası) | ✓ |
 | A. Kurulum | PHP sürümü (yerel test) | ✓ |
 | B. mt_featured() taşıması — eski/yeni HTML bayt karşılaştırması (4 senaryo) | senaryo '0 indirimli': 17 sayfa eski ve yeni sitede aynı (ana sayfa iki kez: önbelleksiz + önbellekli) | ✓ |
 | B. mt_featured() taşıması — eski/yeni HTML bayt karşılaştırması (4 senaryo) |   bilgi: /ara.php içerik aynı; yalnızca aynı adlı kartların sırası farklı (onaylanan ara.php eşitlik düzeltmesi + eski sitenin belirsiz sırası) | ✓ |
@@ -99,7 +159,7 @@ Toplam 320 kontrol · 320 geçti · 0 başarısız
 | B2. ara.php: eşitlikte i.id (tekrarlanabilirlik, içerik korunumu, sayfalama) |   karşılaştırma: düzeltme öncesi (orijinal ara.php) 0 sorgu tekrarlarda farklı çıktı verdi | ✓ |
 | B2. ara.php: eşitlikte i.id (tekrarlanabilirlik, içerik korunumu, sayfalama) | içerik korunumu: tüm sorgularda toplam aynı; tek sayfalık sonuçlarda ürün kümesi aynı | ✓ |
 | B2. ara.php: eşitlikte i.id (tekrarlanabilirlik, içerik korunumu, sayfalama) | web sayfalaması (off=0,24,…): düzeltme sonrası 0 sorguda tekrar/kayıp (0 beklenir) | ✓ |
-| B2. ara.php: eşitlikte i.id (tekrarlanabilirlik, içerik korunumu, sayfalama) |   karşılaştırma: düzeltme öncesi 0 sorguda sayfalar arası tekrar/kayıp görüldü (giderilen hata) | ✓ |
+| B2. ara.php: eşitlikte i.id (tekrarlanabilirlik, içerik korunumu, sayfalama) |   karşılaştırma: düzeltme öncesi 3 sorguda sayfalar arası tekrar/kayıp görüldü (giderilen hata) | ✓ |
 | B2. ara.php: eşitlikte i.id (tekrarlanabilirlik, içerik korunumu, sayfalama) | ara.php farkı yalnızca ORDER satırı (filtreler, WHERE ve sayfalama kodu aynı) | ✓ |
 | B2. ara.php: eşitlikte i.id (tekrarlanabilirlik, içerik korunumu, sayfalama) | sayfalama: limit 3/5/7 ile gezilen sayfalar = tek liste; tekrar yok, kayıp yok (8 filtre/sıralama) | ✓ |
 | B2. ara.php: eşitlikte i.id (tekrarlanabilirlik, içerik korunumu, sayfalama) | sıralama kuralları korunuyor (tarih↓ad↑ / fiyat↑ / fiyat↓) ve eşitlikte kalem no artan | ✓ |

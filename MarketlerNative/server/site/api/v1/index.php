@@ -6,12 +6,12 @@ ob_start();
 require __DIR__.'/config.php';
 require __DIR__.'/lib/response.php';
 require __DIR__.'/lib/input.php';
+require __DIR__.'/lib/proxy.php';
 require __DIR__.'/lib/ratelimit.php';
 register_shutdown_function('mk_shutdown');
 
-/* HTTPS zorunlu (sitenin site_url() içindeki algılamayla aynı) */
-$https = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || (($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '') === 'https') || strpos($_SERVER['HTTP_CF_VISITOR'] ?? '', 'https') !== false;
-if (!$https && !MK_API_ALLOW_HTTP) mk_fail(400, 'HTTPS_REQUIRED', 'Yalnızca HTTPS ile erişilebilir.');
+/* HTTPS zorunlu: doğrudan HTTPS ya da YALNIZCA güvenilir vekilin (Cloudflare) bildirdiği şema (lib/proxy.php mk_is_https) */
+if (!mk_is_https() && !MK_API_ALLOW_HTTP) mk_fail(400, 'HTTPS_REQUIRED', 'Yalnızca HTTPS ile erişilebilir.');
 
 $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
 $path = (string)parse_url((string)($_SERVER['REQUEST_URI'] ?? ''), PHP_URL_PATH);

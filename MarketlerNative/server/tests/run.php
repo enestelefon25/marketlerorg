@@ -1,19 +1,31 @@
 <?php
 /* MARKETLER.ORG API v1 — yerel test betiği (tek komut).
+   ⚠ YALNIZCA İZOLE YEREL TEST ORTAMINDA ÇALIŞTIRIN. Canlı sunucuda, paylaşılan veritabanı sunucusunda veya üretim makinesinde ÇALIŞTIRMAYIN.
    Kullanım:  php MarketlerNative/server/tests/run.php --site=/yol/marketler.org [--rapor=/yol/rapor.md]
-     --site : sitenin DEĞİŞTİRİLMEMİŞ kopyası (canlı sunucu değil). Betik bu klasöre YAZMAZ; geçici klasöre kopyalar.
-   Gereken: PHP CLI (curl, gd, pdo_mysql, mbstring), yerel MariaDB/MySQL (varsayılan: localhost, root, parolasız; ortam değişkenleri:
-            MK_TEST_DB_HOST, MK_TEST_DB_USER, MK_TEST_DB_PASS). Test veritabanı adı: mk_api_test (her çalıştırmada SİLİNİP yeniden kurulur).
-   Aşamalar: A kurulum · B ortak-veri.php bayt karşılaştırma · B2 ara.php eşitlik düzeltmesi ve sayfalama · C işlev (C3: kaldırılan uç noktaların karşılığı)
-             · D web↔API eşdeğerlik · T Türkçe karakter · E güvenlik (Cloudflare IP, hata JSON'u) · F salt okunurluk (SELECT-yetkili kullanıcı, sağlama toplamı) · G statik · H hash/hkey
+     --site : sitenin DEĞİŞTİRİLMEMİŞ yerel kopyası. Betik bu klasöre YAZMAZ; benzersiz bir geçici klasöre kopyalar.
+   Veritabanı: yalnızca YEREL sunucu (localhost / 127.0.0.1 / ::1). MK_TEST_DB_HOST başka bir değerse betik hiçbir bağlantı kurmadan durur.
+     MK_TEST_DB_USER / MK_TEST_DB_PASS: veritabanı ve kullanıcı OLUŞTURABİLEN yerel bir hesap (varsayılan root, parolasız / unix soketi).
+   Güvenlik (tests/guard.php): her çalıştırma benzersiz veritabanı (mk_api_test_<12 hex>), benzersiz SELECT-yetkili kullanıcı (mk_ro_<8 hex>)
+     ve benzersiz geçici klasör kullanır; aynı adlar varsa durur; var olan kullanıcıların yetkilerine dokunmaz; sorgu günlüğü ayarlarını eski haline getirir;
+     sonunda YALNIZCA kendi oluşturduklarını, işaret tablosu ve belirteç doğrulandıktan sonra siler.
+   Aşamalar: A kurulum · R3-S betik güvenliği · B ortak-veri.php bayt karşılaştırma · B2 ara.php eşitlik düzeltmesi ve sayfalama · C işlev (C3: kaldırılan uç noktalar)
+             · R3-F favori anahtarı · D web↔API eşdeğerlik · T Türkçe karakter · E güvenlik · R3-H HTTPS sahte başlık · R3-R hız sınırı dosya sistemi hatası
+             · F salt okunurluk · G statik · H hash/hkey · R3-Z temizlik doğrulaması
    Canlı sisteme hiçbir bağlantı yapılmaz. */
 
 error_reporting(E_ALL); ini_set('display_errors', '1'); date_default_timezone_set('Europe/Istanbul');
 $opt = getopt('', ['site:', 'rapor::']);
 $SRC = rtrim($opt['site'] ?? '', '/'); if (!$SRC || !is_file("$SRC/inc.php")) { fwrite(STDERR, "--site=<orijinal site klasörü> gerekli\n"); exit(2); }
-$REPO = dirname(__DIR__); $SITE_NEW_FILES = "$REPO/site";
-$WORK = sys_get_temp_dir().'/mk_api_test'; $DB = 'mk_api_test';
+require __DIR__.'/guard.php';
 $DBH = getenv('MK_TEST_DB_HOST') ?: 'localhost'; $DBU = getenv('MK_TEST_DB_USER') ?: 'root'; $DBP = getenv('MK_TEST_DB_PASS') ?: '';
+if (!mk_guard_local_host($DBH)) { fwrite(STDERR, "GÜVENLİK: test betiği yalnızca yerel veritabanı sunucusunda çalışır (localhost / 127.0.0.1 / ::1). Verilen: '$DBH'. Hiçbir bağlantı kurulmadı.\n"); exit(3); }
+$REPO = dirname(__DIR__); $SITE_NEW_FILES = "$REPO/site";
+$TOKEN = bin2hex(random_bytes(6));
+$DB = 'mk_api_test_'.$TOKEN; $ROU = 'mk_ro_'.substr($TOKEN, 0, 8); $ROP = bin2hex(random_bytes(16));
+$WORK = rtrim(sys_get_temp_dir(), '/').'/mk_api_test_'.$TOKEN; $TMPD = "$WORK/tmp";
+if (!mk_guard_db_name_ok($DB) || !mk_guard_user_name_ok($ROU)) { fwrite(STDERR, "GÜVENLİK: ad üretimi beklenen kalıpta değil\n"); exit(3); }
+if (file_exists($WORK) || !mkdir($WORK, 0700) || !mkdir($TMPD, 0700)) { fwrite(STDERR, "GÜVENLİK: geçici klasör zaten var veya oluşturulamadı: $WORK\n"); exit(3); }
+$CREATED = ['db' => false, 'user' => false, 'work' => true]; $GLOG0 = null; $CLEANED = false;
 require __DIR__.'/fixtures/seed.php';
 
 /* ---------------- yardımcılar ---------------- */
@@ -22,7 +34,7 @@ function grp($g) { global $CUR; $CUR = $g; echo "\n== $g\n"; }
 function check($name, $ok, $detail = '') { global $R, $CUR; $R[] = [$CUR, $name, (bool)$ok, $detail]; echo ($ok ? '  ✓ ' : '  ✗ ').$name.($ok || $detail === '' ? '' : "  → $detail")."\n"; return (bool)$ok; }
 function sh($c) { exec($c.' 2>&1', $o, $rc); return [$rc, implode("\n", $o)]; }
 $ALLBODY = ''; $APIRESP = [];
-$INST = ['old' => 8081, 'new' => 8082, 'newrl' => 8083, 'newcf' => 8084, 'newro' => 8085, 'hata1' => 8086, 'hata2' => 8087, 'hata3' => 8088];
+$INST = ['old' => 8081, 'new' => 8082, 'newrl' => 8083, 'newcf' => 8084, 'newro' => 8085, 'hata1' => 8086, 'hata2' => 8087, 'hata3' => 8088, 'newhttps' => 8089, 'rlfail1' => 8090, 'rlfail2' => 8091];
 function http($port, $method, $path, $body = null, $hdr = []) {
   global $ALLBODY; $c = curl_init("http://127.0.0.1:$port$path");
   $h = array_merge(['Host: marketler.org'], $hdr); $rh = [];
@@ -36,9 +48,11 @@ function http($port, $method, $path, $body = null, $hdr = []) {
 function api($method, $path, $body = null, $hdr = []) { list($s, $h, $b) = http(8082, $method, '/api/v1/'.$path, $body, $hdr); return [$s, json_decode($b, true), $h, $b]; }
 function web($port, $path) { return http($port, 'GET', $path)[2]; }
 function pdo() { global $DBH, $DBU, $DBP, $DB; static $p; if (!$p) { $p = new PDO("mysql:host=$DBH;dbname=$DB;charset=utf8mb4", $DBU, $DBP, [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]); } return $p; }
+function adm() { global $DBH, $DBU, $DBP; static $p; if (!$p) { $p = new PDO("mysql:host=$DBH;charset=utf8mb4", $DBU, $DBP, [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]); } return $p; }   /* veritabanı seçmeden yönetim bağlantısı */
+function phpenv() { global $TMPD; return 'TMPDIR='.escapeshellarg($TMPD).' '; }
 function clear_caches() {
   global $WORK, $INST; foreach (array_keys($INST) as $d) @unlink("$WORK/$d/img/cmpcache.json");
-  foreach (array_merge(glob(sys_get_temp_dir().'/mk_feat_v2_*') ?: [], glob(sys_get_temp_dir().'/mk_oneri_*') ?: [], glob(sys_get_temp_dir().'/mk_api_rl/*') ?: []) as $f) @unlink($f);
+  global $TMPD; foreach (array_merge(glob("$TMPD/mk_feat_v2_*") ?: [], glob("$TMPD/mk_oneri_*") ?: [], glob("$TMPD/mk_api_rl/*") ?: []) as $f) @unlink($f);   /* yalnızca bu çalıştırmanın geçici klasörü */
 }
 function seed($sc) { global $WORK, $INST; clear_caches(); return mk_seed(pdo(), $sc, array_map(function ($d) use ($WORK) { return "$WORK/$d"; }, array_keys($INST))); }
 function apiat($port, $method, $path, $body = null, $hdr = []) { list($s, $h, $b) = http($port, $method, '/api/v1/'.$path, $body, $hdr); return [$s, json_decode($b, true), $h, $b]; }
@@ -57,39 +71,87 @@ function msort($a) { sort($a); return $a; }
 function tie_cards($c) { $o = []; $run = []; $last = null; foreach ($c as $x) { if ($x[0] !== $last && $run) { sort($run); $o = array_merge($o, $run); $run = []; } $run[] = $x; $last = $x[0]; } sort($run); return array_merge($o, $run); }
 function api_cards($items) { return array_map(function ($i) { return [$i['name'], $i['price_text']]; }, $items); }
 
+/* ---------------- temizlik (yalnızca bu çalıştırmanın oluşturdukları) ---------------- */
+function mk_cleanup() {
+  global $SRV, $CREATED, $DB, $ROU, $TOKEN, $WORK, $GLOG0, $CLEANED; if ($CLEANED) return; $CLEANED = true;
+  foreach ((array)$SRV as $p) if (is_resource($p)) { proc_terminate($p); proc_close($p); }
+  try { if ($GLOG0) { adm()->exec("SET GLOBAL general_log='OFF'"); adm()->exec("SET GLOBAL log_output=".adm()->quote($GLOG0['out'])); adm()->exec("SET GLOBAL general_log=".((int)$GLOG0['on'] ? "'ON'" : "'OFF'")); } } catch (Throwable $e) { fwrite(STDERR, "temizlik: sorgu günlüğü ayarı geri yüklenemedi\n"); }
+  try { if ($CREATED['user'] && mk_guard_user_name_ok($ROU)) { adm()->exec("DROP USER '$ROU'@'localhost'"); $CREATED['user'] = false; } } catch (Throwable $e) { fwrite(STDERR, "temizlik: test kullanıcısı silinemedi: $ROU\n"); }
+  try { if ($CREATED['db'] && mk_guard_can_drop_db(adm(), $DB, $TOKEN)) { adm()->exec("DROP DATABASE `$DB`"); $CREATED['db'] = false; } elseif ($CREATED['db']) fwrite(STDERR, "temizlik: güvenlik denetimi başarısız, veritabanı SİLİNMEDİ: $DB\n"); } catch (Throwable $e) { fwrite(STDERR, "temizlik: test veritabanı silinemedi: $DB\n"); }
+  if ($CREATED['work'] && mk_guard_can_rm_dir($WORK, $TOKEN)) { mk_guard_rmtree($WORK); $CREATED['work'] = false; }
+}
+register_shutdown_function('mk_cleanup');
+
 /* ---------------- A. kurulum ---------------- */
 grp('A. Kurulum');
-sh('rm -rf '.escapeshellarg($WORK)); mkdir($WORK, 0777, true);
+check('veritabanı sunucusu yerel: '.$DBH, mk_guard_local_host($DBH));
+check("benzersiz adlar: veritabanı $DB · kullanıcı $ROU · klasör ".basename($WORK), true);
+if (mk_guard_db_exists(adm(), $DB) || mk_guard_user_exists(adm(), $ROU)) { fwrite(STDERR, "GÜVENLİK: $DB veya $ROU zaten var; hiçbir şeye dokunulmadan durduruldu\n"); exit(3); }
+adm()->exec("CREATE DATABASE `$DB` CHARACTER SET utf8mb4"); $CREATED['db'] = true;
+adm()->exec("CREATE TABLE `$DB`.`".MK_GUARD_MARKER."` (belirtec CHAR(12) NOT NULL)"); adm()->prepare("INSERT INTO `$DB`.`".MK_GUARD_MARKER."` VALUES (?)")->execute([$TOKEN]);
+check('test veritabanı oluşturuldu + işaret tablosu (silme güvencesi)', mk_guard_can_drop_db(adm(), $DB, $TOKEN));
+$m = "mariadb -h".escapeshellarg($DBH)." -u".escapeshellarg($DBU).($DBP !== '' ? ' -p'.escapeshellarg($DBP) : '');
+list($rc, $o) = sh("$m ".escapeshellarg($DB)." < ".escapeshellarg(__DIR__.'/fixtures/schema.sql')); check('kullanıcının şema dökümü yüklendi (yalnızca yapı)', $rc === 0, $o);
+adm()->exec("CREATE USER '$ROU'@'localhost' IDENTIFIED BY '$ROP'"); $CREATED['user'] = true;   /* IF NOT EXISTS YOK: varsa hata verir, var olana dokunulmaz */
+adm()->exec("GRANT SELECT ON `$DB`.* TO '$ROU'@'localhost'");
+$g = implode("\n", adm()->query("SHOW GRANTS FOR '$ROU'@'localhost'")->fetchAll(PDO::FETCH_COLUMN));
+check("yalnızca SELECT yetkili, bu çalıştırmaya özel test kullanıcısı ($ROU)", strpos($g, 'GRANT SELECT ON `'.$DB.'`.*') !== false && !preg_match('/INSERT|UPDATE|DELETE|ALL PRIVILEGES ON `'.$DB.'/', $g), $g);
+$r0 = adm()->query('SELECT @@global.general_log, @@global.log_output')->fetch(PDO::FETCH_NUM); $GLOG0 = ['on' => $r0[0], 'out' => $r0[1]];
 foreach (array_keys($INST) as $d) { sh('cp -a '.escapeshellarg($SRC).' '.escapeshellarg("$WORK/$d")); @unlink("$WORK/$d/img/cmpcache.json"); }
 foreach (array_keys($INST) as $d) if ($d !== 'old') sh('cp -a '.escapeshellarg($SITE_NEW_FILES).'/. '.escapeshellarg("$WORK/$d/"));
 $cfg = "<?php\ndefine('DB_HOST','".addslashes($DBH)."');\ndefine('DB_NAME','$DB');\ndefine('DB_USER','".addslashes($DBU)."');\ndefine('DB_PASS','".addslashes($DBP)."');\n";
 foreach (array_keys($INST) as $d) file_put_contents("$WORK/$d/config.php", $cfg);
 /* SELECT dışında hiçbir yetkisi olmayan kullanıcıyla çalışan örnek (bağımsız salt okunurluk doğrulaması) */
-file_put_contents("$WORK/newro/config.php", "<?php\ndefine('DB_HOST','".addslashes($DBH)."');\ndefine('DB_NAME','$DB');\ndefine('DB_USER','mk_test_ro');\ndefine('DB_PASS','yerel-test-ro');\n");
+file_put_contents("$WORK/newro/config.php", "<?php\ndefine('DB_HOST','".addslashes($DBH)."');\ndefine('DB_NAME','$DB');\ndefine('DB_USER','$ROU');\ndefine('DB_PASS','$ROP');\n");
 $ac = file_get_contents("$WORK/new/api/v1/config.php");
 $open = str_replace(["MK_API_ALLOW_HTTP = false", "'std' => 60, 'heavy' => 20, 'suggest' => 120"], ["MK_API_ALLOW_HTTP = true", "'std' => 100000, 'heavy' => 100000, 'suggest' => 100000"], $ac);
 foreach (['new', 'newro', 'hata1', 'hata2', 'hata3'] as $d) file_put_contents("$WORK/$d/api/v1/config.php", $open);
-file_put_contents("$WORK/newrl/api/v1/config.php", str_replace("'std' => 60", "'std' => 5", $ac));   /* HTTP kapalı, düşük sınır, varsayılan Cloudflare listesi (127.0.0.1 GÜVENİLİR DEĞİL) */
-file_put_contents("$WORK/newcf/api/v1/config.php", str_replace(["MK_API_ALLOW_HTTP = false", "'std' => 60", "const MK_API_TRUSTED_PROXIES = ["], ["MK_API_ALLOW_HTTP = true", "'std' => 5", "const MK_API_TRUSTED_PROXIES = ['127.0.0.1/32', "], $ac));   /* yerel adres Cloudflare'miş gibi güvenilir */
+file_put_contents("$WORK/newrl/api/v1/config.php", str_replace(["MK_API_ALLOW_HTTP = false", "'std' => 60"], ["MK_API_ALLOW_HTTP = true", "'std' => 5"], $ac));   /* düşük sınır, varsayılan Cloudflare listesi (127.0.0.1 GÜVENİLİR DEĞİL) */
+file_put_contents("$WORK/newcf/api/v1/config.php", str_replace(["'std' => 60", "const MK_API_TRUSTED_PROXIES = ["], ["'std' => 5", "const MK_API_TRUSTED_PROXIES = ['127.0.0.1/32', "], $ac));   /* HTTPS zorunlu; yerel adres Cloudflare'miş gibi güvenilir */
+file_put_contents("$WORK/newhttps/api/v1/config.php", str_replace("'std' => 60, 'heavy' => 20, 'suggest' => 120", "'std' => 100000, 'heavy' => 100000, 'suggest' => 100000", $ac));   /* HTTPS zorunlu; 127.0.0.1 güvenilir DEĞİL (canlı ayar) */
+foreach (['rlfail1', 'rlfail2'] as $d) file_put_contents("$WORK/$d/api/v1/config.php", str_replace("MK_API_ALLOW_HTTP = false", "MK_API_ALLOW_HTTP = true", $ac));
 /* HATA ENJEKSİYONU (yalnızca geçici test kopyalarında): */
 file_put_contents("$WORK/hata1/ortak-veri.php", "<?php\ntanimsiz_fonksiyon_olumcul_hata();\n");   /* ölümcül PHP hatası */
 file_put_contents("$WORK/hata2/ortak-veri.php", "<?php\nhttp_response_code(503); header('Content-Type: text/plain; charset=utf-8'); exit('Site kısa süreliğine bakımda. Lütfen birkaç dakika sonra tekrar deneyin.');\n");   /* inc.php db() hatasının birebir davranışı */
 file_put_contents("$WORK/hata3/config.php", "<?php\ndefine('DB_HOST','".addslashes($DBH)."');\ndefine('DB_NAME','olmayan_veritabani_xyz');\ndefine('DB_USER','".addslashes($DBU)."');\ndefine('DB_PASS','".addslashes($DBP)."');\n");   /* veritabanına ulaşılamıyor */
-$m = "mariadb -h".escapeshellarg($DBH)." -u".escapeshellarg($DBU).($DBP !== '' ? ' -p'.escapeshellarg($DBP) : '');
-list($rc, $o) = sh("$m -e 'DROP DATABASE IF EXISTS $DB; CREATE DATABASE $DB CHARACTER SET utf8mb4'"); check('test veritabanı oluşturuldu', $rc === 0, $o);
-list($rc, $o) = sh("$m $DB < ".escapeshellarg(__DIR__.'/fixtures/schema.sql')); check('kullanıcının şema dökümü yüklendi (yalnızca yapı)', $rc === 0, $o);
-list($rc, $o) = sh("$m -e \"CREATE USER IF NOT EXISTS 'mk_test_ro'@'localhost' IDENTIFIED BY 'yerel-test-ro'; REVOKE ALL PRIVILEGES, GRANT OPTION FROM 'mk_test_ro'@'localhost'; GRANT SELECT ON $DB.* TO 'mk_test_ro'@'localhost'; SHOW GRANTS FOR 'mk_test_ro'@'localhost';\"");
-check('yalnızca SELECT yetkili test kullanıcısı (mk_test_ro) hazır', $rc === 0 && strpos($o, 'GRANT SELECT ON') !== false && !preg_match('/INSERT|UPDATE|DELETE|ALL PRIVILEGES ON `?'.$DB.'/', $o), $o);
+/* hız sınırı dosya sistemi hataları: rlfail1 → sayaç klasörü yerinde DOSYA var (klasör oluşturulamaz); rlfail2 → sayaç dosyası yolu KLASÖR (açılamaz) */
+mkdir("$WORK/tmpfail1"); file_put_contents("$WORK/tmpfail1/mk_api_rl", 'klasor-degil');
+mkdir("$WORK/tmpfail2/mk_api_rl", 0700, true); foreach (['std', 'heavy', 'suggest'] as $cl) for ($k = 0; $k < 180; $k++) @mkdir("$WORK/tmpfail2/mk_api_rl/".md5('127.0.0.1|'.$cl.'|'.((int)floor(time() / 60) + $k)).'.c');
+$TMPOF = ['rlfail1' => "$WORK/tmpfail1", 'rlfail2' => "$WORK/tmpfail2"];
 $router = __DIR__.'/router.php'; $SRV = [];
 foreach ($INST as $d => $port) {
-  $SRV[$d] = proc_open(['php', '-S', "127.0.0.1:$port", '-t', "$WORK/$d", $router], [1 => ['file', "$WORK/$d.out.log", 'w'], 2 => ['file', "$WORK/$d.err.log", 'w']], $pp, "$WORK/$d");
+  $SRV[$d] = proc_open(['php', '-S', "127.0.0.1:$port", '-t', "$WORK/$d", $router], [1 => ['file', "$WORK/$d.out.log", 'w'], 2 => ['file', "$WORK/$d.err.log", 'w']], $pp, "$WORK/$d", ['TMPDIR' => $TMPOF[$d] ?? $TMPD, 'PATH' => getenv('PATH')]);
 }
-register_shutdown_function(function () use (&$SRV) { foreach ($SRV as $p) { if (is_resource($p)) proc_terminate($p); } });
-for ($i = 0; $i < 50; $i++) { $f = @fsockopen('127.0.0.1', 8088); if ($f) { fclose($f); break; } usleep(100000); }
-check('test sunucuları başladı (eski site, yeni site+API, hız sınırı, Cloudflare, SELECT-yetkili, 3 hata enjeksiyonu)', $i < 50);
+for ($i = 0; $i < 50; $i++) { $f = @fsockopen('127.0.0.1', 8091); if ($f) { fclose($f); break; } usleep(100000); }
+check('test sunucuları başladı ('.count($INST).' örnek: eski site, yeni site+API, hız sınırı, Cloudflare, SELECT-yetkili, HTTPS, 3 hata enjeksiyonu, 2 dosya sistemi hatası)', $i < 50);
 check('PHP sürümü (yerel test)', true, PHP_VERSION);
 echo '    PHP '.PHP_VERSION.' · '.pdo_version()."\n";
 function pdo_version() { try { return pdo()->query('SELECT VERSION()')->fetchColumn(); } catch (Throwable $e) { return '?'; } }
+
+/* ---------------- R3-S. test betiğinin güvenlik korumaları ---------------- */
+grp('R3-S. Test betiği güvenliği');
+$hosts = ['localhost' => 1, '127.0.0.1' => 1, '::1' => 1, 'LOCALHOST' => 1, '10.0.0.5' => 0, 'db.example.com' => 0, '127.0.0.2' => 0, 'localhost:3307' => 0, 'p:localhost' => 0, '' => 0, '0.0.0.0' => 0];
+$bad = []; foreach ($hosts as $h => $want) if ((int)mk_guard_local_host($h) !== $want) $bad[] = "'$h'";
+check('yerel sunucu denetimi: '.count($hosts).' adres (yalnızca localhost/127.0.0.1/::1 kabul)', !$bad, implode(', ', $bad));
+$bad = []; foreach (['mk_api_test_0123456789ab' => 1, $DB => 1, 'mk_api_test' => 0, 'mk_api_test_xyz' => 0, 'bayirtkf_aktuel' => 0, 'mk_api_test_0123456789ab; DROP' => 0, 'mk_api_test_0123456789AB' => 0, 'mysql' => 0] as $n => $want) if ((int)mk_guard_db_name_ok($n) !== $want) $bad[] = $n;
+check('veritabanı adı denetimi: 8 ad (yalnızca mk_api_test_<12 hex>)', !$bad, implode(', ', $bad));
+$bad = []; foreach (['mk_ro_0123abcd' => 1, $ROU => 1, 'mk_test_ro' => 0, 'root' => 0, 'mk_ro_xyz' => 0] as $n => $want) if ((int)mk_guard_user_name_ok($n) !== $want) $bad[] = $n;
+check('kullanıcı adı denetimi: 5 ad (var olan/genel kullanıcılar reddedilir)', !$bad, implode(', ', $bad));
+check('silme koruması: yanlış belirteç → silinmez', !mk_guard_can_drop_db(adm(), $DB, str_repeat('0', 12)));
+check('silme koruması: kalıba uymayan ad (mysql, information_schema) → silinmez', !mk_guard_can_drop_db(adm(), 'mysql', $TOKEN) && !mk_guard_can_drop_db(adm(), 'information_schema', $TOKEN));
+$decoy = 'mk_api_test_'.bin2hex(random_bytes(6)); adm()->exec("CREATE DATABASE `$decoy`");
+check('silme koruması: kalıba uyan ama işaret tablosu OLMAYAN veritabanı → silinmez', !mk_guard_can_drop_db(adm(), $decoy, $TOKEN));
+adm()->exec("CREATE TABLE `$decoy`.`".MK_GUARD_MARKER."` (belirtec CHAR(12) NOT NULL)"); adm()->prepare("INSERT INTO `$decoy`.`".MK_GUARD_MARKER."` VALUES (?)")->execute([substr(md5('baska'), 0, 12)]);
+check('silme koruması: başka çalıştırmanın belirteci → silinmez', !mk_guard_can_drop_db(adm(), $decoy, $TOKEN));
+adm()->exec("DROP DATABASE `$decoy`");   /* bu testin oluşturduğu tuzak veritabanı */
+check('kullanıcı çakışması algılanır (var olan kullanıcı → betik durur, yetkisine dokunulmaz)', mk_guard_user_exists(adm(), $ROU) && mk_guard_user_exists(adm(), 'root'));
+check('silinecek klasör denetimi: yalnızca bu çalıştırmanın geçici klasörü', mk_guard_can_rm_dir($WORK, $TOKEN) && !mk_guard_can_rm_dir('/tmp', $TOKEN) && !mk_guard_can_rm_dir($WORK, str_repeat('a', 12)) && !mk_guard_can_rm_dir(dirname($WORK), $TOKEN));
+$dbs0 = adm()->query('SHOW DATABASES')->fetchAll(PDO::FETCH_COLUMN); $us0 = adm()->query('SELECT COUNT(*) FROM mysql.user')->fetchColumn();
+foreach (['10.0.0.5', 'db.example.com', 'localhost:3307'] as $h) {
+  exec('MK_TEST_DB_HOST='.escapeshellarg($h).' '.escapeshellarg(PHP_BINARY).' '.escapeshellarg(__FILE__).' --site='.escapeshellarg($SRC).' 2>&1', $oo, $rc);
+  check("uzak sunucu reddi: MK_TEST_DB_HOST=$h → çıkış kodu 3, bağlantı yok", $rc === 3 && strpos(implode("\n", $oo), 'Hiçbir bağlantı kurulmadı') !== false, implode(' ', $oo)); $oo = [];
+}
+check('  reddedilen çalıştırmalar veritabanı/kullanıcı/klasör oluşturmadı', adm()->query('SHOW DATABASES')->fetchAll(PDO::FETCH_COLUMN) === $dbs0 && adm()->query('SELECT COUNT(*) FROM mysql.user')->fetchColumn() === $us0 && count(glob(rtrim(sys_get_temp_dir(), '/').'/mk_api_test_*', GLOB_ONLYDIR)) === 1);
 
 /* ---------------- B. ortak-veri.php: eski ve yeni sitenin HTML çıktısı bayt bayt aynı mı ---------------- */
 grp('B. mt_featured() taşıması — eski/yeni HTML bayt karşılaştırması (4 senaryo)');
@@ -390,7 +452,7 @@ foreach (['{bozuk', '[]', json_encode(['message' => '']), json_encode(['message'
 list($s, $j, $h) = api('GET', 'products'); check('başlıklar: application/json, nosniff, no-referrer', strpos($h['content-type'] ?? '', 'application/json') === 0 && ($h['x-content-type-options'] ?? '') === 'nosniff' && ($h['referrer-policy'] ?? '') === 'no-referrer');
 list($s, $j) = api('GET', 'products?q=%3Cscript%3Ealert(1)%3C/script%3E'); check('HTML/JS girdisi JSON içinde çalıştırılabilir çıktı üretmez', $s === 200);
 /* HTTPS zorunluluğu ve hız sınırı (:8083, std=5/dk) */
-list($s, , $b) = http(8083, 'GET', '/api/v1/markets'); $j = json_decode($b, true); check('HTTPS yoksa 400 HTTPS_REQUIRED', $s === 400 && ($j['error']['code'] ?? '') === 'HTTPS_REQUIRED');
+list($s, , $b) = http(8089, 'GET', '/api/v1/markets'); $j = json_decode($b, true); check('HTTPS yoksa 400 HTTPS_REQUIRED', $s === 400 && ($j['error']['code'] ?? '') === 'HTTPS_REQUIRED');
 $got429 = false; for ($try = 0; $try < 2 && !$got429; $try++) { if (time() % 60 > 50) sleep(61 - time() % 60); $st = []; for ($i = 0; $i < 7; $i++) { list($s, $h) = http(8083, 'GET', '/api/v1/markets', null, ['X-Forwarded-Proto: https']); $st[] = $s; if ($s === 429) { $got429 = isset($h['retry-after']); break; } } }
 check('hız sınırı: 5 istek/dk sonrası 429 + Retry-After', $got429, implode(',', $st));
 /* Cloudflare: güvenilmeyen kaynaktan gelen CF-Connecting-IP YOK SAYILIR */
@@ -399,13 +461,13 @@ $st = []; for ($i = 1; $i <= 7; $i++) { list($s) = http(8083, 'GET', '/api/v1/ma
 check('Cloudflare dışı kaynak: her istekte farklı sahte CF-Connecting-IP gönderilse de sınır aşılamaz (6. istek 429)', $st[5] === 429, implode(',', $st));
 /* güvenilir kaynak (test: 127.0.0.1 Cloudflare listesine eklenmiş örnek) */
 clear_caches(); if (time() % 60 > 45) sleep(61 - time() % 60);
-$a = []; $b = []; for ($i = 0; $i < 6; $i++) { $a[] = http(8084, 'GET', '/api/v1/markets', null, ['CF-Connecting-IP: 203.0.113.10'])[0]; } for ($i = 0; $i < 5; $i++) $b[] = http(8084, 'GET', '/api/v1/markets', null, ['CF-Connecting-IP: 2001:db8::7'])[0];
+$a = []; $b = []; for ($i = 0; $i < 6; $i++) { $a[] = http(8084, 'GET', '/api/v1/markets', null, ['X-Forwarded-Proto: https', 'CF-Connecting-IP: 203.0.113.10'])[0]; } for ($i = 0; $i < 5; $i++) $b[] = http(8084, 'GET', '/api/v1/markets', null, ['X-Forwarded-Proto: https', 'CF-Connecting-IP: 2001:db8::7'])[0];
 check('güvenilir Cloudflare kaynağı: sınır ziyaretçi IP\'sine göre (A: 6. istek 429; B (IPv6) etkilenmez)', $a[5] === 429 && !in_array(429, $b, true), implode(',', $a).' | '.implode(',', $b));
 clear_caches(); if (time() % 60 > 45) sleep(61 - time() % 60);
-$c = []; for ($i = 0; $i < 7; $i++) $c[] = http(8084, 'GET', '/api/v1/markets', null, ['CF-Connecting-IP: '.($i % 2 ? 'gecersiz-ip' : '999.1.1.1')])[0];
+$c = []; for ($i = 0; $i < 7; $i++) $c[] = http(8084, 'GET', '/api/v1/markets', null, ['X-Forwarded-Proto: https', 'CF-Connecting-IP: '.($i % 2 ? 'gecersiz-ip' : '999.1.1.1')])[0];
 check('güvenilir kaynak + geçersiz CF-Connecting-IP değeri → başlık yok sayılır, bağlantı adresi sayılır (6. istek 429)', $c[5] === 429, implode(',', $c));
-$u = 'define("MK_API",1); const MK_API_TRUSTED_PROXIES=[]; require '.var_export("$WORK/new/api/v1/lib/ratelimit.php", true).'; $t=[["173.245.48.1","173.245.48.0/20",1],["173.245.64.0","173.245.48.0/20",0],["104.16.0.1","104.16.0.0/13",1],["104.24.0.1","104.16.0.0/13",0],["162.159.255.255","162.158.0.0/15",1],["2606:4700:10::1","2606:4700::/32",1],["2606:4701::1","2606:4700::/32",0],["2a06:98c7:ffff::1","2a06:98c0::/29",1],["2a06:98c8::1","2a06:98c0::/29",0],["10.0.0.1","2606:4700::/32",0],["gecersiz","10.0.0.0/8",0],["10.1.2.3","10.0.0.0/8",1]]; $ok=1; foreach($t as $x) if((int)mk_ip_in_cidr($x[0],$x[1])!==$x[2]){$ok=0; echo "HATA ".$x[0]." ".$x[1]."\n";} echo $ok?"TAMAM":"";';
-list($rc, $o) = sh('php -r '.escapeshellarg($u)); check('CIDR denetimi birim testi (IPv4/IPv6, sınır değerleri, geçersiz adres) — 12 durum', trim($o) === 'TAMAM', $o);
+$u = 'define("MK_API",1); const MK_API_TRUSTED_PROXIES=[]; require '.var_export("$WORK/new/api/v1/lib/proxy.php", true).'; $t=[["173.245.48.1","173.245.48.0/20",1],["173.245.64.0","173.245.48.0/20",0],["104.16.0.1","104.16.0.0/13",1],["104.24.0.1","104.16.0.0/13",0],["162.159.255.255","162.158.0.0/15",1],["2606:4700:10::1","2606:4700::/32",1],["2606:4701::1","2606:4700::/32",0],["2a06:98c7:ffff::1","2a06:98c0::/29",1],["2a06:98c8::1","2a06:98c0::/29",0],["10.0.0.1","2606:4700::/32",0],["gecersiz","10.0.0.0/8",0],["10.1.2.3","10.0.0.0/8",1]]; $ok=1; foreach($t as $x) if((int)mk_ip_in_cidr($x[0],$x[1])!==$x[2]){$ok=0; echo "HATA ".$x[0]." ".$x[1]."\n";} echo $ok?"TAMAM":"";';
+list($rc, $o) = sh(phpenv().'php -r '.escapeshellarg($u)); check('CIDR denetimi birim testi (IPv4/IPv6, sınır değerleri, geçersiz adres) — 12 durum', trim($o) === 'TAMAM', $o);
 /* hata durumlarında JSON korunur */
 list($s, , $hd, $b) = apiat(8086, 'GET', 'home'); $j = json_decode($b, true);
 check('ölümcül PHP hatası → JSON 500 INTERNAL_ERROR (ayrıntı sızmaz)', $s === 500 && ($j['error']['code'] ?? '') === 'INTERNAL_ERROR' && strpos($hd['content-type'] ?? '', 'application/json') === 0 && strpos($b, 'tanimsiz') === false && strpos($b, '/tmp') === false, "$s ".substr($b, 0, 120));
@@ -419,7 +481,7 @@ foreach ($APIRESP as $r) { if ($r[3] < 400) continue; $nErr++; $jj = json_decode
   if (!is_array($jj) || $jj['success'] !== false || !preg_match('/^[A-Z_]+$/', $jj['error']['code'] ?? '') || ($jj['error']['message'] ?? '') === '' || empty($jj['meta']['generated_at']) || strpos($r[4]['content-type'] ?? '', 'application/json') !== 0) $bad[] = $r[3].' '.$r[2]; }
 check("şu ana kadarki TÜM hata yanıtları ($nErr adet: 400/404/405/413/429/500/503) geçerli JSON hata zarfı", $nErr > 30 && !$bad, implode(' | ', array_slice($bad, 0, 5)));
 /* lib dosyaları doğrudan yüklenirse hiçbir şey yapmaz */
-$out = ''; foreach (glob("$WORK/new/api/v1/{lib,endpoints}/*.php", GLOB_BRACE) as $f) { list(, $o) = sh('php -r '.escapeshellarg('include '.var_export($f, true).';')); $out .= $o; }
+$out = ''; foreach (glob("$WORK/new/api/v1/{lib,endpoints}/*.php", GLOB_BRACE) as $f) { list(, $o) = sh(phpenv().'php -r '.escapeshellarg('include '.var_export($f, true).';')); $out .= $o; }
 check('lib/ ve endpoints/ dosyaları MK_API olmadan çıktı üretmez/çalışmaz', $out === '', substr($out, 0, 200));
 /* sızıntı taraması: bu ana kadarki TÜM API yanıtları */
 $leaks = []; foreach ([MK_SEED_SECRET => 'cron_key değeri', 'cron_key' => 'cron_key adı', 'yonetici' => 'yönetici kullanıcı adı', '$2y$' => 'parola özeti', 'GİZLİ' => 'gizli/onay bekleyen ürün', 'Stack trace' => 'yığın izi', 'PDOException' => 'istisna adı', 'SQLSTATE' => 'SQL hata metni', '/tmp/' => 'sunucu yolu', 'Warning:' => 'PHP uyarısı', 'Notice:' => 'PHP notu', 'Fatal' => 'PHP hatası', 'aktuel-urunler.com' => 'uzak görsel adresi'] as $needle => $what) if (strpos($ALLBODY, $needle) !== false) $leaks[] = $what;
@@ -428,40 +490,95 @@ check('sızıntı yok (gizli ayar, yönetici, gizli katalog, hata ayrıntısı, 
 /* ---------------- F. salt okunurluk ---------------- */
 grp('F. Salt okunurluk (inc.php değiştirilmeden)');
 $p = pdo(); $me = (int)$p->query('SELECT CONNECTION_ID()')->fetchColumn();
-$p->exec("SET GLOBAL log_output='TABLE'"); $p->exec('TRUNCATE TABLE mysql.general_log'); $p->exec("SET GLOBAL general_log='ON'");
-$S = seed('2'); $p->exec('TRUNCATE TABLE mysql.general_log');
+/* Sorgu günlüğü SİLİNMEZ: yalnızca bu çalıştırmanın test veritabanına ($DB) bağlanan oturumlar, zaman aralığına göre süzülür. Ayarlar sonunda eski haline döner. */
+$S = seed('2');
+adm()->exec("SET GLOBAL log_output='TABLE'"); adm()->exec("SET GLOBAL general_log='ON'"); usleep(20000);
+$T0 = $p->query('SELECT NOW(6)')->fetchColumn();
+$glog = function ($t0, $t1) use ($p, $me, $DB) {
+  $th = $p->prepare("SELECT DISTINCT thread_id FROM mysql.general_log WHERE command_type='Connect' AND CONVERT(argument USING utf8mb4) LIKE ? AND event_time BETWEEN ? AND ? AND thread_id<>?");
+  $th->execute(['% on '.$DB.'%', $t0, $t1, $me]); $ids = array_map('intval', $th->fetchAll(PDO::FETCH_COLUMN)); if (!$ids) return [[], []];
+  $q = $p->prepare("SELECT thread_id, command_type, CONVERT(argument USING utf8mb4) a FROM mysql.general_log WHERE thread_id IN (".implode(',', $ids).") AND command_type IN ('Query','Execute','Prepare') AND event_time BETWEEN ? AND ?");
+  $q->execute([$t0, $t1]); return [$ids, $q->fetchAll(PDO::FETCH_ASSOC)];
+};
 $TBL = ['admin_log','catalogs','categories','items','item_media','link_blocks','logs','prices','product_links','products','settings','stores','users'];
 $cks = function () use ($p, $TBL) { $o = []; foreach ($p->query('CHECKSUM TABLE '.implode(',', $TBL).' EXTENDED')->fetchAll(PDO::FETCH_NUM) as $r) $o[$r[0]] = $r[1]; return $o; };
 $CK0 = $cks();
-foreach (['home', 'markets', 'markets/bim', 'catalogs', 'catalogs/'.$S['catalogs']['bim']['live'][1], 'categories', 'products', 'products?q=s%C3%BCt', 'products?fav=1:'.str_repeat('a', 32), 'products/'.reset($S['items']), 'search?q=s%C3%BCt', 'suggest?q=s%C3%BC', 'compare', 'compare/similar', 'pages/gizlilik'] as $c) api('GET', $c);
+foreach (['home', 'markets', 'markets/bim', 'catalogs', 'catalogs/'.$S['catalogs']['bim']['live'][1], 'categories', 'products', 'products?q=s%C3%BCt', 'products?fav='.reset($S['items']).':1:'.str_repeat('a', 32), 'products/'.reset($S['items']), 'search?q=s%C3%BCt', 'suggest?q=s%C3%BC', 'compare', 'compare/similar', 'pages/gizlilik'] as $c) api('GET', $c);
 foreach (['süt', 'merhaba', 'bu hafta hangi kataloglar var', "peki a101'de?"] as $mm) api('POST', 'assistant', json_encode(['message' => $mm, 'last_query' => 'süt']));
 /* aynı çağrılar SELECT-yetkili kullanıcıyla çalışan örnekte (:8085) */
 $roBad = [];
-foreach (['home', 'markets', 'markets/bim', 'catalogs', 'catalogs/'.$S['catalogs']['bim']['live'][1], 'categories', 'products', 'products?q=s%C3%BCt&sort=asc', 'products?fav='.reset($S['items']).':1:'.str_repeat('a', 32), 'products/'.reset($S['items']), 'search?q=s%C3%BCt', 'suggest?q=s%C3%BC', 'compare', 'compare/similar', 'pages/gizlilik'] as $c) { list($s, , , $b1) = apiat(8085, 'GET', $c); list(, , , $b2) = api('GET', $c); if ($s !== 200 || preg_replace('/"generated_at":"[^"]+"/', '', $b1) !== preg_replace('/"generated_at":"[^"]+"/', '', $b2)) $roBad[] = "$c ($s)"; }
+foreach (['home', 'markets', 'markets/bim', 'catalogs', 'catalogs/'.$S['catalogs']['bim']['live'][1], 'categories', 'products', 'products?q=s%C3%BCt&sort=asc', 'products?fav='.reset($S['items']).':1:'.str_repeat('a', 32), 'products/'.reset($S['items']), 'search?q=s%C3%BCt', 'suggest?q=s%C3%BC', 'compare', 'compare/similar', 'pages/gizlilik'] as $c) { list(, , , $b2) = api('GET', $c); if (is_file("$WORK/new/img/cmpcache.json")) copy("$WORK/new/img/cmpcache.json", "$WORK/newro/img/cmpcache.json");   /* cmp_groups eşitlik sırası (inc.php) iki örnekte aynı olsun */
+  list($s, , , $b1) = apiat(8085, 'GET', $c); if ($s !== 200 || preg_replace('/"generated_at":"[^"]+"/', '', $b1) !== preg_replace('/"generated_at":"[^"]+"/', '', $b2)) $roBad[] = "$c ($s)"; }
 foreach (['süt', 'merhaba', "peki a101'de?"] as $mm) { list($s) = apiat(8085, 'POST', 'assistant', json_encode(['message' => $mm, 'last_query' => 'süt'])); if ($s !== 200) $roBad[] = "assistant $mm ($s)"; }
-$p->exec("SET GLOBAL general_log='OFF'");
+usleep(20000); $T1 = $p->query('SELECT NOW(6)')->fetchColumn();
 $CK1 = $cks();
-$rows = $p->query("SELECT thread_id, command_type, CONVERT(argument USING utf8mb4) a FROM mysql.general_log WHERE thread_id<>$me AND command_type IN ('Query','Execute','Prepare')")->fetchAll(PDO::FETCH_ASSOC);
-$bad = []; $nSel = 0; $nRo = 0; $threads = [];
-foreach ($rows as $r) { $a = trim($r['a']); $threads[$r['thread_id']] = 1;
+list($tids, $rows) = $glog($T0, $T1);
+$bad = []; $nSel = 0; $nRo = 0; $threads = array_fill_keys($tids, 1);
+foreach ($rows as $r) { $a = trim($r['a']);
   if (preg_match('/^SELECT\b/i', $a)) $nSel++; elseif (preg_match('/^SET SESSION TRANSACTION READ ONLY$/i', $a)) $nRo++; else $bad[] = substr($a, 0, 80); }
 check('T-RO-1 sorgu günlüğü: API bağlantılarında yalnızca SELECT + oturum kilidi', count($rows) > 0 && !$bad, implode(' | ', array_slice($bad, 0, 5)));
 echo "    (".count($threads)." bağlantı, $nSel SELECT, $nRo kilit ifadesi, ".count($bad)." diğer)\n";
 check('  her API bağlantısı kilitlendi (bağlantı başına 1 kilit; ön kontrol + inc.php bağlantısı)', $nRo === count($threads), "$nRo / ".count($threads));
-list($rc, $o) = sh('php '.escapeshellarg(__DIR__.'/readonly_probe.php').' '.escapeshellarg("$WORK/new"));
+list($rc, $o) = sh(phpenv().'php '.escapeshellarg(__DIR__.'/readonly_probe.php').' '.escapeshellarg("$WORK/new"));
 check('T-RO-2 API önyüklemesinden sonra q("INSERT …") veritabanınca reddedilir (1792)', $rc === 0 && strpos($o, 'REDDEDILDI 1792') !== false, $o);
 check('T-RO-4 (bağımsız) YALNIZCA SELECT yetkili kullanıcıyla bütün uç noktalar çalışıyor ve root ile aynı yanıtı veriyor (18 çağrı)', !$roBad, implode(', ', $roBad));
 check('T-RO-5 (bağımsız) bütün API çağrılarından önce/sonra 13 tablonun sağlama toplamı (CHECKSUM TABLE) aynı', $CK0 === $CK1 && count($CK0) === 13, json_encode(array_diff_assoc($CK1, $CK0)));
 $before = [(int)$p->query('SELECT COUNT(*) FROM categories')->fetchColumn(), (int)$p->query('SELECT COUNT(*) FROM settings')->fetchColumn()];
-$p->exec("UPDATE settings SET v='4' WHERE k='schema_v'"); $p->exec('TRUNCATE TABLE mysql.general_log'); $p->exec("SET GLOBAL general_log='ON'");
+$p->exec("UPDATE settings SET v='4' WHERE k='schema_v'"); usleep(20000); $T2 = $p->query('SELECT NOW(6)')->fetchColumn();
 list($s, $j) = api('GET', 'home'); list($s2) = api('POST', 'assistant', json_encode(['message' => 'süt']));
-$p->exec("SET GLOBAL general_log='OFF'");
-$w = $p->query("SELECT COUNT(*) FROM mysql.general_log WHERE thread_id<>$me AND command_type IN ('Query','Execute') AND CONVERT(argument USING utf8mb4) NOT REGEXP '^(SELECT|SET SESSION TRANSACTION READ ONLY)'")->fetchColumn();
+usleep(20000); $T3 = $p->query('SELECT NOW(6)')->fetchColumn(); adm()->exec("SET GLOBAL general_log='OFF'");
+list(, $rw) = $glog($T2, $T3); $w = count(array_filter($rw, function ($r) { return !preg_match('/^(SELECT|SET SESSION TRANSACTION READ ONLY)/i', trim($r['a'])); }));
 $after = [(int)$p->query('SELECT COUNT(*) FROM categories')->fetchColumn(), (int)$p->query('SELECT COUNT(*) FROM settings')->fetchColumn()];
 $sv = $p->query("SELECT v FROM settings WHERE k='schema_v'")->fetchColumn();
 check("T-RO-3 schema_v='4' iken API 503 döner, inc.php yüklenmez, hiçbir yazma olmaz", $s === 503 && $s2 === 503 && (int)$w === 0 && $before === $after && $sv === '4', "durum $s/$s2, yazma $w, schema_v=$sv");
 web(8081, '/'); $sv2 = $p->query("SELECT v FROM settings WHERE k='schema_v'")->fetchColumn();
 check("  karşılaştırma: aynı durumda SİTE (inc.php) şemayı günceller (schema_v '4'→'$sv2') — korumanın neden gerekli olduğunu gösterir", $sv2 === '5');
+
+/* ---------------- R3-F. favori anahtarı: tek standart itemId:storeId:hash ---------------- */
+grp('R3-F. Favori anahtarı (itemId:storeId:hash)');
+$p->exec("UPDATE settings SET v='5' WHERE k='schema_v'"); $S = seed('2'); $I = $S['items'];
+$every = []; foreach (['products?status=hepsi&limit=50', 'products?status=hepsi&limit=50&page=2', 'home', 'compare?limit=50', 'products/'.$I['a101|live|Isıtek Airfryer XA4200 4.2 L'], 'catalogs/'.$S['catalogs']['bim']['live'][1], 'search?q=s%C3%BCt', 'compare/similar'] as $c) {
+  list(, $j, , $raw) = api('GET', $c); preg_match_all('/"id":(\d+),"fav_key":"([^"]*)","hash":"([0-9a-f]{32})","name"/', $raw, $mm, PREG_SET_ORDER); foreach ($mm as $x) $every[] = $x; }
+$badK = []; $sid = []; foreach (pdo()->query('SELECT i.id, c.store_id FROM items i JOIN catalogs c ON c.id=i.catalog_id')->fetchAll(PDO::FETCH_NUM) as $r) $sid[(int)$r[0]] = (int)$r[1];
+foreach ($every as $x) if ($x[2] !== $x[1].':'.$sid[(int)$x[1]].':'.$x[3]) $badK[] = $x[2];
+check('OLUMLU: '.count($every).' ürün nesnesinin hepsinde fav_key = "itemId:storeId:hash" (8 farklı uç nokta)', count($every) > 50 && !$badK, implode(', ', array_slice($badK, 0, 3)));
+$sample = array_slice(array_unique(array_column($every, 2)), 0, 50);
+list($s, $j) = api('GET', 'products?fav='.implode(',', $sample));
+$ok = $s === 200 && count($j['data']) === count($sample); foreach ($j['data'] as $k => $f) if ($f['fav_key'] !== $sample[$k] || ($f['item']['fav_key'] ?? null) !== $sample[$k] || $f['state'] === 'bulunamadi') $ok = false;
+check('OLUMLU: ürün nesnesinden alınan fav_key DEĞİŞTİRİLMEDEN /products?fav= ile sorgulanabiliyor (50 anahtar, gidiş-dönüş aynı)', $ok);
+$live = $I['bim|live|Yaylaköy Süt 1 L']; $h = md5(mb_strtolower('Yaylaköy Süt 1 L'));
+list(, $j) = api('GET', "products?fav=$live:1:$h"); check('OLUMLU: aktif kalem → state=aktif, item.id aynı, adaylar onaysız', $j['data'][0]['state'] === 'aktif' && $j['data'][0]['item']['id'] === $live && !array_filter($j['data'][0]['candidates'], function ($c) { return $c['confirmed'] !== false; }));
+foreach (["1:$h" => 'eski biçim storeId:hash', "$live:$h" => 'itemId:hash (market yok)', "$live:1:$h:9" => 'fazla parça', "$live:1:".strtoupper($h) => 'büyük harf hash', "$live:1:".substr($h, 0, 31) => 'kısa hash', "0:1:$h" => 'itemId 0', "$live:0:$h" => 'storeId 0', "-$live:1:$h" => 'negatif', "$live:1:$h,," => 'boş öğe yalnızca', 'abc:1:'.$h => 'sayı olmayan itemId', "$live :1:$h" => 'boşluk'] as $k => $why) {
+  list($s, $j) = api('GET', 'products?fav='.rawurlencode($k)); $okk = $why === 'boş öğe yalnızca' ? $s === 200 && count($j['data']) === 1 : $s === 400 && ($j['error']['code'] ?? '') === 'INVALID_PARAMETER';
+  check("OLUMSUZ: $why → ".($why === 'boş öğe yalnızca' ? 'boş öğeler yok sayılır' : '400 INVALID_PARAMETER'), $okk, (string)$s); }
+list($s, $j) = api('GET', "products?fav=$live:2:$h"); check('OLUMSUZ: doğru biçim ama yanlış market → bulunamadi (başka marketin kalemi döndürülmez)', $s === 200 && $j['data'][0]['state'] === 'bulunamadi' && $j['data'][0]['item'] === null);
+list($s, $j) = api('GET', "products?fav=$live:1:".str_repeat('0', 32)); check('OLUMSUZ: doğru kalem ama farklı hash → kalem item_id ile bulunur, name_changed=true, hash ile ADAY ÜRETİLMEZ', $s === 200 && $j['data'][0]['item']['id'] === $live && $j['data'][0]['name_changed'] === true && $j['data'][0]['candidates'] === []);
+$past = $I['bim|past|Yaylaköy Süt 1 L']; list(, $j) = api('GET', "products?fav=$past:1:$h");
+check('DAVRANIŞ KORUNDU: geçen haftanın favorisi otomatik yeni kaleme çevrilmez (item.id = kayıtlı id, adaylar confirmed=false)', $j['data'][0]['item']['id'] === $past && $j['data'][0]['state'] === 'suresi_doldu' && count($j['data'][0]['candidates']) === 2 && !array_filter($j['data'][0]['candidates'], function ($c) { return $c['confirmed'] !== false; }));
+
+/* ---------------- R3-H. HTTPS: sahte başlık senaryoları ---------------- */
+grp('R3-H. HTTPS sahte başlık senaryoları');
+/* :8089 canlı ayarlı (HTTPS zorunlu, 127.0.0.1 güvenilir DEĞİL) · :8084 HTTPS zorunlu, 127.0.0.1 güvenilir vekil (Cloudflare benzetimi) */
+foreach ([['X-Forwarded-Proto: https'], ['CF-Visitor: {"scheme":"https"}'], ['X-Forwarded-Proto: https', 'CF-Visitor: {"scheme":"https"}'], ['X-Forwarded-Proto: HTTPS, http'], ['X-Forwarded-Ssl: on'], ['Front-End-Https: on'], ['X-Forwarded-Proto: https', 'CF-Connecting-IP: 1.2.3.4']] as $hd) {
+  list($s, , $b) = http(8089, 'GET', '/api/v1/markets', null, $hd); $j = json_decode($b, true);
+  check('güvenilmeyen kaynak + sahte '.implode(' + ', $hd).' → 400 HTTPS_REQUIRED', $s === 400 && ($j['error']['code'] ?? '') === 'HTTPS_REQUIRED', (string)$s); }
+foreach ([[['X-Forwarded-Proto: https'], 200], [['CF-Visitor: {"scheme":"https"}'], 200], [['X-Forwarded-Proto: https, http'], 200], [[], 400], [['X-Forwarded-Proto: http'], 400], [['CF-Visitor: {"scheme":"http"}'], 400], [['CF-Visitor: https'], 400], [['CF-Visitor: {"scheme":"httpsx"}'], 400]] as $t) {
+  clear_caches(); list($s) = http(8084, 'GET', '/api/v1/categories', null, $t[0]);
+  check('güvenilir vekil + '.($t[0] ? implode(' + ', $t[0]) : 'başlık yok').' → '.$t[1], $s === $t[1], (string)$s); }
+list($s) = http(8082, 'GET', '/api/v1/categories'); check('geliştirme ayarı (MK_API_ALLOW_HTTP=true) yalnızca test kopyasında; depodaki config.php değeri false', $s === 200 && strpos(file_get_contents("$SITE_NEW_FILES/api/v1/config.php"), 'const MK_API_ALLOW_HTTP = false;') !== false);
+$ht = file_get_contents("$SITE_NEW_FILES/api/.htaccess");
+check('.htaccess ile çelişki yok: Apache yalnızca HTTP→HTTPS yönlendirir; PHP aynı başlıkları yalnızca güvenilir vekilden kabul eder (daha katı)', strpos($ht, 'RewriteRule ^ https://marketler.org%{REQUEST_URI} [L,R=301]') !== false && strpos(file_get_contents("$SITE_NEW_FILES/api/v1/lib/proxy.php"), 'if (!mk_from_trusted_proxy()) return false;') !== false);
+
+/* ---------------- R3-R. hız sınırı: dosya sistemi hatası ---------------- */
+grp('R3-R. Hız sınırı dosya sistemi hatası (güvenli hata)');
+foreach ([[8090, 'rlfail1', 'sayaç klasörü oluşturulamadı'], [8091, 'rlfail2', 'sayaç dosyası açılamadı']] as $t) {
+  list($s, , $hd, $b) = apiat($t[0], 'GET', 'markets'); $j = json_decode($b, true);
+  check("{$t[2]} → istek REDDEDİLİR: JSON 503 SERVICE_UNAVAILABLE + Retry-After (sınırlama sessizce kapanmaz)", $s === 503 && ($j['error']['code'] ?? '') === 'SERVICE_UNAVAILABLE' && isset($hd['retry-after']) && strpos($b, 'mk_api_rl') === false, "$s ".substr($b, 0, 100));
+  list($s2) = apiat($t[0], 'POST', 'assistant', json_encode(['message' => 'süt'])); check("  aynı durumda POST /assistant da 503", $s2 === 503);
+  usleep(200000); $log = (string)@file_get_contents("$WORK/{$t[1]}.err.log");
+  check("  sunucu günlüğüne kayıt: \"hız sınırı hatası: {$t[2]}\"", strpos($log, 'MARKETLER API hız sınırı hatası: '.$t[2]) !== false, substr($log, -200));
+}
+check('normal ortamda (yazılabilir geçici klasör) aynı istek 200', api('GET', 'markets')[0] === 200);
 
 /* ---------------- G. statik denetimler ---------------- */
 grp('G. Statik denetimler');
@@ -512,12 +629,26 @@ check('bu örneklerde: hash aynıysa hkey de aynı (hash daha katı)', $sub);
 check('ikisi de birim farkını (1000 g / 1 kg, L / Lt) ve marka yazımını (Coca-Cola / Coca Cola) ayırır', !$tbl[5][1] && !$tbl[5][2] && !$tbl[6][1] && !$tbl[6][2] && !$tbl[9][1] && !$tbl[9][2]);
 echo "    Not: Gerçek verideki haftalar arası kararlılık bu testle ÖLÇÜLEMEZ; docs/sql/D3-sayim-sorgulari.sql sonuçları gerekir.\n";
 
+/* ---------------- R3-Z. temizlik doğrulaması ---------------- */
+grp('R3-Z. Temizlik (yalnızca bu çalıştırmanın oluşturdukları)');
+$dbN = $DB; $uN = $ROU; $wN = $WORK; mk_cleanup();
+check("test veritabanı silindi ($dbN)", !mk_guard_db_exists(adm(), $dbN));
+check("test kullanıcısı silindi ($uN)", !mk_guard_user_exists(adm(), $uN));
+check('geçici klasör silindi', !file_exists($wN));
+$r1 = adm()->query('SELECT @@global.general_log, @@global.log_output')->fetch(PDO::FETCH_NUM);
+check("sorgu günlüğü ayarları eski haline döndü (general_log={$GLOG0['on']}, log_output={$GLOG0['out']})", (string)$r1[0] === (string)$GLOG0['on'] && $r1[1] === $GLOG0['out']);
+check('başka veritabanına/kullanıcıya dokunulmadı (betik başındaki liste ile aynı)', adm()->query('SHOW DATABASES')->fetchAll(PDO::FETCH_COLUMN) === array_values(array_diff($dbs0, [$dbN])) && (int)adm()->query('SELECT COUNT(*) FROM mysql.user')->fetchColumn() === (int)$us0 - 1);
+
 /* ---------------- rapor ---------------- */
 $pass = count(array_filter($R, function ($r) { return $r[2]; })); $fail = count($R) - $pass;
+$isNew = function ($r) { return strpos($r[0], 'R3-') === 0; };
+$RN = array_values(array_filter($R, $isNew)); $RO = array_values(array_filter($R, function ($r) use ($isNew) { return !$isNew($r); }));
+$cnt = function ($a) { $p = count(array_filter($a, function ($r) { return $r[2]; })); return [count($a), $p]; };
+list($on, $op) = $cnt($RO); list($nn, $np) = $cnt($RN);
+echo "ÖNCEKİ TESTLER: $op/$on · YENİ (R3) TESTLER: $np/$nn\n";
 echo "\n========================================\nTOPLAM: ".count($R)." kontrol · $pass geçti · $fail başarısız\n";
 if (!empty($opt['rapor'])) {
-  $md = "| Grup | Kontrol | Sonuç |\n|---|---|---|\n";
-  foreach ($R as $r) $md .= '| '.$r[0].' | '.str_replace('|', '\|', $r[1]).' | '.($r[2] ? '✓' : '✗ '.str_replace(['|', "\n"], ['\|', ' '], mb_substr($r[3], 0, 200))).' |'."\n";
-  file_put_contents($opt['rapor'], "Ortam: PHP ".PHP_VERSION.' · '.pdo_version().' · '.date('Y-m-d H:i')."\n\nToplam ".count($R)." kontrol · $pass geçti · $fail başarısız\n\n".$md);
+  $tbl = function ($rows) { $md = "| Grup | Kontrol | Sonuç |\n|---|---|---|\n"; foreach ($rows as $r) $md .= '| '.$r[0].' | '.str_replace('|', '\|', $r[1]).' | '.($r[2] ? '✓' : '✗ '.str_replace(['|', "\n"], ['\|', ' '], mb_substr($r[3], 0, 200))).' |'."\n"; return $md; };
+  file_put_contents($opt['rapor'], "Ortam: PHP ".PHP_VERSION.' · '.(adm()->query('SELECT VERSION()')->fetchColumn()).' · '.date('Y-m-d H:i')."\n\nToplam ".count($R)." kontrol · $pass geçti · $fail başarısız (önceki testler $op/$on · yeni R3 testleri $np/$nn)\n\n### Yeni testler (revizyon 3)\n\n".$tbl($RN)."\n### Önceki testler (revizyon 2'den korunan)\n\n".$tbl($RO));
 }
 exit($fail ? 1 : 0);

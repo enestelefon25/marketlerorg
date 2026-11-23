@@ -56,7 +56,8 @@ Kalan 14 uç noktanın her biri ayrı bir ekranı veya işlevi karşılıyor ve 
 
 ## Ortak notlar
 
-- Bütün yanıtlar `{ "success": true, "data": …, "meta": { "generated_at": … } }` zarfıyla döner (A.2).
+- Bütün yanıtlar `{ "success": true, "data": …, "meta": { "generated_at": …, "api_version": "1.0" } }` zarfıyla döner (A.2).
+- **Favori anahtarı tek standarttır:** her ürün nesnesindeki `fav_key` = `"{item_id}:{store_id}:{hash}"`. Uygulama bu değeri olduğu gibi saklar ve `GET /products?fav=` ile aynı biçimde geri gönderir. Hash kalıcı kimlik değildir (bölüm 7).
 - Hata biçimi ve kodları A.3'teki gibidir.
 - Kısaltmalar: `Item` = B.3 ürün nesnesi, `CatalogSummary` = B.2, `Market` = B.1, `CompareGroup` = B.4. Bir nesnenin tam hali ilk geçtiği yerde gösterilir, sonraki örneklerde kısaltılır.
 - "PHP fonksiyonları" satırında **değiştirilmeden çağrılan** mevcut fonksiyonlar listelenir. **(kopya)** etiketi, kullanıcı kararı A gereği API'de birebir yeniden yazılan sayfa içi mantığı gösterir. Bu kısımlar web ile çıktı karşılaştırma testine girer.
@@ -83,7 +84,7 @@ Kalan 14 uç noktanın her biri ayrı bir ekranı veya işlevi karşılıyor ve 
       "subtitle": "Aynı türdeki ürünlerin birim fiyat medyanına göre",
       "items": [
         {
-          "id": 48213, "fav_key": "1:3f2a9c0e5b7d41a8c6e2f0b9d1a4c7e3", "hash": "3f2a9c0e5b7d41a8c6e2f0b9d1a4c7e3",
+          "id": 48213, "fav_key": "48213:1:3f2a9c0e5b7d41a8c6e2f0b9d1a4c7e3", "hash": "3f2a9c0e5b7d41a8c6e2f0b9d1a4c7e3",
           "name": "Örnek Marka Ayçiçek Yağı 5 L",
           "category": { "slug": "gida", "name": "Gıda" },
           "market": { "id": 1, "slug": "bim", "name": "BİM", "color": "#e30613" },

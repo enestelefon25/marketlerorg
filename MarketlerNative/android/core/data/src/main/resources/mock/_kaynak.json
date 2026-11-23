@@ -1,0 +1,5 @@
+{
+    "aciklama": "Bu klasördeki JSON dosyaları Rev3 API (commit e95404e) yerel test kopyasından, tests/fixtures/seed.php SENTETİK verisiyle (senaryo 2) üretildi. Marka adları uydurmadır; gerçek fiyat veya kişisel veri içermez.",
+    "uretim": "2026-11-23T23:31:23+03:00",
+    "urun_sayisi": 70
+}

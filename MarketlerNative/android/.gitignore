@@ -1,0 +1,12 @@
+*.iml
+.gradle/
+/local.properties
+/.idea/
+.DS_Store
+build/
+/captures/
+.kotlin/
+# İmzalama bilgileri asla depoya girmez
+keystore.properties
+*.jks
+*.keystore

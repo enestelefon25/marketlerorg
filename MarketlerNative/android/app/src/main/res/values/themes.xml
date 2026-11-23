@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Compose kendi temasını çizer; burada yalnızca pencere zemini (beyaz ekran parlaması olmasın). -->
+    <style name="Theme.Marketler" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:windowBackground">@color/mk_bg</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+    </style>
+    <!-- Açılış ekranı (Android 12+ yerel, 7–11 uyumluluk katmanı): lacivert zemin + logonun sepet simgesi -->
+    <style name="Theme.Marketler.Starting" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/mk_navy</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_splash_cart</item>
+        <item name="postSplashScreenTheme">@style/Theme.Marketler</item>
+    </style>
+</resources>

@@ -1,0 +1,93 @@
+{
+    "success": true,
+    "data": [
+        {
+            "slug": "elektronik",
+            "name": "Elektronik",
+            "order": 1,
+            "live_item_count": 6
+        },
+        {
+            "slug": "beyaz-esya",
+            "name": "Beyaz Eşya",
+            "order": 2,
+            "live_item_count": 0
+        },
+        {
+            "slug": "ev-yasam",
+            "name": "Ev ve Yaşam",
+            "order": 3,
+            "live_item_count": 0
+        },
+        {
+            "slug": "mutfak",
+            "name": "Mutfak",
+            "order": 4,
+            "live_item_count": 0
+        },
+        {
+            "slug": "gida",
+            "name": "Gıda",
+            "order": 5,
+            "live_item_count": 22
+        },
+        {
+            "slug": "temizlik",
+            "name": "Temizlik",
+            "order": 6,
+            "live_item_count": 3
+        },
+        {
+            "slug": "kisisel-bakim",
+            "name": "Kişisel Bakım",
+            "order": 7,
+            "live_item_count": 0
+        },
+        {
+            "slug": "giyim",
+            "name": "Giyim",
+            "order": 8,
+            "live_item_count": 0
+        },
+        {
+            "slug": "anne-bebek",
+            "name": "Anne ve Bebek",
+            "order": 9,
+            "live_item_count": 1
+        },
+        {
+            "slug": "oyuncak",
+            "name": "Oyuncak",
+            "order": 10,
+            "live_item_count": 0
+        },
+        {
+            "slug": "spor",
+            "name": "Spor",
+            "order": 11,
+            "live_item_count": 0
+        },
+        {
+            "slug": "otomotiv",
+            "name": "Otomotiv",
+            "order": 12,
+            "live_item_count": 0
+        },
+        {
+            "slug": "kitap",
+            "name": "Kitap",
+            "order": 13,
+            "live_item_count": 0
+        },
+        {
+            "slug": "diger",
+            "name": "Diğer",
+            "order": 14,
+            "live_item_count": 31
+        }
+    ],
+    "meta": {
+        "generated_at": "2026-11-23T23:31:22+03:00",
+        "api_version": "1.0"
+    }
+}

@@ -1,0 +1,2516 @@
+{
+    "success": true,
+    "data": [
+        {
+            "id": 29,
+            "fav_key": "29:3:2a0ab097baf767896ad2f80bf15c7ef9",
+            "hash": "2a0ab097baf767896ad2f80bf15c7ef9",
+            "name": "Isıtek Airfryer XA4200 4.2 L",
+            "category": {
+                "slug": "elektronik",
+                "name": "Elektronik"
+            },
+            "market": {
+                "id": 3,
+                "slug": "sok",
+                "name": "ŞOK",
+                "color": "#ffd100"
+            },
+            "price": "4899.00",
+            "price_text": "4.899,00 TL",
+            "old_price": null,
+            "old_price_text": null,
+            "discount_pct": null,
+            "unit_price": null,
+            "image": null,
+            "catalog": {
+                "id": 9,
+                "slug": "sok-26-kasim-2026-aktuel-urunler-katalogu",
+                "title": "ŞOK 26 Test Aktüel Ürünler Kataloğu",
+                "start_date": "2026-11-26",
+                "end_date": "2026-12-02",
+                "status": "soon",
+                "status_text": "Yaklaşan"
+            },
+            "campaign_text": "26 Kas - 2 Ara 2026",
+            "web_url": "https://marketler.org/katalog/sok-26-kasim-2026-aktuel-urunler-katalogu#viewer"
+        },
+        {
+            "id": 30,
+            "fav_key": "30:1:37c7b1e00d43e3ad538359d36421754e",
+            "hash": "37c7b1e00d43e3ad538359d36421754e",
+            "name": "Yaylaköy Süt 1 L",
+            "category": {
+                "slug": "gida",
+                "name": "Gıda"
+            },
+            "market": {
+                "id": 1,
+                "slug": "bim",
+                "name": "BİM",
+                "color": "#e30613"
+            },
+            "price": "33.25",
+            "price_text": "33,25 TL",
+            "old_price": null,
+            "old_price_text": null,
+            "discount_pct": null,
+            "unit_price": {
+                "value": "33.25",
+                "unit": "L",
+                "text": "≈ 33,25 TL/L"
+            },
+            "image": null,
+            "catalog": {
+                "id": 3,
+                "slug": "bim-26-kasim-2026-aktuel-urunler-katalogu",
+                "title": "BİM 26 Test Aktüel Ürünler Kataloğu",
+                "start_date": "2026-11-26",
+                "end_date": "2026-12-02",
+                "status": "soon",
+                "status_text": "Yaklaşan"
+            },
+            "campaign_text": "26 Kas - 2 Ara 2026",
+            "web_url": "https://marketler.org/katalog/bim-26-kasim-2026-aktuel-urunler-katalogu#viewer"
+        },
+        {
+            "id": 16,
+            "fav_key": "16:2:cae0782d49cf22ef869f93237d6e88b5",
+            "hash": "cae0782d49cf22ef869f93237d6e88b5",
+            "name": "Altınbaşak Ayçiçek Yağı 5 L",
+            "category": {
+                "slug": "gida",
+                "name": "Gıda"
+            },
+            "market": {
+                "id": 2,
+                "slug": "a101",
+                "name": "A101",
+                "color": "#00a0e3"
+            },
+            "price": "275.00",
+            "price_text": "275,00 TL",
+            "old_price": null,
+            "old_price_text": null,
+            "discount_pct": null,
+            "unit_price": {
+                "value": "55.00",
+                "unit": "L",
+                "text": "≈ 55,00 TL/L"
+            },
+            "image": null,
+            "catalog": {
+                "id": 5,
+                "slug": "a101-21-kasim-2026-aktuel-urunler-katalogu",
+                "title": "A101 21 Test Aktüel Ürünler Kataloğu",
+                "start_date": "2026-11-21",
+                "end_date": "2026-11-25",
+                "status": "live",
+                "status_text": "Aktif"
+            },
+            "campaign_text": "21 Kas - 25 Kas 2026",
+            "web_url": "https://marketler.org/katalog/a101-21-kasim-2026-aktuel-urunler-katalogu#viewer"
+        },
+        {
+            "id": 13,
+            "fav_key": "13:1:fb3bf80cbe1842b3ac28b104bffa3ade",
+            "hash": "fb3bf80cbe1842b3ac28b104bffa3ade",
+            "name": "Bereket Ayçiçek Yağı 5 L",
+            "category": {
+                "slug": "gida",
+                "name": "Gıda"
+            },
+            "market": {
+                "id": 1,
+                "slug": "bim",
+                "name": "BİM",
+                "color": "#e30613"
+            },
+            "price": "299.00",
+            "price_text": "299,00 TL",
+            "old_price": null,
+            "old_price_text": null,
+            "discount_pct": null,
+            "unit_price": {
+                "value": "59.80",
+                "unit": "L",
+                "text": "≈ 59,80 TL/L"
+            },
+            "image": null,
+            "catalog": {
+                "id": 2,
+                "slug": "bim-21-kasim-2026-aktuel-urunler-katalogu",
+                "title": "BİM 21 Test Aktüel Ürünler Kataloğu",
+                "start_date": "2026-11-21",
+                "end_date": "2026-11-25",
+                "status": "live",
+                "status_text": "Aktif"
+            },
+            "campaign_text": "21 Kas - 25 Kas 2026",
+            "web_url": "https://marketler.org/katalog/bim-21-kasim-2026-aktuel-urunler-katalogu#viewer"
+        },
+        {
+            "id": 18,
+            "fav_key": "18:1:4c119425bb8d1acfdb785d01226ca869",
+            "hash": "4c119425bb8d1acfdb785d01226ca869",
+            "name": "Beyazgül Toz Deterjan 6 kg",
+            "category": {
+                "slug": "temizlik",
+                "name": "Temizlik"
+            },
+            "market": {
+                "id": 1,
+                "slug": "bim",
+                "name": "BİM",
+                "color": "#e30613"
+            },
+            "price": "249.00",
+            "price_text": "249,00 TL",
+            "old_price": null,
+            "old_price_text": null,
+            "discount_pct": null,
+            "unit_price": {
+                "value": "41.50",
+                "unit": "kg",
+                "text": "≈ 41,50 TL/kg"
+            },
+            "image": null,
+            "catalog": {
+                "id": 2,
+                "slug": "bim-21-kasim-2026-aktuel-urunler-katalogu",
+                "title": "BİM 21 Test Aktüel Ürünler Kataloğu",
+                "start_date": "2026-11-21",
+                "end_date": "2026-11-25",
+                "status": "live",
+                "status_text": "Aktif"
+            },
+            "campaign_text": "21 Kas - 25 Kas 2026",
+            "web_url": "https://marketler.org/katalog/bim-21-kasim-2026-aktuel-urunler-katalogu#viewer"
+        },
+        {
+            "id": 66,
+            "fav_key": "66:2:976d1feb10d6c6cbd8896d507686f1a2",
+            "hash": "976d1feb10d6c6cbd8896d507686f1a2",
+            "name": "Çaydağı Siyah Çay 1 kg",
+            "category": {
+                "slug": "gida",
+                "name": "Gıda"
+            },
+            "market": {
+                "id": 2,
+                "slug": "a101",
+                "name": "A101",
+                "color": "#00a0e3"
+            },
+            "price": "149.00",
+            "price_text": "149,00 TL",
+            "old_price": null,
+            "old_price_text": null,
+            "discount_pct": null,
+            "unit_price": {
+                "value": "149.00",
+                "unit": "kg",
+                "text": "≈ 149,00 TL/kg"
+            },
+            "image": null,
+            "catalog": {
+                "id": 5,
+                "slug": "a101-21-kasim-2026-aktuel-urunler-katalogu",
+                "title": "A101 21 Test Aktüel Ürünler Kataloğu",
+                "start_date": "2026-11-21",
+                "end_date": "2026-11-25",
+                "status": "live",
+                "status_text": "Aktif"
+            },
+            "campaign_text": "21 Kas - 25 Kas 2026",
+            "web_url": "https://marketler.org/katalog/a101-21-kasim-2026-aktuel-urunler-katalogu#viewer"
+        },
+        {
+            "id": 69,
+            "fav_key": "69:1:3b0d46ba5cd02145783a132312daa98b",
+            "hash": "3b0d46ba5cd02145783a132312daa98b",
+            "name": "DAĞKÖY PEYNİR 500 G",
+            "category": {
+                "slug": "gida",
+                "name": "Gıda"
+            },
+            "market": {
+                "id": 1,
+                "slug": "bim",
+                "name": "BİM",
+                "color": "#e30613"
+            },
+            "price": "115.00",
+            "price_text": "115,00 TL",
+            "old_price": null,
+            "old_price_text": null,
+            "discount_pct": null,
+            "unit_price": {
+                "value": "230.00",
+                "unit": "kg",
+                "text": "≈ 230,00 TL/kg"
+            },
+            "image": null,
+            "catalog": {
+                "id": 2,
+                "slug": "bim-21-kasim-2026-aktuel-urunler-katalogu",
+                "title": "BİM 21 Test Aktüel Ürünler Kataloğu",
+                "start_date": "2026-11-21",
+                "end_date": "2026-11-25",
+                "status": "live",
+                "status_text": "Aktif"
+            },
+            "campaign_text": "21 Kas - 25 Kas 2026",
+            "web_url": "https://marketler.org/katalog/bim-21-kasim-2026-aktuel-urunler-katalogu#viewer"
+        },
+        {
+            "id": 22,
+            "fav_key": "22:2:734eec29729e856457e8feeb87c35938",
+            "hash": "734eec29729e856457e8feeb87c35938",
+            "name": "Demlik Siyah Çay 1000 g",
+            "category": {
+                "slug": "gida",
+                "name": "Gıda"
+            },
+            "market": {
+                "id": 2,
+                "slug": "a101",
+                "name": "A101",
+                "color": "#00a0e3"
+            },
+            "price": "159.00",
+            "price_text": "159,00 TL",
+            "old_price": "198.75",
+            "old_price_text": "198,75 TL",
+            "discount_pct": 20,
+            "unit_price": {
+                "value": "159.00",
+                "unit": "kg",
+                "text": "≈ 159,00 TL/kg"
+            },
+            "image": null,
+            "catalog": {
+                "id": 5,
+                "slug": "a101-21-kasim-2026-aktuel-urunler-katalogu",
+                "title": "A101 21 Test Aktüel Ürünler Kataloğu",
+                "start_date": "2026-11-21",
+                "end_date": "2026-11-25",
+                "status": "live",
+                "status_text": "Aktif"
+            },
+            "campaign_text": "21 Kas - 25 Kas 2026",
+            "web_url": "https://marketler.org/katalog/a101-21-kasim-2026-aktuel-urunler-katalogu#viewer"
+        },
+        {
+            "id": 6,
+            "fav_key": "6:1:788b5c2bf3487682136eb9f2a72a26b5",
+            "hash": "788b5c2bf3487682136eb9f2a72a26b5",
+            "name": "Dereli Süt 1 L",
+            "category": {
+                "slug": "gida",
+                "name": "Gıda"
+            },
+            "market": {
+                "id": 1,
+                "slug": "bim",
+                "name": "BİM",
+                "color": "#e30613"
+            },
+            "price": "29.90",
+            "price_text": "29,90 TL",
+            "old_price": null,
+            "old_price_text": null,
+            "discount_pct": null,
+            "unit_price": {
+                "value": "29.90",
+                "unit": "L",
+                "text": "≈ 29,90 TL/L"
+            },
+            "image": null,
+            "catalog": {
+                "id": 2,
+                "slug": "bim-21-kasim-2026-aktuel-urunler-katalogu",
+                "title": "BİM 21 Test Aktüel Ürünler Kataloğu",
+                "start_date": "2026-11-21",
+                "end_date": "2026-11-25",
+                "status": "live",
+                "status_text": "Aktif"
+            },
+            "campaign_text": "21 Kas - 25 Kas 2026",
+            "web_url": "https://marketler.org/katalog/bim-21-kasim-2026-aktuel-urunler-katalogu#viewer"
+        },
+        {
+            "id": 7,
+            "fav_key": "7:3:788b5c2bf3487682136eb9f2a72a26b5",
+            "hash": "788b5c2bf3487682136eb9f2a72a26b5",
+            "name": "Dereli Süt 1 L",
+            "category": {
+                "slug": "gida",
+                "name": "Gıda"
+            },
+            "market": {
+                "id": 3,
+                "slug": "sok",
+                "name": "ŞOK",
+                "color": "#ffd100"
+            },
+            "price": "30.50",
+            "price_text": "30,50 TL",
+            "old_price": null,
+            "old_price_text": null,
+            "discount_pct": null,
+            "unit_price": {
+                "value": "30.50",
+                "unit": "L",
+                "text": "≈ 30,50 TL/L"
+            },
+            "image": null,
+            "catalog": {
+                "id": 8,
+                "slug": "sok-21-kasim-2026-aktuel-urunler-katalogu",
+                "title": "ŞOK 21 Test Aktüel Ürünler Kataloğu",
+                "start_date": "2026-11-21",
+                "end_date": "2026-11-25",
+                "status": "live",
+                "status_text": "Aktif"
+            },
+            "campaign_text": "21 Kas - 25 Kas 2026",
+            "web_url": "https://marketler.org/katalog/sok-21-kasim-2026-aktuel-urunler-katalogu#viewer"
+        },
+        {
+            "id": 23,
+            "fav_key": "23:1:4e228b56d61f3757fde54755cdda627c",
+            "hash": "4e228b56d61f3757fde54755cdda627c",
+            "name": "Ekranix 55 inç 4K Smart TV EX55U800",
+            "category": {
+                "slug": "elektronik",
+                "name": "Elektronik"
+            },
+            "market": {
+                "id": 1,
+                "slug": "bim",
+                "name": "BİM",
+                "color": "#e30613"
+            },
+            "price": "17999.00",
+            "price_text": "17.999,00 TL",
+            "old_price": null,
+            "old_price_text": null,
+            "discount_pct": null,
+            "unit_price": null,
+            "image": null,
+            "catalog": {
+                "id": 2,
+                "slug": "bim-21-kasim-2026-aktuel-urunler-katalogu",
+                "title": "BİM 21 Test Aktüel Ürünler Kataloğu",
+                "start_date": "2026-11-21",
+                "end_date": "2026-11-25",
+                "status": "live",
+                "status_text": "Aktif"
+            },
+            "campaign_text": "21 Kas - 25 Kas 2026",
+            "web_url": "https://marketler.org/katalog/bim-21-kasim-2026-aktuel-urunler-katalogu#viewer"
+        },
+        {
+            "id": 33,
+            "fav_key": "33:1:d6ad2d770b4ee6c9aa02c8c111fdcaa9",
+            "hash": "d6ad2d770b4ee6c9aa02c8c111fdcaa9",
+            "name": "Eşitlik Alfa Paketi 1 kg",
+            "category": {
+                "slug": "diger",
+                "name": "Diğer"
+            },
+            "market": {
+                "id": 1,
+                "slug": "bim",
+                "name": "BİM",
+                "color": "#e30613"
+            },
+            "price": "49.90",
+            "price_text": "49,90 TL",
+            "old_price": null,
+            "old_price_text": null,
+            "discount_pct": null,
+            "unit_price": null,
+            "image": null,
+            "catalog": {
+                "id": 2,
+                "slug": "bim-21-kasim-2026-aktuel-urunler-katalogu",
+                "title": "BİM 21 Test Aktüel Ürünler Kataloğu",
+                "start_date": "2026-11-21",
+                "end_date": "2026-11-25",
+                "status": "live",
+                "status_text": "Aktif"
+            },
+            "campaign_text": "21 Kas - 25 Kas 2026",
+            "web_url": "https://marketler.org/katalog/bim-21-kasim-2026-aktuel-urunler-katalogu#viewer"
+        },
+        {
+            "id": 34,
+            "fav_key": "34:2:d6ad2d770b4ee6c9aa02c8c111fdcaa9",
+            "hash": "d6ad2d770b4ee6c9aa02c8c111fdcaa9",
+            "name": "Eşitlik Alfa Paketi 1 kg",
+            "category": {
+                "slug": "diger",
+                "name": "Diğer"
+            },
+            "market": {
+                "id": 2,
+                "slug": "a101",
+                "name": "A101",
+                "color": "#00a0e3"
+            },
+            "price": "49.90",
+            "price_text": "49,90 TL",
+            "old_price": null,
+            "old_price_text": null,
+            "discount_pct": null,
+            "unit_price": null,
+            "image": null,
+            "catalog": {
+                "id": 5,
+                "slug": "a101-21-kasim-2026-aktuel-urunler-katalogu",
+                "title": "A101 21 Test Aktüel Ürünler Kataloğu",
+                "start_date": "2026-11-21",
+                "end_date": "2026-11-25",
+                "status": "live",
+                "status_text": "Aktif"
+            },
+            "campaign_text": "21 Kas - 25 Kas 2026",
+            "web_url": "https://marketler.org/katalog/a101-21-kasim-2026-aktuel-urunler-katalogu#viewer"
+        },
+        {
+            "id": 35,
+            "fav_key": "35:3:d6ad2d770b4ee6c9aa02c8c111fdcaa9",
+            "hash": "d6ad2d770b4ee6c9aa02c8c111fdcaa9",
+            "name": "Eşitlik Alfa Paketi 1 kg",
+            "category": {
+                "slug": "diger",
+                "name": "Diğer"
+            },
+            "market": {
+                "id": 3,
+                "slug": "sok",
+                "name": "ŞOK",
+                "color": "#ffd100"
+            },
+            "price": "49.90",
+            "price_text": "49,90 TL",
+            "old_price": null,
+            "old_price_text": null,
+            "discount_pct": null,
+            "unit_price": null,
+            "image": null,
+            "catalog": {
+                "id": 8,
+                "slug": "sok-21-kasim-2026-aktuel-urunler-katalogu",
+                "title": "ŞOK 21 Test Aktüel Ürünler Kataloğu",
+                "start_date": "2026-11-21",
+                "end_date": "2026-11-25",
+                "status": "live",
+                "status_text": "Aktif"
+            },
+            "campaign_text": "21 Kas - 25 Kas 2026",
+            "web_url": "https://marketler.org/katalog/sok-21-kasim-2026-aktuel-urunler-katalogu#viewer"
+        },
+        {
+            "id": 36,
+            "fav_key": "36:1:db7a18a024e2e68dab40ea170df95e21",
+            "hash": "db7a18a024e2e68dab40ea170df95e21",
+            "name": "Eşitlik Beta Paketi 1 kg",
+            "category": {
+                "slug": "diger",
+                "name": "Diğer"
+            },
+            "market": {
+                "id": 1,
+                "slug": "bim",
+                "name": "BİM",
+                "color": "#e30613"
+            },
+            "price": "49.90",
+            "price_text": "49,90 TL",
+            "old_price": null,
+            "old_price_text": null,
+            "discount_pct": null,
+            "unit_price": null,
+            "image": null,
+            "catalog": {
+                "id": 2,
+                "slug": "bim-21-kasim-2026-aktuel-urunler-katalogu",
+                "title": "BİM 21 Test Aktüel Ürünler Kataloğu",
+                "start_date": "2026-11-21",
+                "end_date": "2026-11-25",
+                "status": "live",
+                "status_text": "Aktif"
+            },
+            "campaign_text": "21 Kas - 25 Kas 2026",
+            "web_url": "https://marketler.org/katalog/bim-21-kasim-2026-aktuel-urunler-katalogu#viewer"
+        },
+        {
+            "id": 37,
+            "fav_key": "37:2:db7a18a024e2e68dab40ea170df95e21",
+            "hash": "db7a18a024e2e68dab40ea170df95e21",
+            "name": "Eşitlik Beta Paketi 1 kg",
+            "category": {
+                "slug": "diger",
+                "name": "Diğer"
+            },
+            "market": {
+                "id": 2,
+                "slug": "a101",
+                "name": "A101",
+                "color": "#00a0e3"
+            },
+            "price": "49.90",
+            "price_text": "49,90 TL",
+            "old_price": null,
+            "old_price_text": null,
+            "discount_pct": null,
+            "unit_price": null,
+            "image": null,
+            "catalog": {
+                "id": 5,
+                "slug": "a101-21-kasim-2026-aktuel-urunler-katalogu",
+                "title": "A101 21 Test Aktüel Ürünler Kataloğu",
+                "start_date": "2026-11-21",
+                "end_date": "2026-11-25",
+                "status": "live",
+                "status_text": "Aktif"
+            },
+            "campaign_text": "21 Kas - 25 Kas 2026",
+            "web_url": "https://marketler.org/katalog/a101-21-kasim-2026-aktuel-urunler-katalogu#viewer"
+        },
+        {
+            "id": 38,
+            "fav_key": "38:3:db7a18a024e2e68dab40ea170df95e21",
+            "hash": "db7a18a024e2e68dab40ea170df95e21",
+            "name": "Eşitlik Beta Paketi 1 kg",
+            "category": {
+                "slug": "diger",
+                "name": "Diğer"
+            },
+            "market": {
+                "id": 3,
+                "slug": "sok",
+                "name": "ŞOK",
+                "color": "#ffd100"
+            },
+            "price": "49.90",
+            "price_text": "49,90 TL",
+            "old_price": null,
+            "old_price_text": null,
+            "discount_pct": null,
+            "unit_price": null,
+            "image": null,
+            "catalog": {
+                "id": 8,
+                "slug": "sok-21-kasim-2026-aktuel-urunler-katalogu",
+                "title": "ŞOK 21 Test Aktüel Ürünler Kataloğu",
+                "start_date": "2026-11-21",
+                "end_date": "2026-11-25",
+                "status": "live",
+                "status_text": "Aktif"
+            },
+            "campaign_text": "21 Kas - 25 Kas 2026",
+            "web_url": "https://marketler.org/katalog/sok-21-kasim-2026-aktuel-urunler-katalogu#viewer"
+        },
+        {
+            "id": 42,
+            "fav_key": "42:1:c9bbb824312c8fbe697bfefdde0d1d77",
+            "hash": "c9bbb824312c8fbe697bfefdde0d1d77",
+            "name": "Eşitlik Delta Paketi 1 kg",
+            "category": {
+                "slug": "diger",
+                "name": "Diğer"
+            },
+            "market": {
+                "id": 1,
+                "slug": "bim",
+                "name": "BİM",
+                "color": "#e30613"
+            },
+            "price": "49.90",
+            "price_text": "49,90 TL",
+            "old_price": null,
+            "old_price_text": null,
+            "discount_pct": null,
+            "unit_price": null,
+            "image": null,
+            "catalog": {
+                "id": 2,
+                "slug": "bim-21-kasim-2026-aktuel-urunler-katalogu",
+                "title": "BİM 21 Test Aktüel Ürünler Kataloğu",
+                "start_date": "2026-11-21",
+                "end_date": "2026-11-25",
+                "status": "live",
+                "status_text": "Aktif"
+            },
+            "campaign_text": "21 Kas - 25 Kas 2026",
+            "web_url": "https://marketler.org/katalog/bim-21-kasim-2026-aktuel-urunler-katalogu#viewer"
+        },
+        {
+            "id": 43,
+            "fav_key": "43:2:c9bbb824312c8fbe697bfefdde0d1d77",
+            "hash": "c9bbb824312c8fbe697bfefdde0d1d77",
+            "name": "Eşitlik Delta Paketi 1 kg",
+            "category": {
+                "slug": "diger",
+                "name": "Diğer"
+            },
+            "market": {
+                "id": 2,
+                "slug": "a101",
+                "name": "A101",
+                "color": "#00a0e3"
+            },
+            "price": "49.90",
+            "price_text": "49,90 TL",
+            "old_price": null,
+            "old_price_text": null,
+            "discount_pct": null,
+            "unit_price": null,
+            "image": null,
+            "catalog": {
+                "id": 5,
+                "slug": "a101-21-kasim-2026-aktuel-urunler-katalogu",
+                "title": "A101 21 Test Aktüel Ürünler Kataloğu",
+                "start_date": "2026-11-21",
+                "end_date": "2026-11-25",
+                "status": "live",
+                "status_text": "Aktif"
+            },
+            "campaign_text": "21 Kas - 25 Kas 2026",
+            "web_url": "https://marketler.org/katalog/a101-21-kasim-2026-aktuel-urunler-katalogu#viewer"
+        },
+        {
+            "id": 44,
+            "fav_key": "44:3:c9bbb824312c8fbe697bfefdde0d1d77",
+            "hash": "c9bbb824312c8fbe697bfefdde0d1d77",
+            "name": "Eşitlik Delta Paketi 1 kg",
+            "category": {
+                "slug": "diger",
+                "name": "Diğer"
+            },
+            "market": {
+                "id": 3,
+                "slug": "sok",
+                "name": "ŞOK",
+                "color": "#ffd100"
+            },
+            "price": "49.90",
+            "price_text": "49,90 TL",
+            "old_price": null,
+            "old_price_text": null,
+            "discount_pct": null,
+            "unit_price": null,
+            "image": null,
+            "catalog": {
+                "id": 8,
+                "slug": "sok-21-kasim-2026-aktuel-urunler-katalogu",
+                "title": "ŞOK 21 Test Aktüel Ürünler Kataloğu",
+                "start_date": "2026-11-21",
+                "end_date": "2026-11-25",
+                "status": "live",
+                "status_text": "Aktif"
+            },
+            "campaign_text": "21 Kas - 25 Kas 2026",
+            "web_url": "https://marketler.org/katalog/sok-21-kasim-2026-aktuel-urunler-katalogu#viewer"
+        },
+        {
+            "id": 45,
+            "fav_key": "45:1:62ae1e87db8a47b8b83af910f360c0cc",
+            "hash": "62ae1e87db8a47b8b83af910f360c0cc",
+            "name": "Eşitlik Epsilon Paketi 1 kg",
+            "category": {
+                "slug": "diger",
+                "name": "Diğer"
+            },
+            "market": {
+                "id": 1,
+                "slug": "bim",
+                "name": "BİM",
+                "color": "#e30613"
+            },
+            "price": "49.90",
+            "price_text": "49,90 TL",
+            "old_price": null,
+            "old_price_text": null,
+            "discount_pct": null,
+            "unit_price": null,
+            "image": null,
+            "catalog": {
+                "id": 2,
+                "slug": "bim-21-kasim-2026-aktuel-urunler-katalogu",
+                "title": "BİM 21 Test Aktüel Ürünler Kataloğu",
+                "start_date": "2026-11-21",
+                "end_date": "2026-11-25",
+                "status": "live",
+                "status_text": "Aktif"
+            },
+            "campaign_text": "21 Kas - 25 Kas 2026",
+            "web_url": "https://marketler.org/katalog/bim-21-kasim-2026-aktuel-urunler-katalogu#viewer"
+        },
+        {
+            "id": 46,
+            "fav_key": "46:2:62ae1e87db8a47b8b83af910f360c0cc",
+            "hash": "62ae1e87db8a47b8b83af910f360c0cc",
+            "name": "Eşitlik Epsilon Paketi 1 kg",
+            "category": {
+                "slug": "diger",
+                "name": "Diğer"
+            },
+            "market": {
+                "id": 2,
+                "slug": "a101",
+                "name": "A101",
+                "color": "#00a0e3"
+            },
+            "price": "49.90",
+            "price_text": "49,90 TL",
+            "old_price": null,
+            "old_price_text": null,
+            "discount_pct": null,
+            "unit_price": null,
+            "image": null,
+            "catalog": {
+                "id": 5,
+                "slug": "a101-21-kasim-2026-aktuel-urunler-katalogu",
+                "title": "A101 21 Test Aktüel Ürünler Kataloğu",
+                "start_date": "2026-11-21",
+                "end_date": "2026-11-25",
+                "status": "live",
+                "status_text": "Aktif"
+            },
+            "campaign_text": "21 Kas - 25 Kas 2026",
+            "web_url": "https://marketler.org/katalog/a101-21-kasim-2026-aktuel-urunler-katalogu#viewer"
+        },
+        {
+            "id": 47,
+            "fav_key": "47:3:62ae1e87db8a47b8b83af910f360c0cc",
+            "hash": "62ae1e87db8a47b8b83af910f360c0cc",
+            "name": "Eşitlik Epsilon Paketi 1 kg",
+            "category": {
+                "slug": "diger",
+                "name": "Diğer"
+            },
+            "market": {
+                "id": 3,
+                "slug": "sok",
+                "name": "ŞOK",
+                "color": "#ffd100"
+            },
+            "price": "49.90",
+            "price_text": "49,90 TL",
+            "old_price": null,
+            "old_price_text": null,
+            "discount_pct": null,
+            "unit_price": null,
+            "image": null,
+            "catalog": {
+                "id": 8,
+                "slug": "sok-21-kasim-2026-aktuel-urunler-katalogu",
+                "title": "ŞOK 21 Test Aktüel Ürünler Kataloğu",
+                "start_date": "2026-11-21",
+                "end_date": "2026-11-25",
+                "status": "live",
+                "status_text": "Aktif"
+            },
+            "campaign_text": "21 Kas - 25 Kas 2026",
+            "web_url": "https://marketler.org/katalog/sok-21-kasim-2026-aktuel-urunler-katalogu#viewer"
+        },
+        {
+            "id": 51,
+            "fav_key": "51:1:43030df20cae91c89c92c32ed7ec2502",
+            "hash": "43030df20cae91c89c92c32ed7ec2502",
+            "name": "Eşitlik Eta Paketi 1 kg",
+            "category": {
+                "slug": "diger",
+                "name": "Diğer"
+            },
+            "market": {
+                "id": 1,
+                "slug": "bim",
+                "name": "BİM",
+                "color": "#e30613"
+            },
+            "price": "49.90",
+            "price_text": "49,90 TL",
+            "old_price": null,
+            "old_price_text": null,
+            "discount_pct": null,
+            "unit_price": null,
+            "image": null,
+            "catalog": {
+                "id": 2,
+                "slug": "bim-21-kasim-2026-aktuel-urunler-katalogu",
+                "title": "BİM 21 Test Aktüel Ürünler Kataloğu",
+                "start_date": "2026-11-21",
+                "end_date": "2026-11-25",
+                "status": "live",
+                "status_text": "Aktif"
+            },
+            "campaign_text": "21 Kas - 25 Kas 2026",
+            "web_url": "https://marketler.org/katalog/bim-21-kasim-2026-aktuel-urunler-katalogu#viewer"
+        },
+        {
+            "id": 52,
+            "fav_key": "52:2:43030df20cae91c89c92c32ed7ec2502",
+            "hash": "43030df20cae91c89c92c32ed7ec2502",
+            "name": "Eşitlik Eta Paketi 1 kg",
+            "category": {
+                "slug": "diger",
+                "name": "Diğer"
+            },
+            "market": {
+                "id": 2,
+                "slug": "a101",
+                "name": "A101",
+                "color": "#00a0e3"
+            },
+            "price": "49.90",
+            "price_text": "49,90 TL",
+            "old_price": null,
+            "old_price_text": null,
+            "discount_pct": null,
+            "unit_price": null,
+            "image": null,
+            "catalog": {
+                "id": 5,
+                "slug": "a101-21-kasim-2026-aktuel-urunler-katalogu",
+                "title": "A101 21 Test Aktüel Ürünler Kataloğu",
+                "start_date": "2026-11-21",
+                "end_date": "2026-11-25",
+                "status": "live",
+                "status_text": "Aktif"
+            },
+            "campaign_text": "21 Kas - 25 Kas 2026",
+            "web_url": "https://marketler.org/katalog/a101-21-kasim-2026-aktuel-urunler-katalogu#viewer"
+        },
+        {
+            "id": 53,
+            "fav_key": "53:3:43030df20cae91c89c92c32ed7ec2502",
+            "hash": "43030df20cae91c89c92c32ed7ec2502",
+            "name": "Eşitlik Eta Paketi 1 kg",
+            "category": {
+                "slug": "diger",
+                "name": "Diğer"
+            },
+            "market": {
+                "id": 3,
+                "slug": "sok",
+                "name": "ŞOK",
+                "color": "#ffd100"
+            },
+            "price": "49.90",
+            "price_text": "49,90 TL",
+            "old_price": null,
+            "old_price_text": null,
+            "discount_pct": null,
+            "unit_price": null,
+            "image": null,
+            "catalog": {
+                "id": 8,
+                "slug": "sok-21-kasim-2026-aktuel-urunler-katalogu",
+                "title": "ŞOK 21 Test Aktüel Ürünler Kataloğu",
+                "start_date": "2026-11-21",
+                "end_date": "2026-11-25",
+                "status": "live",
+                "status_text": "Aktif"
+            },
+            "campaign_text": "21 Kas - 25 Kas 2026",
+            "web_url": "https://marketler.org/katalog/sok-21-kasim-2026-aktuel-urunler-katalogu#viewer"
+        },
+        {
+            "id": 39,
+            "fav_key": "39:1:6c5c63c891b8ff03984aa692ca9173fe",
+            "hash": "6c5c63c891b8ff03984aa692ca9173fe",
+            "name": "Eşitlik Gama Paketi 1 kg",
+            "category": {
+                "slug": "diger",
+                "name": "Diğer"
+            },
+            "market": {
+                "id": 1,
+                "slug": "bim",
+                "name": "BİM",
+                "color": "#e30613"
+            },
+            "price": "49.90",
+            "price_text": "49,90 TL",
+            "old_price": null,
+            "old_price_text": null,
+            "discount_pct": null,
+            "unit_price": null,
+            "image": null,
+            "catalog": {
+                "id": 2,
+                "slug": "bim-21-kasim-2026-aktuel-urunler-katalogu",
+                "title": "BİM 21 Test Aktüel Ürünler Kataloğu",
+                "start_date": "2026-11-21",
+                "end_date": "2026-11-25",
+                "status": "live",
+                "status_text": "Aktif"
+            },
+            "campaign_text": "21 Kas - 25 Kas 2026",
+            "web_url": "https://marketler.org/katalog/bim-21-kasim-2026-aktuel-urunler-katalogu#viewer"
+        },
+        {
+            "id": 40,
+            "fav_key": "40:2:6c5c63c891b8ff03984aa692ca9173fe",
+            "hash": "6c5c63c891b8ff03984aa692ca9173fe",
+            "name": "Eşitlik Gama Paketi 1 kg",
+            "category": {
+                "slug": "diger",
+                "name": "Diğer"
+            },
+            "market": {
+                "id": 2,
+                "slug": "a101",
+                "name": "A101",
+                "color": "#00a0e3"
+            },
+            "price": "49.90",
+            "price_text": "49,90 TL",
+            "old_price": null,
+            "old_price_text": null,
+            "discount_pct": null,
+            "unit_price": null,
+            "image": null,
+            "catalog": {
+                "id": 5,
+                "slug": "a101-21-kasim-2026-aktuel-urunler-katalogu",
+                "title": "A101 21 Test Aktüel Ürünler Kataloğu",
+                "start_date": "2026-11-21",
+                "end_date": "2026-11-25",
+                "status": "live",
+                "status_text": "Aktif"
+            },
+            "campaign_text": "21 Kas - 25 Kas 2026",
+            "web_url": "https://marketler.org/katalog/a101-21-kasim-2026-aktuel-urunler-katalogu#viewer"
+        },
+        {
+            "id": 41,
+            "fav_key": "41:3:6c5c63c891b8ff03984aa692ca9173fe",
+            "hash": "6c5c63c891b8ff03984aa692ca9173fe",
+            "name": "Eşitlik Gama Paketi 1 kg",
+            "category": {
+                "slug": "diger",
+                "name": "Diğer"
+            },
+            "market": {
+                "id": 3,
+                "slug": "sok",
+                "name": "ŞOK",
+                "color": "#ffd100"
+            },
+            "price": "49.90",
+            "price_text": "49,90 TL",
+            "old_price": null,
+            "old_price_text": null,
+            "discount_pct": null,
+            "unit_price": null,
+            "image": null,
+            "catalog": {
+                "id": 8,
+                "slug": "sok-21-kasim-2026-aktuel-urunler-katalogu",
+                "title": "ŞOK 21 Test Aktüel Ürünler Kataloğu",
+                "start_date": "2026-11-21",
+                "end_date": "2026-11-25",
+                "status": "live",
+                "status_text": "Aktif"
+            },
+            "campaign_text": "21 Kas - 25 Kas 2026",
+            "web_url": "https://marketler.org/katalog/sok-21-kasim-2026-aktuel-urunler-katalogu#viewer"
+        },
+        {
+            "id": 57,
+            "fav_key": "57:1:3470fa41d7d9cec94bed4e6f4284d885",
+            "hash": "3470fa41d7d9cec94bed4e6f4284d885",
+            "name": "Eşitlik İota Paketi 1 kg",
+            "category": {
+                "slug": "diger",
+                "name": "Diğer"
+            },
+            "market": {
+                "id": 1,
+                "slug": "bim",
+                "name": "BİM",
+                "color": "#e30613"
+            },
+            "price": "49.90",
+            "price_text": "49,90 TL",
+            "old_price": null,
+            "old_price_text": null,
+            "discount_pct": null,
+            "unit_price": null,
+            "image": null,
+            "catalog": {
+                "id": 2,
+                "slug": "bim-21-kasim-2026-aktuel-urunler-katalogu",
+                "title": "BİM 21 Test Aktüel Ürünler Kataloğu",
+                "start_date": "2026-11-21",
+                "end_date": "2026-11-25",
+                "status": "live",
+                "status_text": "Aktif"
+            },
+            "campaign_text": "21 Kas - 25 Kas 2026",
+            "web_url": "https://marketler.org/katalog/bim-21-kasim-2026-aktuel-urunler-katalogu#viewer"
+        },
+        {
+            "id": 58,
+            "fav_key": "58:2:3470fa41d7d9cec94bed4e6f4284d885",
+            "hash": "3470fa41d7d9cec94bed4e6f4284d885",
+            "name": "Eşitlik İota Paketi 1 kg",
+            "category": {
+                "slug": "diger",
+                "name": "Diğer"
+            },
+            "market": {
+                "id": 2,
+                "slug": "a101",
+                "name": "A101",
+                "color": "#00a0e3"
+            },
+            "price": "49.90",
+            "price_text": "49,90 TL",
+            "old_price": null,
+            "old_price_text": null,
+            "discount_pct": null,
+            "unit_price": null,
+            "image": null,
+            "catalog": {
+                "id": 5,
+                "slug": "a101-21-kasim-2026-aktuel-urunler-katalogu",
+                "title": "A101 21 Test Aktüel Ürünler Kataloğu",
+                "start_date": "2026-11-21",
+                "end_date": "2026-11-25",
+                "status": "live",
+                "status_text": "Aktif"
+            },
+            "campaign_text": "21 Kas - 25 Kas 2026",
+            "web_url": "https://marketler.org/katalog/a101-21-kasim-2026-aktuel-urunler-katalogu#viewer"
+        },
+        {
+            "id": 59,
+            "fav_key": "59:3:3470fa41d7d9cec94bed4e6f4284d885",
+            "hash": "3470fa41d7d9cec94bed4e6f4284d885",
+            "name": "Eşitlik İota Paketi 1 kg",
+            "category": {
+                "slug": "diger",
+                "name": "Diğer"
+            },
+            "market": {
+                "id": 3,
+                "slug": "sok",
+                "name": "ŞOK",
+                "color": "#ffd100"
+            },
+            "price": "49.90",
+            "price_text": "49,90 TL",
+            "old_price": null,
+            "old_price_text": null,
+            "discount_pct": null,
+            "unit_price": null,
+            "image": null,
+            "catalog": {
+                "id": 8,
+                "slug": "sok-21-kasim-2026-aktuel-urunler-katalogu",
+                "title": "ŞOK 21 Test Aktüel Ürünler Kataloğu",
+                "start_date": "2026-11-21",
+                "end_date": "2026-11-25",
+                "status": "live",
+                "status_text": "Aktif"
+            },
+            "campaign_text": "21 Kas - 25 Kas 2026",
+            "web_url": "https://marketler.org/katalog/sok-21-kasim-2026-aktuel-urunler-katalogu#viewer"
+        },
+        {
+            "id": 60,
+            "fav_key": "60:1:ee9537fedb20e29b577af3640bd23e6f",
+            "hash": "ee9537fedb20e29b577af3640bd23e6f",
+            "name": "Eşitlik Kapa Paketi 1 kg",
+            "category": {
+                "slug": "diger",
+                "name": "Diğer"
+            },
+            "market": {
+                "id": 1,
+                "slug": "bim",
+                "name": "BİM",
+                "color": "#e30613"
+            },
+            "price": "49.90",
+            "price_text": "49,90 TL",
+            "old_price": null,
+            "old_price_text": null,
+            "discount_pct": null,
+            "unit_price": null,
+            "image": null,
+            "catalog": {
+                "id": 2,
+                "slug": "bim-21-kasim-2026-aktuel-urunler-katalogu",
+                "title": "BİM 21 Test Aktüel Ürünler Kataloğu",
+                "start_date": "2026-11-21",
+                "end_date": "2026-11-25",
+                "status": "live",
+                "status_text": "Aktif"
+            },
+            "campaign_text": "21 Kas - 25 Kas 2026",
+            "web_url": "https://marketler.org/katalog/bim-21-kasim-2026-aktuel-urunler-katalogu#viewer"
+        },
+        {
+            "id": 61,
+            "fav_key": "61:2:ee9537fedb20e29b577af3640bd23e6f",
+            "hash": "ee9537fedb20e29b577af3640bd23e6f",
+            "name": "Eşitlik Kapa Paketi 1 kg",
+            "category": {
+                "slug": "diger",
+                "name": "Diğer"
+            },
+            "market": {
+                "id": 2,
+                "slug": "a101",
+                "name": "A101",
+                "color": "#00a0e3"
+            },
+            "price": "49.90",
+            "price_text": "49,90 TL",
+            "old_price": null,
+            "old_price_text": null,
+            "discount_pct": null,
+            "unit_price": null,
+            "image": null,
+            "catalog": {
+                "id": 5,
+                "slug": "a101-21-kasim-2026-aktuel-urunler-katalogu",
+                "title": "A101 21 Test Aktüel Ürünler Kataloğu",
+                "start_date": "2026-11-21",
+                "end_date": "2026-11-25",
+                "status": "live",
+                "status_text": "Aktif"
+            },
+            "campaign_text": "21 Kas - 25 Kas 2026",
+            "web_url": "https://marketler.org/katalog/a101-21-kasim-2026-aktuel-urunler-katalogu#viewer"
+        },
+        {
+            "id": 62,
+            "fav_key": "62:3:ee9537fedb20e29b577af3640bd23e6f",
+            "hash": "ee9537fedb20e29b577af3640bd23e6f",
+            "name": "Eşitlik Kapa Paketi 1 kg",
+            "category": {
+                "slug": "diger",
+                "name": "Diğer"
+            },
+            "market": {
+                "id": 3,
+                "slug": "sok",
+                "name": "ŞOK",
+                "color": "#ffd100"
+            },
+            "price": "49.90",
+            "price_text": "49,90 TL",
+            "old_price": null,
+            "old_price_text": null,
+            "discount_pct": null,
+            "unit_price": null,
+            "image": null,
+            "catalog": {
+                "id": 8,
+                "slug": "sok-21-kasim-2026-aktuel-urunler-katalogu",
+                "title": "ŞOK 21 Test Aktüel Ürünler Kataloğu",
+                "start_date": "2026-11-21",
+                "end_date": "2026-11-25",
+                "status": "live",
+                "status_text": "Aktif"
+            },
+            "campaign_text": "21 Kas - 25 Kas 2026",
+            "web_url": "https://marketler.org/katalog/sok-21-kasim-2026-aktuel-urunler-katalogu#viewer"
+        },
+        {
+            "id": 54,
+            "fav_key": "54:1:943167b5e3c3dee1d61bede5724379d8",
+            "hash": "943167b5e3c3dee1d61bede5724379d8",
+            "name": "Eşitlik Teta Paketi 1 kg",
+            "category": {
+                "slug": "diger",
+                "name": "Diğer"
+            },
+            "market": {
+                "id": 1,
+                "slug": "bim",
+                "name": "BİM",
+                "color": "#e30613"
+            },
+            "price": "49.90",
+            "price_text": "49,90 TL",
+            "old_price": null,
+            "old_price_text": null,
+            "discount_pct": null,
+            "unit_price": null,
+            "image": null,
+            "catalog": {
+                "id": 2,
+                "slug": "bim-21-kasim-2026-aktuel-urunler-katalogu",
+                "title": "BİM 21 Test Aktüel Ürünler Kataloğu",
+                "start_date": "2026-11-21",
+                "end_date": "2026-11-25",
+                "status": "live",
+                "status_text": "Aktif"
+            },
+            "campaign_text": "21 Kas - 25 Kas 2026",
+            "web_url": "https://marketler.org/katalog/bim-21-kasim-2026-aktuel-urunler-katalogu#viewer"
+        },
+        {
+            "id": 55,
+            "fav_key": "55:2:943167b5e3c3dee1d61bede5724379d8",
+            "hash": "943167b5e3c3dee1d61bede5724379d8",
+            "name": "Eşitlik Teta Paketi 1 kg",
+            "category": {
+                "slug": "diger",
+                "name": "Diğer"
+            },
+            "market": {
+                "id": 2,
+                "slug": "a101",
+                "name": "A101",
+                "color": "#00a0e3"
+            },
+            "price": "49.90",
+            "price_text": "49,90 TL",
+            "old_price": null,
+            "old_price_text": null,
+            "discount_pct": null,
+            "unit_price": null,
+            "image": null,
+            "catalog": {
+                "id": 5,
+                "slug": "a101-21-kasim-2026-aktuel-urunler-katalogu",
+                "title": "A101 21 Test Aktüel Ürünler Kataloğu",
+                "start_date": "2026-11-21",
+                "end_date": "2026-11-25",
+                "status": "live",
+                "status_text": "Aktif"
+            },
+            "campaign_text": "21 Kas - 25 Kas 2026",
+            "web_url": "https://marketler.org/katalog/a101-21-kasim-2026-aktuel-urunler-katalogu#viewer"
+        },
+        {
+            "id": 56,
+            "fav_key": "56:3:943167b5e3c3dee1d61bede5724379d8",
+            "hash": "943167b5e3c3dee1d61bede5724379d8",
+            "name": "Eşitlik Teta Paketi 1 kg",
+            "category": {
+                "slug": "diger",
+                "name": "Diğer"
+            },
+            "market": {
+                "id": 3,
+                "slug": "sok",
+                "name": "ŞOK",
+                "color": "#ffd100"
+            },
+            "price": "49.90",
+            "price_text": "49,90 TL",
+            "old_price": null,
+            "old_price_text": null,
+            "discount_pct": null,
+            "unit_price": null,
+            "image": null,
+            "catalog": {
+                "id": 8,
+                "slug": "sok-21-kasim-2026-aktuel-urunler-katalogu",
+                "title": "ŞOK 21 Test Aktüel Ürünler Kataloğu",
+                "start_date": "2026-11-21",
+                "end_date": "2026-11-25",
+                "status": "live",
+                "status_text": "Aktif"
+            },
+            "campaign_text": "21 Kas - 25 Kas 2026",
+            "web_url": "https://marketler.org/katalog/sok-21-kasim-2026-aktuel-urunler-katalogu#viewer"
+        },
+        {
+            "id": 48,
+            "fav_key": "48:1:a0d41903868ccadd4636908807677437",
+            "hash": "a0d41903868ccadd4636908807677437",
+            "name": "Eşitlik Zeta Paketi 1 kg",
+            "category": {
+                "slug": "diger",
+                "name": "Diğer"
+            },
+            "market": {
+                "id": 1,
+                "slug": "bim",
+                "name": "BİM",
+                "color": "#e30613"
+            },
+            "price": "49.90",
+            "price_text": "49,90 TL",
+            "old_price": null,
+            "old_price_text": null,
+            "discount_pct": null,
+            "unit_price": null,
+            "image": null,
+            "catalog": {
+                "id": 2,
+                "slug": "bim-21-kasim-2026-aktuel-urunler-katalogu",
+                "title": "BİM 21 Test Aktüel Ürünler Kataloğu",
+                "start_date": "2026-11-21",
+                "end_date": "2026-11-25",
+                "status": "live",
+                "status_text": "Aktif"
+            },
+            "campaign_text": "21 Kas - 25 Kas 2026",
+            "web_url": "https://marketler.org/katalog/bim-21-kasim-2026-aktuel-urunler-katalogu#viewer"
+        },
+        {
+            "id": 49,
+            "fav_key": "49:2:a0d41903868ccadd4636908807677437",
+            "hash": "a0d41903868ccadd4636908807677437",
+            "name": "Eşitlik Zeta Paketi 1 kg",
+            "category": {
+                "slug": "diger",
+                "name": "Diğer"
+            },
+            "market": {
+                "id": 2,
+                "slug": "a101",
+                "name": "A101",
+                "color": "#00a0e3"
+            },
+            "price": "49.90",
+            "price_text": "49,90 TL",
+            "old_price": null,
+            "old_price_text": null,
+            "discount_pct": null,
+            "unit_price": null,
+            "image": null,
+            "catalog": {
+                "id": 5,
+                "slug": "a101-21-kasim-2026-aktuel-urunler-katalogu",
+                "title": "A101 21 Test Aktüel Ürünler Kataloğu",
+                "start_date": "2026-11-21",
+                "end_date": "2026-11-25",
+                "status": "live",
+                "status_text": "Aktif"
+            },
+            "campaign_text": "21 Kas - 25 Kas 2026",
+            "web_url": "https://marketler.org/katalog/a101-21-kasim-2026-aktuel-urunler-katalogu#viewer"
+        },
+        {
+            "id": 50,
+            "fav_key": "50:3:a0d41903868ccadd4636908807677437",
+            "hash": "a0d41903868ccadd4636908807677437",
+            "name": "Eşitlik Zeta Paketi 1 kg",
+            "category": {
+                "slug": "diger",
+                "name": "Diğer"
+            },
+            "market": {
+                "id": 3,
+                "slug": "sok",
+                "name": "ŞOK",
+                "color": "#ffd100"
+            },
+            "price": "49.90",
+            "price_text": "49,90 TL",
+            "old_price": null,
+            "old_price_text": null,
+            "discount_pct": null,
+            "unit_price": null,
+            "image": null,
+            "catalog": {
+                "id": 8,
+                "slug": "sok-21-kasim-2026-aktuel-urunler-katalogu",
+                "title": "ŞOK 21 Test Aktüel Ürünler Kataloğu",
+                "start_date": "2026-11-21",
+                "end_date": "2026-11-25",
+                "status": "live",
+                "status_text": "Aktif"
+            },
+            "campaign_text": "21 Kas - 25 Kas 2026",
+            "web_url": "https://marketler.org/katalog/sok-21-kasim-2026-aktuel-urunler-katalogu#viewer"
+        },
+        {
+            "id": 12,
+            "fav_key": "12:3:3d845af02612f0f7329de47ec5af953a",
+            "hash": "3d845af02612f0f7329de47ec5af953a",
+            "name": "Göl Kenarı Süt 1 L",
+            "category": {
+                "slug": "gida",
+                "name": "Gıda"
+            },
+            "market": {
+                "id": 3,
+                "slug": "sok",
+                "name": "ŞOK",
+                "color": "#ffd100"
+            },
+            "price": "41.00",
+            "price_text": "41,00 TL",
+            "old_price": null,
+            "old_price_text": null,
+            "discount_pct": null,
+            "unit_price": {
+                "value": "41.00",
+                "unit": "L",
+                "text": "≈ 41,00 TL/L"
+            },
+            "image": null,
+            "catalog": {
+                "id": 8,
+                "slug": "sok-21-kasim-2026-aktuel-urunler-katalogu",
+                "title": "ŞOK 21 Test Aktüel Ürünler Kataloğu",
+                "start_date": "2026-11-21",
+                "end_date": "2026-11-25",
+                "status": "live",
+                "status_text": "Aktif"
+            },
+            "campaign_text": "21 Kas - 25 Kas 2026",
+            "web_url": "https://marketler.org/katalog/sok-21-kasim-2026-aktuel-urunler-katalogu#viewer"
+        },
+        {
+            "id": 15,
+            "fav_key": "15:2:c0381692da10929321c7406879c2e246",
+            "hash": "c0381692da10929321c7406879c2e246",
+            "name": "Güneşli Ayçiçek Yağı 5 L",
+            "category": {
+                "slug": "gida",
+                "name": "Gıda"
+            },
+            "market": {
+                "id": 2,
+                "slug": "a101",
+                "name": "A101",
+                "color": "#00a0e3"
+            },
+            "price": "310.00",
+            "price_text": "310,00 TL",
+            "old_price": null,
+            "old_price_text": null,
+            "discount_pct": null,
+            "unit_price": {
+                "value": "62.00",
+                "unit": "L",
+                "text": "≈ 62,00 TL/L"
+            },
+            "image": null,
+            "catalog": {
+                "id": 5,
+                "slug": "a101-21-kasim-2026-aktuel-urunler-katalogu",
+                "title": "A101 21 Test Aktüel Ürünler Kataloğu",
+                "start_date": "2026-11-21",
+                "end_date": "2026-11-25",
+                "status": "live",
+                "status_text": "Aktif"
+            },
+            "campaign_text": "21 Kas - 25 Kas 2026",
+            "web_url": "https://marketler.org/katalog/a101-21-kasim-2026-aktuel-urunler-katalogu#viewer"
+        },
+        {
+            "id": 63,
+            "fav_key": "63:1:234d7164a87b995012f0cc37d98a6cd3",
+            "hash": "234d7164a87b995012f0cc37d98a6cd3",
+            "name": "İnci Kaynak Su 5 L",
+            "category": {
+                "slug": "gida",
+                "name": "Gıda"
+            },
+            "market": {
+                "id": 1,
+                "slug": "bim",
+                "name": "BİM",
+                "color": "#e30613"
+            },
+            "price": "24.50",
+            "price_text": "24,50 TL",
+            "old_price": null,
+            "old_price_text": null,
+            "discount_pct": null,
+            "unit_price": {
+                "value": "4.90",
+                "unit": "L",
+                "text": "≈ 4,90 TL/L"
+            },
+            "image": null,
+            "catalog": {
+                "id": 2,
+                "slug": "bim-21-kasim-2026-aktuel-urunler-katalogu",
+                "title": "BİM 21 Test Aktüel Ürünler Kataloğu",
+                "start_date": "2026-11-21",
+                "end_date": "2026-11-25",
+                "status": "live",
+                "status_text": "Aktif"
+            },
+            "campaign_text": "21 Kas - 25 Kas 2026",
+            "web_url": "https://marketler.org/katalog/bim-21-kasim-2026-aktuel-urunler-katalogu#viewer"
+        },
+        {
+            "id": 1,
+            "fav_key": "1:1:2a0ab097baf767896ad2f80bf15c7ef9",
+            "hash": "2a0ab097baf767896ad2f80bf15c7ef9",
+            "name": "Isıtek Airfryer XA4200 4.2 L",
+            "category": {
+                "slug": "elektronik",
+                "name": "Elektronik"
+            },
+            "market": {
+                "id": 1,
+                "slug": "bim",
+                "name": "BİM",
+                "color": "#e30613"
+            },
+            "price": "4999.00",
+            "price_text": "4.999,00 TL",
+            "old_price": "6248.75",
+            "old_price_text": "6.248,75 TL",
+            "discount_pct": 20,
+            "unit_price": null,
+            "image": null,
+            "catalog": {
+                "id": 2,
+                "slug": "bim-21-kasim-2026-aktuel-urunler-katalogu",
+                "title": "BİM 21 Test Aktüel Ürünler Kataloğu",
+                "start_date": "2026-11-21",
+                "end_date": "2026-11-25",
+                "status": "live",
+                "status_text": "Aktif"
+            },
+            "campaign_text": "21 Kas - 25 Kas 2026",
+            "web_url": "https://marketler.org/katalog/bim-21-kasim-2026-aktuel-urunler-katalogu#viewer"
+        },
+        {
+            "id": 2,
+            "fav_key": "2:2:2a0ab097baf767896ad2f80bf15c7ef9",
+            "hash": "2a0ab097baf767896ad2f80bf15c7ef9",
+            "name": "Isıtek Airfryer XA4200 4.2 L",
+            "category": {
+                "slug": "elektronik",
+                "name": "Elektronik"
+            },
+            "market": {
+                "id": 2,
+                "slug": "a101",
+                "name": "A101",
+                "color": "#00a0e3"
+            },
+            "price": "4599.00",
+            "price_text": "4.599,00 TL",
+            "old_price": null,
+            "old_price_text": null,
+            "discount_pct": null,
+            "unit_price": null,
+            "image": {
+                "url": "https://marketler.org/img/u/2.webp?v=1700000000"
+            },
+            "catalog": {
+                "id": 5,
+                "slug": "a101-21-kasim-2026-aktuel-urunler-katalogu",
+                "title": "A101 21 Test Aktüel Ürünler Kataloğu",
+                "start_date": "2026-11-21",
+                "end_date": "2026-11-25",
+                "status": "live",
+                "status_text": "Aktif"
+            },
+            "campaign_text": "21 Kas - 25 Kas 2026",
+            "web_url": "https://marketler.org/katalog/a101-21-kasim-2026-aktuel-urunler-katalogu#viewer"
+        },
+        {
+            "id": 3,
+            "fav_key": "3:3:2a0ab097baf767896ad2f80bf15c7ef9",
+            "hash": "2a0ab097baf767896ad2f80bf15c7ef9",
+            "name": "Isıtek Airfryer XA4200 4.2 L",
+            "category": {
+                "slug": "elektronik",
+                "name": "Elektronik"
+            },
+            "market": {
+                "id": 3,
+                "slug": "sok",
+                "name": "ŞOK",
+                "color": "#ffd100"
+            },
+            "price": "5199.00",
+            "price_text": "5.199,00 TL",
+            "old_price": null,
+            "old_price_text": null,
+            "discount_pct": null,
+            "unit_price": null,
+            "image": null,
+            "catalog": {
+                "id": 8,
+                "slug": "sok-21-kasim-2026-aktuel-urunler-katalogu",
+                "title": "ŞOK 21 Test Aktüel Ürünler Kataloğu",
+                "start_date": "2026-11-21",
+                "end_date": "2026-11-25",
+                "status": "live",
+                "status_text": "Aktif"
+            },
+            "campaign_text": "21 Kas - 25 Kas 2026",
+            "web_url": "https://marketler.org/katalog/sok-21-kasim-2026-aktuel-urunler-katalogu#viewer"
+        },
+        {
+            "id": 64,
+            "fav_key": "64:3:96356d461d4aed9127744ede8a6ac250",
+            "hash": "96356d461d4aed9127744ede8a6ac250",
+            "name": "ISITEK Mini Fırın 20 L",
+            "category": {
+                "slug": "elektronik",
+                "name": "Elektronik"
+            },
+            "market": {
+                "id": 3,
+                "slug": "sok",
+                "name": "ŞOK",
+                "color": "#ffd100"
+            },
+            "price": "1899.00",
+            "price_text": "1.899,00 TL",
+            "old_price": null,
+            "old_price_text": null,
+            "discount_pct": null,
+            "unit_price": null,
+            "image": null,
+            "catalog": {
+                "id": 8,
+                "slug": "sok-21-kasim-2026-aktuel-urunler-katalogu",
+                "title": "ŞOK 21 Test Aktüel Ürünler Kataloğu",
+                "start_date": "2026-11-21",
+                "end_date": "2026-11-25",
+                "status": "live",
+                "status_text": "Aktif"
+            },
+            "campaign_text": "21 Kas - 25 Kas 2026",
+            "web_url": "https://marketler.org/katalog/sok-21-kasim-2026-aktuel-urunler-katalogu#viewer"
+        },
+        {
+            "id": 20,
+            "fav_key": "20:1:b4c8dc0b16ab00db634e49ffa3513054",
+            "hash": "b4c8dc0b16ab00db634e49ffa3513054",
+            "name": "Kavruk Türk Kahvesi 100 g",
+            "category": {
+                "slug": "gida",
+                "name": "Gıda"
+            },
+            "market": {
+                "id": 1,
+                "slug": "bim",
+                "name": "BİM",
+                "color": "#e30613"
+            },
+            "price": "54.90",
+            "price_text": "54,90 TL",
+            "old_price": null,
+            "old_price_text": null,
+            "discount_pct": null,
+            "unit_price": {
+                "value": "549.00",
+                "unit": "kg",
+                "text": "≈ 549,00 TL/kg"
+            },
+            "image": null,
+            "catalog": {
+                "id": 2,
+                "slug": "bim-21-kasim-2026-aktuel-urunler-katalogu",
+                "title": "BİM 21 Test Aktüel Ürünler Kataloğu",
+                "start_date": "2026-11-21",
+                "end_date": "2026-11-25",
+                "status": "live",
+                "status_text": "Aktif"
+            },
+            "campaign_text": "21 Kas - 25 Kas 2026",
+            "web_url": "https://marketler.org/katalog/bim-21-kasim-2026-aktuel-urunler-katalogu#viewer"
+        },
+        {
+            "id": 21,
+            "fav_key": "21:3:ec965dd7dd1d6ee95afd83af9dcecfb7",
+            "hash": "ec965dd7dd1d6ee95afd83af9dcecfb7",
+            "name": "Kavruk Türk Kahvesi 250 g",
+            "category": {
+                "slug": "gida",
+                "name": "Gıda"
+            },
+            "market": {
+                "id": 3,
+                "slug": "sok",
+                "name": "ŞOK",
+                "color": "#ffd100"
+            },
+            "price": "119.90",
+            "price_text": "119,90 TL",
+            "old_price": null,
+            "old_price_text": null,
+            "discount_pct": null,
+            "unit_price": {
+                "value": "479.60",
+                "unit": "kg",
+                "text": "≈ 479,60 TL/kg"
+            },
+            "image": null,
+            "catalog": {
+                "id": 8,
+                "slug": "sok-21-kasim-2026-aktuel-urunler-katalogu",
+                "title": "ŞOK 21 Test Aktüel Ürünler Kataloğu",
+                "start_date": "2026-11-21",
+                "end_date": "2026-11-25",
+                "status": "live",
+                "status_text": "Aktif"
+            },
+            "campaign_text": "21 Kas - 25 Kas 2026",
+            "web_url": "https://marketler.org/katalog/sok-21-kasim-2026-aktuel-urunler-katalogu#viewer"
+        },
+        {
+            "id": 9,
+            "fav_key": "9:2:df325e7e2745e32e5d4f0e74b96dd594",
+            "hash": "df325e7e2745e32e5d4f0e74b96dd594",
+            "name": "Kirçiçek Ayçiçek Yağ 5 Lt",
+            "category": {
+                "slug": "gida",
+                "name": "Gıda"
+            },
+            "market": {
+                "id": 2,
+                "slug": "a101",
+                "name": "A101",
+                "color": "#00a0e3"
+            },
+            "price": "279.00",
+            "price_text": "279,00 TL",
+            "old_price": null,
+            "old_price_text": null,
+            "discount_pct": null,
+            "unit_price": {
+                "value": "55.80",
+                "unit": "L",
+                "text": "≈ 55,80 TL/L"
+            },
+            "image": null,
+            "catalog": {
+                "id": 5,
+                "slug": "a101-21-kasim-2026-aktuel-urunler-katalogu",
+                "title": "A101 21 Test Aktüel Ürünler Kataloğu",
+                "start_date": "2026-11-21",
+                "end_date": "2026-11-25",
+                "status": "live",
+                "status_text": "Aktif"
+            },
+            "campaign_text": "21 Kas - 25 Kas 2026",
+            "web_url": "https://marketler.org/katalog/a101-21-kasim-2026-aktuel-urunler-katalogu#viewer"
+        },
+        {
+            "id": 8,
+            "fav_key": "8:1:37946dfc5337caf1a382fe4ee4d69daa",
+            "hash": "37946dfc5337caf1a382fe4ee4d69daa",
+            "name": "Kırçiçek Ayçiçek Yağı 5 L",
+            "category": {
+                "slug": "gida",
+                "name": "Gıda"
+            },
+            "market": {
+                "id": 1,
+                "slug": "bim",
+                "name": "BİM",
+                "color": "#e30613"
+            },
+            "price": "289.00",
+            "price_text": "289,00 TL",
+            "old_price": null,
+            "old_price_text": null,
+            "discount_pct": null,
+            "unit_price": {
+                "value": "57.80",
+                "unit": "L",
+                "text": "≈ 57,80 TL/L"
+            },
+            "image": null,
+            "catalog": {
+                "id": 2,
+                "slug": "bim-21-kasim-2026-aktuel-urunler-katalogu",
+                "title": "BİM 21 Test Aktüel Ürünler Kataloğu",
+                "start_date": "2026-11-21",
+                "end_date": "2026-11-25",
+                "status": "live",
+                "status_text": "Aktif"
+            },
+            "campaign_text": "21 Kas - 25 Kas 2026",
+            "web_url": "https://marketler.org/katalog/bim-21-kasim-2026-aktuel-urunler-katalogu#viewer"
+        },
+        {
+            "id": 71,
+            "fav_key": "71:1:64afe40f224c2b63f00713b65492ce92",
+            "hash": "64afe40f224c2b63f00713b65492ce92",
+            "name": "Kırmızı Mercimek 1 kg",
+            "category": {
+                "slug": "gida",
+                "name": "Gıda"
+            },
+            "market": {
+                "id": 1,
+                "slug": "bim",
+                "name": "BİM",
+                "color": "#e30613"
+            },
+            "price": "59.90",
+            "price_text": "59,90 TL",
+            "old_price": null,
+            "old_price_text": null,
+            "discount_pct": null,
+            "unit_price": {
+                "value": "59.90",
+                "unit": "kg",
+                "text": "≈ 59,90 TL/kg"
+            },
+            "image": null,
+            "catalog": {
+                "id": 2,
+                "slug": "bim-21-kasim-2026-aktuel-urunler-katalogu",
+                "title": "BİM 21 Test Aktüel Ürünler Kataloğu",
+                "start_date": "2026-11-21",
+                "end_date": "2026-11-25",
+                "status": "live",
+                "status_text": "Aktif"
+            },
+            "campaign_text": "21 Kas - 25 Kas 2026",
+            "web_url": "https://marketler.org/katalog/bim-21-kasim-2026-aktuel-urunler-katalogu#viewer"
+        },
+        {
+            "id": 17,
+            "fav_key": "17:3:41f9e364e113558cae4efc1c0143f679",
+            "hash": "41f9e364e113558cae4efc1c0143f679",
+            "name": "Köpüklü Toz Deterjan 4 kg",
+            "category": {
+                "slug": "temizlik",
+                "name": "Temizlik"
+            },
+            "market": {
+                "id": 3,
+                "slug": "sok",
+                "name": "ŞOK",
+                "color": "#ffd100"
+            },
+            "price": "189.00",
+            "price_text": "189,00 TL",
+            "old_price": null,
+            "old_price_text": null,
+            "discount_pct": null,
+            "unit_price": {
+                "value": "47.25",
+                "unit": "kg",
+                "text": "≈ 47,25 TL/kg"
+            },
+            "image": null,
+            "catalog": {
+                "id": 8,
+                "slug": "sok-21-kasim-2026-aktuel-urunler-katalogu",
+                "title": "ŞOK 21 Test Aktüel Ürünler Kataloğu",
+                "start_date": "2026-11-21",
+                "end_date": "2026-11-25",
+                "status": "live",
+                "status_text": "Aktif"
+            },
+            "campaign_text": "21 Kas - 25 Kas 2026",
+            "web_url": "https://marketler.org/katalog/sok-21-kasim-2026-aktuel-urunler-katalogu#viewer"
+        },
+        {
+            "id": 25,
+            "fav_key": "25:3:9a66f73d2a55a71e20f0dd69dc279d94",
+            "hash": "9a66f73d2a55a71e20f0dd69dc279d94",
+            "name": "Minik Bebek Bezi 4 Numara 40 Adet",
+            "category": {
+                "slug": "anne-bebek",
+                "name": "Anne ve Bebek"
+            },
+            "market": {
+                "id": 3,
+                "slug": "sok",
+                "name": "ŞOK",
+                "color": "#ffd100"
+            },
+            "price": "299.00",
+            "price_text": "299,00 TL",
+            "old_price": null,
+            "old_price_text": null,
+            "discount_pct": null,
+            "unit_price": null,
+            "image": null,
+            "catalog": {
+                "id": 8,
+                "slug": "sok-21-kasim-2026-aktuel-urunler-katalogu",
+                "title": "ŞOK 21 Test Aktüel Ürünler Kataloğu",
+                "start_date": "2026-11-21",
+                "end_date": "2026-11-25",
+                "status": "live",
+                "status_text": "Aktif"
+            },
+            "campaign_text": "21 Kas - 25 Kas 2026",
+            "web_url": "https://marketler.org/katalog/sok-21-kasim-2026-aktuel-urunler-katalogu#viewer"
+        },
+        {
+            "id": 67,
+            "fav_key": "67:3:f50155349a967e8919d9ae3ea8ac9d2f",
+            "hash": "f50155349a967e8919d9ae3ea8ac9d2f",
+            "name": "Öğün Süzme Yoğurt 1 kg",
+            "category": {
+                "slug": "gida",
+                "name": "Gıda"
+            },
+            "market": {
+                "id": 3,
+                "slug": "sok",
+                "name": "ŞOK",
+                "color": "#ffd100"
+            },
+            "price": "89.90",
+            "price_text": "89,90 TL",
+            "old_price": null,
+            "old_price_text": null,
+            "discount_pct": null,
+            "unit_price": {
+                "value": "89.90",
+                "unit": "kg",
+                "text": "≈ 89,90 TL/kg"
+            },
+            "image": null,
+            "catalog": {
+                "id": 8,
+                "slug": "sok-21-kasim-2026-aktuel-urunler-katalogu",
+                "title": "ŞOK 21 Test Aktüel Ürünler Kataloğu",
+                "start_date": "2026-11-21",
+                "end_date": "2026-11-25",
+                "status": "live",
+                "status_text": "Aktif"
+            },
+            "campaign_text": "21 Kas - 25 Kas 2026",
+            "web_url": "https://marketler.org/katalog/sok-21-kasim-2026-aktuel-urunler-katalogu#viewer"
+        },
+        {
+            "id": 10,
+            "fav_key": "10:3:516287f7a9096d132d1c819616d9a36e",
+            "hash": "516287f7a9096d132d1c819616d9a36e",
+            "name": "Ovaçiftlik Süt 1 L",
+            "category": {
+                "slug": "gida",
+                "name": "Gıda"
+            },
+            "market": {
+                "id": 3,
+                "slug": "sok",
+                "name": "ŞOK",
+                "color": "#ffd100"
+            },
+            "price": "27.75",
+            "price_text": "27,75 TL",
+            "old_price": null,
+            "old_price_text": null,
+            "discount_pct": null,
+            "unit_price": {
+                "value": "27.75",
+                "unit": "L",
+                "text": "≈ 27,75 TL/L"
+            },
+            "image": null,
+            "catalog": {
+                "id": 8,
+                "slug": "sok-21-kasim-2026-aktuel-urunler-katalogu",
+                "title": "ŞOK 21 Test Aktüel Ürünler Kataloğu",
+                "start_date": "2026-11-21",
+                "end_date": "2026-11-25",
+                "status": "live",
+                "status_text": "Aktif"
+            },
+            "campaign_text": "21 Kas - 25 Kas 2026",
+            "web_url": "https://marketler.org/katalog/sok-21-kasim-2026-aktuel-urunler-katalogu#viewer"
+        },
+        {
+            "id": 14,
+            "fav_key": "14:3:d479c00379f20319f101b82f895674a0",
+            "hash": "d479c00379f20319f101b82f895674a0",
+            "name": "Sarıtarla Ayçiçek Yağı 5 L",
+            "category": {
+                "slug": "gida",
+                "name": "Gıda"
+            },
+            "market": {
+                "id": 3,
+                "slug": "sok",
+                "name": "ŞOK",
+                "color": "#ffd100"
+            },
+            "price": "265.00",
+            "price_text": "265,00 TL",
+            "old_price": null,
+            "old_price_text": null,
+            "discount_pct": null,
+            "unit_price": {
+                "value": "53.00",
+                "unit": "L",
+                "text": "≈ 53,00 TL/L"
+            },
+            "image": null,
+            "catalog": {
+                "id": 8,
+                "slug": "sok-21-kasim-2026-aktuel-urunler-katalogu",
+                "title": "ŞOK 21 Test Aktüel Ürünler Kataloğu",
+                "start_date": "2026-11-21",
+                "end_date": "2026-11-25",
+                "status": "live",
+                "status_text": "Aktif"
+            },
+            "campaign_text": "21 Kas - 25 Kas 2026",
+            "web_url": "https://marketler.org/katalog/sok-21-kasim-2026-aktuel-urunler-katalogu#viewer"
+        },
+        {
+            "id": 65,
+            "fav_key": "65:2:6f1acf93817a76333f10958d9d20b702",
+            "hash": "6f1acf93817a76333f10958d9d20b702",
+            "name": "Şekerci Toz Şeker 1 kg",
+            "category": {
+                "slug": "gida",
+                "name": "Gıda"
+            },
+            "market": {
+                "id": 2,
+                "slug": "a101",
+                "name": "A101",
+                "color": "#00a0e3"
+            },
+            "price": "39.90",
+            "price_text": "39,90 TL",
+            "old_price": null,
+            "old_price_text": null,
+            "discount_pct": null,
+            "unit_price": {
+                "value": "39.90",
+                "unit": "kg",
+                "text": "≈ 39,90 TL/kg"
+            },
+            "image": null,
+            "catalog": {
+                "id": 5,
+                "slug": "a101-21-kasim-2026-aktuel-urunler-katalogu",
+                "title": "A101 21 Test Aktüel Ürünler Kataloğu",
+                "start_date": "2026-11-21",
+                "end_date": "2026-11-25",
+                "status": "live",
+                "status_text": "Aktif"
+            },
+            "campaign_text": "21 Kas - 25 Kas 2026",
+            "web_url": "https://marketler.org/katalog/a101-21-kasim-2026-aktuel-urunler-katalogu#viewer"
+        },
+        {
+            "id": 24,
+            "fav_key": "24:2:734d4f31c1a0634f367872709d3bd84d",
+            "hash": "734d4f31c1a0634f367872709d3bd84d",
+            "name": "Sesyolu Kablosuz Kulaklık SK-210",
+            "category": {
+                "slug": "elektronik",
+                "name": "Elektronik"
+            },
+            "market": {
+                "id": 2,
+                "slug": "a101",
+                "name": "A101",
+                "color": "#00a0e3"
+            },
+            "price": "499.00",
+            "price_text": "499,00 TL",
+            "old_price": null,
+            "old_price_text": null,
+            "discount_pct": null,
+            "unit_price": null,
+            "image": null,
+            "catalog": {
+                "id": 5,
+                "slug": "a101-21-kasim-2026-aktuel-urunler-katalogu",
+                "title": "A101 21 Test Aktüel Ürünler Kataloğu",
+                "start_date": "2026-11-21",
+                "end_date": "2026-11-25",
+                "status": "live",
+                "status_text": "Aktif"
+            },
+            "campaign_text": "21 Kas - 25 Kas 2026",
+            "web_url": "https://marketler.org/katalog/a101-21-kasim-2026-aktuel-urunler-katalogu#viewer"
+        },
+        {
+            "id": 19,
+            "fav_key": "19:2:d3feb66995ba4510631d15d453e6b1b2",
+            "hash": "d3feb66995ba4510631d15d453e6b1b2",
+            "name": "Temizköy Toz Deterjan 5 kg",
+            "category": {
+                "slug": "temizlik",
+                "name": "Temizlik"
+            },
+            "market": {
+                "id": 2,
+                "slug": "a101",
+                "name": "A101",
+                "color": "#00a0e3"
+            },
+            "price": "219.00",
+            "price_text": "219,00 TL",
+            "old_price": null,
+            "old_price_text": null,
+            "discount_pct": null,
+            "unit_price": {
+                "value": "43.80",
+                "unit": "kg",
+                "text": "≈ 43,80 TL/kg"
+            },
+            "image": null,
+            "catalog": {
+                "id": 5,
+                "slug": "a101-21-kasim-2026-aktuel-urunler-katalogu",
+                "title": "A101 21 Test Aktüel Ürünler Kataloğu",
+                "start_date": "2026-11-21",
+                "end_date": "2026-11-25",
+                "status": "live",
+                "status_text": "Aktif"
+            },
+            "campaign_text": "21 Kas - 25 Kas 2026",
+            "web_url": "https://marketler.org/katalog/a101-21-kasim-2026-aktuel-urunler-katalogu#viewer"
+        },
+        {
+            "id": 11,
+            "fav_key": "11:2:636ade3800b6990edad614efc6f3cd1e",
+            "hash": "636ade3800b6990edad614efc6f3cd1e",
+            "name": "Tepeli Süt 1 L",
+            "category": {
+                "slug": "gida",
+                "name": "Gıda"
+            },
+            "market": {
+                "id": 2,
+                "slug": "a101",
+                "name": "A101",
+                "color": "#00a0e3"
+            },
+            "price": "35.00",
+            "price_text": "35,00 TL",
+            "old_price": null,
+            "old_price_text": null,
+            "discount_pct": null,
+            "unit_price": {
+                "value": "35.00",
+                "unit": "L",
+                "text": "≈ 35,00 TL/L"
+            },
+            "image": null,
+            "catalog": {
+                "id": 5,
+                "slug": "a101-21-kasim-2026-aktuel-urunler-katalogu",
+                "title": "A101 21 Test Aktüel Ürünler Kataloğu",
+                "start_date": "2026-11-21",
+                "end_date": "2026-11-25",
+                "status": "live",
+                "status_text": "Aktif"
+            },
+            "campaign_text": "21 Kas - 25 Kas 2026",
+            "web_url": "https://marketler.org/katalog/a101-21-kasim-2026-aktuel-urunler-katalogu#viewer"
+        },
+        {
+            "id": 4,
+            "fav_key": "4:1:37c7b1e00d43e3ad538359d36421754e",
+            "hash": "37c7b1e00d43e3ad538359d36421754e",
+            "name": "Yaylaköy Süt 1 L",
+            "category": {
+                "slug": "gida",
+                "name": "Gıda"
+            },
+            "market": {
+                "id": 1,
+                "slug": "bim",
+                "name": "BİM",
+                "color": "#e30613"
+            },
+            "price": "32.50",
+            "price_text": "32,50 TL",
+            "old_price": null,
+            "old_price_text": null,
+            "discount_pct": null,
+            "unit_price": {
+                "value": "32.50",
+                "unit": "L",
+                "text": "≈ 32,50 TL/L"
+            },
+            "image": null,
+            "catalog": {
+                "id": 2,
+                "slug": "bim-21-kasim-2026-aktuel-urunler-katalogu",
+                "title": "BİM 21 Test Aktüel Ürünler Kataloğu",
+                "start_date": "2026-11-21",
+                "end_date": "2026-11-25",
+                "status": "live",
+                "status_text": "Aktif"
+            },
+            "campaign_text": "21 Kas - 25 Kas 2026",
+            "web_url": "https://marketler.org/katalog/bim-21-kasim-2026-aktuel-urunler-katalogu#viewer"
+        },
+        {
+            "id": 5,
+            "fav_key": "5:2:37c7b1e00d43e3ad538359d36421754e",
+            "hash": "37c7b1e00d43e3ad538359d36421754e",
+            "name": "Yaylaköy Süt 1 L",
+            "category": {
+                "slug": "gida",
+                "name": "Gıda"
+            },
+            "market": {
+                "id": 2,
+                "slug": "a101",
+                "name": "A101",
+                "color": "#00a0e3"
+            },
+            "price": "31.90",
+            "price_text": "31,90 TL",
+            "old_price": null,
+            "old_price_text": null,
+            "discount_pct": null,
+            "unit_price": {
+                "value": "31.90",
+                "unit": "L",
+                "text": "≈ 31,90 TL/L"
+            },
+            "image": null,
+            "catalog": {
+                "id": 5,
+                "slug": "a101-21-kasim-2026-aktuel-urunler-katalogu",
+                "title": "A101 21 Test Aktüel Ürünler Kataloğu",
+                "start_date": "2026-11-21",
+                "end_date": "2026-11-25",
+                "status": "live",
+                "status_text": "Aktif"
+            },
+            "campaign_text": "21 Kas - 25 Kas 2026",
+            "web_url": "https://marketler.org/katalog/a101-21-kasim-2026-aktuel-urunler-katalogu#viewer"
+        },
+        {
+            "id": 72,
+            "fav_key": "72:2:3539817b8f9f0c613d8862bdf57abbb4",
+            "hash": "3539817b8f9f0c613d8862bdf57abbb4",
+            "name": "Yüzde%50 Kampanya_Sepeti 1 kg",
+            "category": {
+                "slug": "diger",
+                "name": "Diğer"
+            },
+            "market": {
+                "id": 2,
+                "slug": "a101",
+                "name": "A101",
+                "color": "#00a0e3"
+            },
+            "price": "99.00",
+            "price_text": "99,00 TL",
+            "old_price": null,
+            "old_price_text": null,
+            "discount_pct": null,
+            "unit_price": null,
+            "image": null,
+            "catalog": {
+                "id": 5,
+                "slug": "a101-21-kasim-2026-aktuel-urunler-katalogu",
+                "title": "A101 21 Test Aktüel Ürünler Kataloğu",
+                "start_date": "2026-11-21",
+                "end_date": "2026-11-25",
+                "status": "live",
+                "status_text": "Aktif"
+            },
+            "campaign_text": "21 Kas - 25 Kas 2026",
+            "web_url": "https://marketler.org/katalog/a101-21-kasim-2026-aktuel-urunler-katalogu#viewer"
+        },
+        {
+            "id": 68,
+            "fav_key": "68:1:03bf4075c6f1c224e10b5806eed968aa",
+            "hash": "03bf4075c6f1c224e10b5806eed968aa",
+            "name": "Dağköy Peynir 500 g",
+            "category": {
+                "slug": "gida",
+                "name": "Gıda"
+            },
+            "market": {
+                "id": 1,
+                "slug": "bim",
+                "name": "BİM",
+                "color": "#e30613"
+            },
+            "price": "119.00",
+            "price_text": "119,00 TL",
+            "old_price": null,
+            "old_price_text": null,
+            "discount_pct": null,
+            "unit_price": {
+                "value": "238.00",
+                "unit": "kg",
+                "text": "≈ 238,00 TL/kg"
+            },
+            "image": null,
+            "catalog": {
+                "id": 1,
+                "slug": "bim-14-kasim-2026-aktuel-urunler-katalogu",
+                "title": "BİM 14 Test Aktüel Ürünler Kataloğu",
+                "start_date": "2026-11-14",
+                "end_date": "2026-11-20",
+                "status": "past",
+                "status_text": "Süresi dolmuş"
+            },
+            "campaign_text": "14 Kas - 20 Kas 2026",
+            "web_url": "https://marketler.org/katalog/bim-14-kasim-2026-aktuel-urunler-katalogu#viewer"
+        },
+        {
+            "id": 26,
+            "fav_key": "26:1:b4c8dc0b16ab00db634e49ffa3513054",
+            "hash": "b4c8dc0b16ab00db634e49ffa3513054",
+            "name": "Kavruk Türk Kahvesi 100 g",
+            "category": {
+                "slug": "gida",
+                "name": "Gıda"
+            },
+            "market": {
+                "id": 1,
+                "slug": "bim",
+                "name": "BİM",
+                "color": "#e30613"
+            },
+            "price": "59.90",
+            "price_text": "59,90 TL",
+            "old_price": null,
+            "old_price_text": null,
+            "discount_pct": null,
+            "unit_price": {
+                "value": "599.00",
+                "unit": "kg",
+                "text": "≈ 599,00 TL/kg"
+            },
+            "image": null,
+            "catalog": {
+                "id": 1,
+                "slug": "bim-14-kasim-2026-aktuel-urunler-katalogu",
+                "title": "BİM 14 Test Aktüel Ürünler Kataloğu",
+                "start_date": "2026-11-14",
+                "end_date": "2026-11-20",
+                "status": "past",
+                "status_text": "Süresi dolmuş"
+            },
+            "campaign_text": "14 Kas - 20 Kas 2026",
+            "web_url": "https://marketler.org/katalog/bim-14-kasim-2026-aktuel-urunler-katalogu#viewer"
+        },
+        {
+            "id": 70,
+            "fav_key": "70:1:64afe40f224c2b63f00713b65492ce92",
+            "hash": "64afe40f224c2b63f00713b65492ce92",
+            "name": "Kırmızı Mercimek 1 kg",
+            "category": {
+                "slug": "gida",
+                "name": "Gıda"
+            },
+            "market": {
+                "id": 1,
+                "slug": "bim",
+                "name": "BİM",
+                "color": "#e30613"
+            },
+            "price": "64.90",
+            "price_text": "64,90 TL",
+            "old_price": null,
+            "old_price_text": null,
+            "discount_pct": null,
+            "unit_price": {
+                "value": "64.90",
+                "unit": "kg",
+                "text": "≈ 64,90 TL/kg"
+            },
+            "image": null,
+            "catalog": {
+                "id": 1,
+                "slug": "bim-14-kasim-2026-aktuel-urunler-katalogu",
+                "title": "BİM 14 Test Aktüel Ürünler Kataloğu",
+                "start_date": "2026-11-14",
+                "end_date": "2026-11-20",
+                "status": "past",
+                "status_text": "Süresi dolmuş"
+            },
+            "campaign_text": "14 Kas - 20 Kas 2026",
+            "web_url": "https://marketler.org/katalog/bim-14-kasim-2026-aktuel-urunler-katalogu#viewer"
+        },
+        {
+            "id": 28,
+            "fav_key": "28:2:636ade3800b6990edad614efc6f3cd1e",
+            "hash": "636ade3800b6990edad614efc6f3cd1e",
+            "name": "Tepeli Süt 1 L",
+            "category": {
+                "slug": "gida",
+                "name": "Gıda"
+            },
+            "market": {
+                "id": 2,
+                "slug": "a101",
+                "name": "A101",
+                "color": "#00a0e3"
+            },
+            "price": "33.00",
+            "price_text": "33,00 TL",
+            "old_price": null,
+            "old_price_text": null,
+            "discount_pct": null,
+            "unit_price": {
+                "value": "33.00",
+                "unit": "L",
+                "text": "≈ 33,00 TL/L"
+            },
+            "image": null,
+            "catalog": {
+                "id": 4,
+                "slug": "a101-14-kasim-2026-aktuel-urunler-katalogu",
+                "title": "A101 14 Test Aktüel Ürünler Kataloğu",
+                "start_date": "2026-11-14",
+                "end_date": "2026-11-20",
+                "status": "past",
+                "status_text": "Süresi dolmuş"
+            },
+            "campaign_text": "14 Kas - 20 Kas 2026",
+            "web_url": "https://marketler.org/katalog/a101-14-kasim-2026-aktuel-urunler-katalogu#viewer"
+        },
+        {
+            "id": 27,
+            "fav_key": "27:1:37c7b1e00d43e3ad538359d36421754e",
+            "hash": "37c7b1e00d43e3ad538359d36421754e",
+            "name": "Yaylaköy Süt 1 L",
+            "category": {
+                "slug": "gida",
+                "name": "Gıda"
+            },
+            "market": {
+                "id": 1,
+                "slug": "bim",
+                "name": "BİM",
+                "color": "#e30613"
+            },
+            "price": "32.50",
+            "price_text": "32,50 TL",
+            "old_price": null,
+            "old_price_text": null,
+            "discount_pct": null,
+            "unit_price": {
+                "value": "32.50",
+                "unit": "L",
+                "text": "≈ 32,50 TL/L"
+            },
+            "image": null,
+            "catalog": {
+                "id": 1,
+                "slug": "bim-14-kasim-2026-aktuel-urunler-katalogu",
+                "title": "BİM 14 Test Aktüel Ürünler Kataloğu",
+                "start_date": "2026-11-14",
+                "end_date": "2026-11-20",
+                "status": "past",
+                "status_text": "Süresi dolmuş"
+            },
+            "campaign_text": "14 Kas - 20 Kas 2026",
+            "web_url": "https://marketler.org/katalog/bim-14-kasim-2026-aktuel-urunler-katalogu#viewer"
+        }
+    ],
+    "meta": {
+        "generated_at": "2026-11-23T23:31:22+03:00",
+        "api_version": "1.0",
+        "total": 70
+    }
+}

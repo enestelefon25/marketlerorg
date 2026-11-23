@@ -1,0 +1,487 @@
+{
+    "success": true,
+    "data": {
+        "data_updated_at": "2026-11-23 06:00:12",
+        "markets": [
+            {
+                "id": 1,
+                "slug": "bim",
+                "name": "BİM",
+                "color": "#e30613",
+                "logo_url": "https://marketler.org/img/logo-bim.png",
+                "live_count": 1,
+                "soon_count": 1
+            },
+            {
+                "id": 2,
+                "slug": "a101",
+                "name": "A101",
+                "color": "#00a0e3",
+                "logo_url": null,
+                "live_count": 1,
+                "soon_count": 1
+            },
+            {
+                "id": 3,
+                "slug": "sok",
+                "name": "ŞOK",
+                "color": "#ffd100",
+                "logo_url": null,
+                "live_count": 1,
+                "soon_count": 1
+            }
+        ],
+        "featured": {
+            "title": "Öne çıkan fırsatlar",
+            "subtitle": "İndirimli ürünler ve emsallerine göre uygun fiyatlı ürünler",
+            "items": [
+                {
+                    "id": 22,
+                    "fav_key": "22:2:734eec29729e856457e8feeb87c35938",
+                    "hash": "734eec29729e856457e8feeb87c35938",
+                    "name": "Demlik Siyah Çay 1000 g",
+                    "category": {
+                        "slug": "gida",
+                        "name": "Gıda"
+                    },
+                    "market": {
+                        "id": 2,
+                        "slug": "a101",
+                        "name": "A101",
+                        "color": "#00a0e3"
+                    },
+                    "price": "159.00",
+                    "price_text": "159,00 TL",
+                    "old_price": "198.75",
+                    "old_price_text": "198,75 TL",
+                    "discount_pct": 20,
+                    "unit_price": {
+                        "value": "159.00",
+                        "unit": "kg",
+                        "text": "≈ 159,00 TL/kg"
+                    },
+                    "image": null,
+                    "catalog": {
+                        "id": 5,
+                        "slug": "a101-21-kasim-2026-aktuel-urunler-katalogu",
+                        "title": "A101 21 Test Aktüel Ürünler Kataloğu",
+                        "start_date": "2026-11-21",
+                        "end_date": "2026-11-25",
+                        "status": "live",
+                        "status_text": "Aktif"
+                    },
+                    "campaign_text": "21 Kas - 25 Kas 2026",
+                    "web_url": "https://marketler.org/katalog/a101-21-kasim-2026-aktuel-urunler-katalogu#viewer",
+                    "note": null
+                },
+                {
+                    "id": 1,
+                    "fav_key": "1:1:2a0ab097baf767896ad2f80bf15c7ef9",
+                    "hash": "2a0ab097baf767896ad2f80bf15c7ef9",
+                    "name": "Isıtek Airfryer XA4200 4.2 L",
+                    "category": {
+                        "slug": "elektronik",
+                        "name": "Elektronik"
+                    },
+                    "market": {
+                        "id": 1,
+                        "slug": "bim",
+                        "name": "BİM",
+                        "color": "#e30613"
+                    },
+                    "price": "4999.00",
+                    "price_text": "4.999,00 TL",
+                    "old_price": "6248.75",
+                    "old_price_text": "6.248,75 TL",
+                    "discount_pct": 20,
+                    "unit_price": null,
+                    "image": null,
+                    "catalog": {
+                        "id": 2,
+                        "slug": "bim-21-kasim-2026-aktuel-urunler-katalogu",
+                        "title": "BİM 21 Test Aktüel Ürünler Kataloğu",
+                        "start_date": "2026-11-21",
+                        "end_date": "2026-11-25",
+                        "status": "live",
+                        "status_text": "Aktif"
+                    },
+                    "campaign_text": "21 Kas - 25 Kas 2026",
+                    "web_url": "https://marketler.org/katalog/bim-21-kasim-2026-aktuel-urunler-katalogu#viewer",
+                    "note": null
+                },
+                {
+                    "id": 10,
+                    "fav_key": "10:3:516287f7a9096d132d1c819616d9a36e",
+                    "hash": "516287f7a9096d132d1c819616d9a36e",
+                    "name": "Ovaçiftlik Süt 1 L",
+                    "category": {
+                        "slug": "gida",
+                        "name": "Gıda"
+                    },
+                    "market": {
+                        "id": 3,
+                        "slug": "sok",
+                        "name": "ŞOK",
+                        "color": "#ffd100"
+                    },
+                    "price": "27.75",
+                    "price_text": "27,75 TL",
+                    "old_price": null,
+                    "old_price_text": null,
+                    "discount_pct": null,
+                    "unit_price": {
+                        "value": "27.75",
+                        "unit": "L",
+                        "text": "≈ 27,75 TL/L"
+                    },
+                    "image": null,
+                    "catalog": {
+                        "id": 8,
+                        "slug": "sok-21-kasim-2026-aktuel-urunler-katalogu",
+                        "title": "ŞOK 21 Test Aktüel Ürünler Kataloğu",
+                        "start_date": "2026-11-21",
+                        "end_date": "2026-11-25",
+                        "status": "live",
+                        "status_text": "Aktif"
+                    },
+                    "campaign_text": "21 Kas - 25 Kas 2026",
+                    "web_url": "https://marketler.org/katalog/sok-21-kasim-2026-aktuel-urunler-katalogu#viewer",
+                    "note": [
+                        "%17 daha uygun",
+                        "4 emsal ürünün medyan birim fiyatına göre"
+                    ]
+                },
+                {
+                    "id": 14,
+                    "fav_key": "14:3:d479c00379f20319f101b82f895674a0",
+                    "hash": "d479c00379f20319f101b82f895674a0",
+                    "name": "Sarıtarla Ayçiçek Yağı 5 L",
+                    "category": {
+                        "slug": "gida",
+                        "name": "Gıda"
+                    },
+                    "market": {
+                        "id": 3,
+                        "slug": "sok",
+                        "name": "ŞOK",
+                        "color": "#ffd100"
+                    },
+                    "price": "265.00",
+                    "price_text": "265,00 TL",
+                    "old_price": null,
+                    "old_price_text": null,
+                    "discount_pct": null,
+                    "unit_price": {
+                        "value": "53.00",
+                        "unit": "L",
+                        "text": "≈ 53,00 TL/L"
+                    },
+                    "image": null,
+                    "catalog": {
+                        "id": 8,
+                        "slug": "sok-21-kasim-2026-aktuel-urunler-katalogu",
+                        "title": "ŞOK 21 Test Aktüel Ürünler Kataloğu",
+                        "start_date": "2026-11-21",
+                        "end_date": "2026-11-25",
+                        "status": "live",
+                        "status_text": "Aktif"
+                    },
+                    "campaign_text": "21 Kas - 25 Kas 2026",
+                    "web_url": "https://marketler.org/katalog/sok-21-kasim-2026-aktuel-urunler-katalogu#viewer",
+                    "note": [
+                        "%8 daha uygun",
+                        "5 emsal ürünün medyan birim fiyatına göre"
+                    ]
+                }
+            ]
+        },
+        "live_catalogs": [
+            {
+                "id": 2,
+                "slug": "bim-21-kasim-2026-aktuel-urunler-katalogu",
+                "title": "BİM 21 Test Aktüel Ürünler Kataloğu",
+                "label": "21 Test",
+                "market": {
+                    "id": 1,
+                    "slug": "bim",
+                    "name": "BİM",
+                    "color": "#e30613"
+                },
+                "start_date": "2026-11-21",
+                "end_date": "2026-11-25",
+                "status": "live",
+                "status_text": "Aktif",
+                "date_text": "21 Kas - 25 Kas 2026",
+                "item_count": 21,
+                "cover": {
+                    "url": "https://marketler.org/img/k/bim-21-kasim-2026-aktuel-urunler-katalogu/c/1.webp",
+                    "full_url": "https://marketler.org/img/k/bim-21-kasim-2026-aktuel-urunler-katalogu/1.webp"
+                },
+                "web_url": "https://marketler.org/katalog/bim-21-kasim-2026-aktuel-urunler-katalogu"
+            },
+            {
+                "id": 5,
+                "slug": "a101-21-kasim-2026-aktuel-urunler-katalogu",
+                "title": "A101 21 Test Aktüel Ürünler Kataloğu",
+                "label": "21 Test",
+                "market": {
+                    "id": 2,
+                    "slug": "a101",
+                    "name": "A101",
+                    "color": "#00a0e3"
+                },
+                "start_date": "2026-11-21",
+                "end_date": "2026-11-25",
+                "status": "live",
+                "status_text": "Aktif",
+                "date_text": "21 Kas - 25 Kas 2026",
+                "item_count": 22,
+                "cover": {
+                    "url": "https://marketler.org/img/k/a101-21-kasim-2026-aktuel-urunler-katalogu/1.webp",
+                    "full_url": "https://marketler.org/img/k/a101-21-kasim-2026-aktuel-urunler-katalogu/1.webp"
+                },
+                "web_url": "https://marketler.org/katalog/a101-21-kasim-2026-aktuel-urunler-katalogu"
+            },
+            {
+                "id": 8,
+                "slug": "sok-21-kasim-2026-aktuel-urunler-katalogu",
+                "title": "ŞOK 21 Test Aktüel Ürünler Kataloğu",
+                "label": "21 Test",
+                "market": {
+                    "id": 3,
+                    "slug": "sok",
+                    "name": "ŞOK",
+                    "color": "#ffd100"
+                },
+                "start_date": "2026-11-21",
+                "end_date": "2026-11-25",
+                "status": "live",
+                "status_text": "Aktif",
+                "date_text": "21 Kas - 25 Kas 2026",
+                "item_count": 20,
+                "cover": null,
+                "web_url": "https://marketler.org/katalog/sok-21-kasim-2026-aktuel-urunler-katalogu"
+            }
+        ],
+        "soon_catalogs": [
+            {
+                "id": 3,
+                "slug": "bim-26-kasim-2026-aktuel-urunler-katalogu",
+                "title": "BİM 26 Test Aktüel Ürünler Kataloğu",
+                "label": "26 Test",
+                "market": {
+                    "id": 1,
+                    "slug": "bim",
+                    "name": "BİM",
+                    "color": "#e30613"
+                },
+                "start_date": "2026-11-26",
+                "end_date": "2026-12-02",
+                "status": "soon",
+                "status_text": "Yaklaşan",
+                "date_text": "Başlangıç: 26 Kas 2026",
+                "item_count": 1,
+                "cover": null,
+                "web_url": "https://marketler.org/katalog/bim-26-kasim-2026-aktuel-urunler-katalogu"
+            },
+            {
+                "id": 6,
+                "slug": "a101-26-kasim-2026-aktuel-urunler-katalogu",
+                "title": "A101 26 Test Aktüel Ürünler Kataloğu",
+                "label": "26 Test",
+                "market": {
+                    "id": 2,
+                    "slug": "a101",
+                    "name": "A101",
+                    "color": "#00a0e3"
+                },
+                "start_date": "2026-11-26",
+                "end_date": "2026-12-02",
+                "status": "soon",
+                "status_text": "Yaklaşan",
+                "date_text": "Başlangıç: 26 Kas 2026",
+                "item_count": 0,
+                "cover": null,
+                "web_url": "https://marketler.org/katalog/a101-26-kasim-2026-aktuel-urunler-katalogu"
+            },
+            {
+                "id": 9,
+                "slug": "sok-26-kasim-2026-aktuel-urunler-katalogu",
+                "title": "ŞOK 26 Test Aktüel Ürünler Kataloğu",
+                "label": "26 Test",
+                "market": {
+                    "id": 3,
+                    "slug": "sok",
+                    "name": "ŞOK",
+                    "color": "#ffd100"
+                },
+                "start_date": "2026-11-26",
+                "end_date": "2026-12-02",
+                "status": "soon",
+                "status_text": "Yaklaşan",
+                "date_text": "Başlangıç: 26 Kas 2026",
+                "item_count": 1,
+                "cover": null,
+                "web_url": "https://marketler.org/katalog/sok-26-kasim-2026-aktuel-urunler-katalogu"
+            }
+        ],
+        "top_compare": {
+            "group_id": "1",
+            "title": "Isıtek Airfryer XA4200 4.2 L",
+            "is_manual": false,
+            "rows": [
+                {
+                    "id": 2,
+                    "fav_key": "2:2:2a0ab097baf767896ad2f80bf15c7ef9",
+                    "hash": "2a0ab097baf767896ad2f80bf15c7ef9",
+                    "name": "Isıtek Airfryer XA4200 4.2 L",
+                    "category": {
+                        "slug": "elektronik",
+                        "name": "Elektronik"
+                    },
+                    "market": {
+                        "id": 2,
+                        "slug": "a101",
+                        "name": "A101",
+                        "color": "#00a0e3"
+                    },
+                    "price": "4599.00",
+                    "price_text": "4.599,00 TL",
+                    "old_price": null,
+                    "old_price_text": null,
+                    "discount_pct": null,
+                    "unit_price": null,
+                    "image": {
+                        "url": "https://marketler.org/img/u/2.webp?v=1700000000"
+                    },
+                    "catalog": {
+                        "id": 5,
+                        "slug": "a101-21-kasim-2026-aktuel-urunler-katalogu",
+                        "title": "A101 21 Test Aktüel Ürünler Kataloğu",
+                        "start_date": "2026-11-21",
+                        "end_date": "2026-11-25",
+                        "status": "live",
+                        "status_text": "Aktif"
+                    },
+                    "campaign_text": "21 Kas - 25 Kas 2026",
+                    "web_url": "https://marketler.org/katalog/a101-21-kasim-2026-aktuel-urunler-katalogu#viewer",
+                    "is_best": true
+                },
+                {
+                    "id": 1,
+                    "fav_key": "1:1:2a0ab097baf767896ad2f80bf15c7ef9",
+                    "hash": "2a0ab097baf767896ad2f80bf15c7ef9",
+                    "name": "Isıtek Airfryer XA4200 4.2 L",
+                    "category": {
+                        "slug": "elektronik",
+                        "name": "Elektronik"
+                    },
+                    "market": {
+                        "id": 1,
+                        "slug": "bim",
+                        "name": "BİM",
+                        "color": "#e30613"
+                    },
+                    "price": "4999.00",
+                    "price_text": "4.999,00 TL",
+                    "old_price": "6248.75",
+                    "old_price_text": "6.248,75 TL",
+                    "discount_pct": 20,
+                    "unit_price": null,
+                    "image": null,
+                    "catalog": {
+                        "id": 2,
+                        "slug": "bim-21-kasim-2026-aktuel-urunler-katalogu",
+                        "title": "BİM 21 Test Aktüel Ürünler Kataloğu",
+                        "start_date": "2026-11-21",
+                        "end_date": "2026-11-25",
+                        "status": "live",
+                        "status_text": "Aktif"
+                    },
+                    "campaign_text": "21 Kas - 25 Kas 2026",
+                    "web_url": "https://marketler.org/katalog/bim-21-kasim-2026-aktuel-urunler-katalogu#viewer",
+                    "is_best": false
+                },
+                {
+                    "id": 3,
+                    "fav_key": "3:3:2a0ab097baf767896ad2f80bf15c7ef9",
+                    "hash": "2a0ab097baf767896ad2f80bf15c7ef9",
+                    "name": "Isıtek Airfryer XA4200 4.2 L",
+                    "category": {
+                        "slug": "elektronik",
+                        "name": "Elektronik"
+                    },
+                    "market": {
+                        "id": 3,
+                        "slug": "sok",
+                        "name": "ŞOK",
+                        "color": "#ffd100"
+                    },
+                    "price": "5199.00",
+                    "price_text": "5.199,00 TL",
+                    "old_price": null,
+                    "old_price_text": null,
+                    "discount_pct": null,
+                    "unit_price": null,
+                    "image": null,
+                    "catalog": {
+                        "id": 8,
+                        "slug": "sok-21-kasim-2026-aktuel-urunler-katalogu",
+                        "title": "ŞOK 21 Test Aktüel Ürünler Kataloğu",
+                        "start_date": "2026-11-21",
+                        "end_date": "2026-11-25",
+                        "status": "live",
+                        "status_text": "Aktif"
+                    },
+                    "campaign_text": "21 Kas - 25 Kas 2026",
+                    "web_url": "https://marketler.org/katalog/sok-21-kasim-2026-aktuel-urunler-katalogu#viewer",
+                    "is_best": false
+                }
+            ],
+            "min_price": "4599.00",
+            "max_price": "5199.00",
+            "diff": "600.00",
+            "diff_text": "600,00 TL",
+            "diff_pct": 12,
+            "saving_text": "En ucuz markette 600,00 TL (%12) daha az."
+        },
+        "category_shortcuts": [
+            {
+                "slug": "gida",
+                "name": "Gıda"
+            },
+            {
+                "slug": "temizlik",
+                "name": "Temizlik"
+            },
+            {
+                "slug": "kisisel-bakim",
+                "name": "Kişisel bakım"
+            },
+            {
+                "slug": "ev-yasam",
+                "name": "Ev & yaşam"
+            },
+            {
+                "slug": "elektronik",
+                "name": "Elektronik"
+            },
+            {
+                "slug": "anne-bebek",
+                "name": "Anne & bebek"
+            },
+            {
+                "slug": "oyuncak",
+                "name": "Oyuncak"
+            },
+            {
+                "slug": "mutfak",
+                "name": "Mutfak"
+            }
+        ]
+    },
+    "meta": {
+        "generated_at": "2026-11-23T23:31:22+03:00",
+        "api_version": "1.0"
+    }
+}

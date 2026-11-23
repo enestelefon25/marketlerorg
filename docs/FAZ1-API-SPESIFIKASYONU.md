@@ -2,6 +2,8 @@
 
 **Durum:** Yalnızca tasarım. **Kod yazılmadı, canlı sistemde değişiklik yapılmadı.**
 **Dayanak:** FAZ 0 incelemesi (gönderilen 40 dosya + şema dökümü) ve kullanıcının FAZ 0 kararları.
+> **Güncelleme:** C bölümünün yerini `FAZ1-UC-NOKTALAR.md` aldı (16 → 14 uç nokta). D.3 sorgularının son hali `sql/D3-sayim-sorgulari.sql` dosyasında (T3 düzeltildi).
+
 **Temel ilke:** API **yalnızca okur**. Her alan mevcut bir PHP fonksiyonundan ya da sitenin kullandığı sorgudan gelir. Uygulama hiçbir değeri kendisi hesaplamaz: fiyat farkı, indirim ve birim fiyat sunucudan gelir.
 
 ---

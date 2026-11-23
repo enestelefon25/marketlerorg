@@ -1,7 +1,17 @@
 # FAZ 1: Test Raporu (revizyon 3)
 
+**Durum:** FAZ 1 **açık**: bağımsız inceleme ve gerçek veri testleri bekleniyor. **Kaynak kod revizyonu:** commit `e95404e` (bu rapordaki testler bu kodla çalıştırıldı; sonrasında yalnızca bu rapor belgesi güncellendi).
+
 **Ortam:** Bu bulut ortamı (izole kapsayıcı), PHP 8.3.6, MariaDB 10.11.14 (yetki denetimi açık). Veri **sentetik**; şema kullanıcının gönderdiği yalnızca yapı dökümü.
 **Canlı sistem:** Hiçbir dosya yüklenmedi; canlı veritabanına bağlanılmadı. Veritabanı şeması, `inc.php`, `eslestirme.php`, `cron.php`, admin dosyaları ve WebView projesi değişmedi. Android ekranlarına başlanmadı. **Canlıya yükleme onayı yok.**
+
+## ⚠ D.3 sayım sorguları: HENÜZ ÇALIŞTIRILMADI
+
+`docs/sql/D3-sayim-sorgulari.sql` dosyasındaki dört sorgu (T1–T4) **gerçek `bayirtkf_aktuel` veritabanında henüz çalıştırılmadı.** Gerçek veritabanı sonuçları **beklenmektedir.**
+- Sorgular bu ortamda yalnızca **boş şema** ve **sentetik** satırlar üzerinde denendi: söz dizimi ve yalnızca `SELECT` içerdikleri doğrulandı.
+- Aşağıdaki bilgiler bu sonuçlar gelene kadar **bilinmiyor**: gerçek veritabanı sürümü (T1), `products` ve `prices` tablolarının kayıt sayıları (T1), `items.hash` anahtarlarının gerçek verideki tekrar oranı ve tutarlılığı (T2–T4).
+- Bu rapordaki **hiçbir sonuç gerçek veriye dayanmıyor.** Bütün testler sentetik veriyle yapıldı.
+- **FAZ 1, bağımsız kaynak kod incelemesi ve gerçek veri testleri tamamlanmadan kapatılmayacaktır.**
 
 ## Sonuç
 
@@ -58,7 +68,49 @@
 | 7 | **Hız sınırı güvenli hata davranışı**: geçici klasör dolarsa veya yazılamazsa API 503 döner (bilinçli tercih: sınırsız çalışmaktansa durmak) | İzleme: sunucu günlüğünde `MARKETLER API hız sınırı hatası` |
 | 8 | **Test betiği yönetici yetkisi ister** (veritabanı/kullanıcı oluşturma, `SET GLOBAL general_log`) | README'de "yalnızca izole yerel test ortamı" olarak belirtildi; betik uzak sunucuyu koşulsuz reddeder |
 
-## 4. Test sonuçları (Çalıştırma 2, tam liste)
+## 4. Paket bütünlüğü (ZIP ↔ rapor)
+
+`MarketlerNative-FAZ1-API-rev3.zip` içindeki kod ve test dosyalarının SHA-256 özetleri aşağıdadır. Liste, commit `e95404e` ile **aynı** olan çalışma dizininden üretildi. Bölüm 5'teki test sonuçları bu dosyalarla elde edildi. Doğrulamak için: `sha256sum -c` (yollar ZIP içinde `FAZ1/` önekiyle yer alır).
+
+```
+529c43b11bfcd9c13566c2862fcb23eed212bb9c00f0f907194e49bed1e084d2  MarketlerNative/server/README.md
+4777bff0e0ddd38528cc499bc5f79ce69e7acb4c3f398093663c3cebd4f522f3  MarketlerNative/server/site/api/.htaccess
+59b69f9f12beac68a417374b21c097f2bcf93ae989d2caa793c25a629df22c60  MarketlerNative/server/site/api/v1/config.php
+174c295e83469d3441bfef4cb7af7e798384316a5578bd3bb8aad5dc82663cc5  MarketlerNative/server/site/api/v1/endpoints/assistant.php
+c5c88a35630bfd28135c38720aeec31d687e74db1995e426295e9d47a3427c90  MarketlerNative/server/site/api/v1/endpoints/catalog.php
+7900e725c9b9825cd77074fc0c904c36fa0ab18fc0e870699f95e1c4f58e06cc  MarketlerNative/server/site/api/v1/endpoints/catalogs.php
+17b2d124d52c846343b246e6bb5826742bc3e9d24cf8acdb04416b323f6cf791  MarketlerNative/server/site/api/v1/endpoints/categories.php
+fc73fad4fcaf0cbcb2991dcba0c149657fa542fb77aafe9922d0209df4ee713e  MarketlerNative/server/site/api/v1/endpoints/compare.php
+b8ac84c054ee6d602ac2b400a3ed7267df5c8f691e37aa75de7940b559e1ce03  MarketlerNative/server/site/api/v1/endpoints/home.php
+01bc84f023854f301ab2b2d9876895bc0f9db1b24a2030496f304119ceed9e0a  MarketlerNative/server/site/api/v1/endpoints/market.php
+83d8f47902e3e9b0d5324b126c24c77f107b2dc6ac1a27b17bd7f7fd13f662d0  MarketlerNative/server/site/api/v1/endpoints/markets.php
+04c464d5bba936e1cd749d7849632fcbb2b25507cf9f8d9d307f08e1113b146c  MarketlerNative/server/site/api/v1/endpoints/pages.php
+d6207751d88b87047f0a7dee7ba7043b15f1f8d5579525e67604c8195be12b27  MarketlerNative/server/site/api/v1/endpoints/product.php
+e71abe188bc84b884a3879b16846104f02fc17124c3a273c0cd2fdbe6d065cf7  MarketlerNative/server/site/api/v1/endpoints/products.php
+1237385746358600073c8b0c67d25d8122129144a7b3f2c6af7852f36807f048  MarketlerNative/server/site/api/v1/endpoints/search.php
+e3439fd8f0374e09fd667ce362ef701f65795df5ba383b8fe83c68c76170d807  MarketlerNative/server/site/api/v1/endpoints/similar.php
+6b5bff1391e7c9f7440697c1a4748a9e406ff5970b0cb2253c12f9d0928b134e  MarketlerNative/server/site/api/v1/endpoints/suggest.php
+f8fc0b73f2d088691b12c90e19a480294f895c62a5d6a797a17ed6b990b8a113  MarketlerNative/server/site/api/v1/index.php
+5b8b16d2cce54deba5c658c9f8f1aa3eb28c38f6ba96e0f32cb71b2d6bd594f7  MarketlerNative/server/site/api/v1/lib/bootstrap.php
+fe55ce4b2ce0a0ecc81d78e8a7ed70e25fc069c7ba2e5e56b1ff7c4d746070c8  MarketlerNative/server/site/api/v1/lib/input.php
+7d58f69766749eb7ffbef3ae36e9b8b076ccfb611b8e0845061c160bff2fd38f  MarketlerNative/server/site/api/v1/lib/map.php
+4ded82a4f52966c4dc8856e33e759174408e6e4bd9bc0d5d70a76fb0f67a5431  MarketlerNative/server/site/api/v1/lib/proxy.php
+6029c45be618fad0dbdb704da730fe1d88b5c6214bd890f5ffa21b55564ac0cc  MarketlerNative/server/site/api/v1/lib/ratelimit.php
+917004d61796612e6a3a0c3c75459b6c183734b9d9a3944cfab93fbdc4bfb98c  MarketlerNative/server/site/api/v1/lib/response.php
+5e2328a8aeb578d3bc530f363f2019bac8654e859c151ad2e37e6f568b75bbc9  MarketlerNative/server/site/api/v1/lib/weblogic.php
+49d0f205721d8033a2279d8f54a8ecdeb521b5afbb70719c017717183d025988  MarketlerNative/server/site/ara.php
+1c793f46bb762322bb074638149bd504363fcf840cc61a44b7e12baeedce5044  MarketlerNative/server/site/ortak-veri.php
+d64d539a0bdacdf420c0366b6f87e0e3b4af1b674ef4c4e53d66aecf7797ef60  MarketlerNative/server/site/tema-modern-ana.php
+5560f88f1a97e5a96ed896366775fe218646f1e263f20dee96bbdc93b51a65b1  MarketlerNative/server/tests/fixtures/schema.sql
+3c11676b89a9e5b703076478ada73242be26419311f21a04658b9e736f78a3f1  MarketlerNative/server/tests/fixtures/seed.php
+f17f0a916900214f76062ad034daa4b006cf27438d6b01067fdbf086103a0b8e  MarketlerNative/server/tests/guard.php
+8c1b8a1617c87f469359ff130cf3a02eee7e9aed87cbb428a0bc29c0d9e5f1fa  MarketlerNative/server/tests/readonly_probe.php
+a612b103b4327e0004168e7e3b1c7f3ff28275ce14a2b5e643d35869031fbec4  MarketlerNative/server/tests/router.php
+d704cb98d36e066b91c755abd73ffd8545f945e189a2297284b3a795cd1cbe4c  MarketlerNative/server/tests/run.php
+4dac58d3c5e7622bf43316b9bf60f0b441f7e92bac1302ba539c5e38b7d55f5d  docs/sql/D3-sayim-sorgulari.sql
+```
+
+## 5. Test sonuçları (Çalıştırma 2, tam liste)
 
 Toplam 381 kontrol · 381 geçti · 0 başarısız (önceki testler 322/322 · yeni R3 testleri 59/59)
 

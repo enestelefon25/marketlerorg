@@ -12,7 +12,7 @@ import org.marketler.core.model.Suggestion
 import java.util.Locale
 
 /**
- * MOCK veri kaynağı (FAZ 2.1). AĞ BAĞLANTISI YOKTUR: veriler uygulamaya gömülü JSON dosyalarından okunur
+ * MOCK veri kaynağı (FAZ 2.1; FAZ 2.2'de testler ve mock derlemesi için korunur). AĞ BAĞLANTISI YOKTUR: veriler uygulamaya gömülü JSON dosyalarından okunur
  * (core/data/src/main/resources/mock/). Dosyalar Rev3 API'nin yerel kopyasından SENTETİK veriyle üretildi
  * (MarketlerNative/tools/mock_veri_uret.php); yapı gerçek API yanıtlarıyla aynıdır.
  *
@@ -44,16 +44,17 @@ class MockRepository(
 
     private suspend fun wait() { if (latencyMs > 0) delay(latencyMs) }
 
-    override suspend fun home(): Home { wait(); return homeEnv.data }
-    override suspend fun markets(): List<Market> { wait(); return marketsEnv.data }
-    override suspend fun categories(): List<Category> { wait(); return categoriesEnv.data }
-    override suspend fun product(id: Long): ProductDetail { wait(); return details[id] ?: throw DataError.NotFound("Ürün") }
+    /* Gerçek API ile aynı veri kuralları (DataRules) uygulanır. */
+    override suspend fun home(): Home { wait(); return DataRules.home(homeEnv.data) }
+    override suspend fun markets(): List<Market> { wait(); return DataRules.markets(marketsEnv.data) }
+    override suspend fun categories(): List<Category> { wait(); return DataRules.categories(categoriesEnv.data) }
+    override suspend fun product(id: Long): ProductDetail { wait(); return details[id]?.let(DataRules::detail) ?: throw DataError.NotFound("Ürün") }
 
     /** ara.php kuralları: her kelime adda geçmeli; market, kategori, durum süzgeci; sıralama + eşitlikte kalem no (Rev3 i.id). */
     override suspend fun products(query: ProductQuery): Page<Item> {
         wait()
         val words = query.q.trim().split(Regex("\\s+")).filter { it.isNotEmpty() }.map { it.lowercase(tr) }
-        val filtered = itemsEnv.data.filter { it ->
+        val filtered = DataRules.items(itemsEnv.data).filter { it ->
             val st = it.catalog.status
             val statusOk = when (query.status) {
                 ProductQuery.Status.AKTIF -> st == "live"
@@ -61,14 +62,15 @@ class MockRepository(
                 ProductQuery.Status.DOLMUS -> st == "past"
                 ProductQuery.Status.HEPSI -> true
             }
-            val name = it.name.lowercase(tr)
+            val name = it.nameText.lowercase(tr)
             statusOk && (query.market == null || it.market.slug == query.market) && (query.category == null || it.category.slug == query.category) &&
                 words.all { w -> name.contains(w) }
         }
         val sorted = when (query.sort) {
-            ProductQuery.Sort.ASC -> filtered.sortedWith(compareBy<Item> { it.priceValue }.thenBy { it.id })
-            ProductQuery.Sort.DESC -> filtered.sortedWith(compareByDescending<Item> { it.priceValue }.thenBy { it.id })
-            ProductQuery.Sort.NEW -> filtered.sortedWith(compareByDescending<Item> { it.catalog.startDate }.thenBy { it.name.lowercase(tr) }.thenBy { it.id })
+            /* MySQL gibi: NULL fiyat artan sırada başta, azalan sırada sonda. */
+            ProductQuery.Sort.ASC -> filtered.sortedWith(compareBy<Item, java.math.BigDecimal?>(nullsFirst()) { it.priceValue }.thenBy { it.id })
+            ProductQuery.Sort.DESC -> filtered.sortedWith(compareByDescending<Item, java.math.BigDecimal?>(nullsFirst()) { it.priceValue }.thenBy { it.id })
+            ProductQuery.Sort.NEW -> filtered.sortedWith(compareByDescending<Item> { it.catalog.startDate }.thenBy { it.nameText.lowercase(tr) }.thenBy { it.id })
         }
         val from = ((query.page - 1) * query.limit).coerceAtMost(sorted.size)
         return Page(sorted.subList(from, (from + query.limit).coerceAtMost(sorted.size)), query.page, query.limit, sorted.size)
@@ -80,10 +82,10 @@ class MockRepository(
         if (qf.length < 2) return emptyList()
         wait()
         val tokens = qf.split(Regex("\\s+")).filter { it.isNotEmpty() }
-        val pool = itemsEnv.data.filter { it.catalog.status != "past" }.sortedWith(compareByDescending<Item> { it.catalog.startDate }.thenByDescending { it.id })
+        val pool = DataRules.items(itemsEnv.data).filter { it.catalog.status != "past" }.sortedWith(compareByDescending<Item> { it.catalog.startDate }.thenByDescending { it.id })
         data class Hit(val score: Int, val len: Int, val item: Item, val folded: String)
         val hits = pool.mapNotNull { item ->
-            val f = TurkishText.fold(item.name)
+            val f = TurkishText.fold(item.nameText)
             var sc = 0
             for (t in tokens) {
                 val pos = f.indexOf(t)
@@ -93,11 +95,11 @@ class MockRepository(
                 if (end >= f.length || f[end] == ' ') sc += 1
             }
             if (f.startsWith(qf)) sc += 2
-            Hit(sc, item.name.length, item, f)
+            Hit(sc, item.nameText.length, item, f)
         }.sortedWith(compareByDescending<Hit> { it.score }.thenBy { it.len })
         val seen = HashSet<String>()
         return hits.asSequence().filter { seen.add(it.folded + "|" + it.item.market.name) }.take(5).map {
-            Suggestion(it.item.name, it.item.priceText, it.item.market.name, it.item.catalog.slug, it.item.webUrl)
+            Suggestion(it.item.name, it.item.shownPriceText, it.item.market.name, it.item.catalog.slug, it.item.webUrl)
         }.toList()
     }
 }

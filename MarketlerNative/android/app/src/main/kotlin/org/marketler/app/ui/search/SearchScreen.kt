@@ -93,12 +93,12 @@ fun SearchScreen(
             Surface(color = MkColors.Surface, modifier = Modifier.fillMaxWidth()) {
                 Column {
                     s.suggestions.forEach { sg ->
-                        Row(Modifier.fillMaxWidth().clickable { vm.submit(sg.name); focusManager.clearFocus() }.padding(horizontal = 16.dp, vertical = 12.dp),
+                        Row(Modifier.fillMaxWidth().clickable { vm.submit(sg.name.orEmpty()); focusManager.clearFocus() }.padding(horizontal = 16.dp, vertical = 12.dp),
                             verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                             Icon(Icons.Outlined.Search, contentDescription = null, tint = MkColors.Subtle, modifier = Modifier.size(18.dp))
                             Column(Modifier.weight(1f)) {
-                                Text(sg.name, fontWeight = FontWeight.SemiBold, maxLines = 1)
-                                Text("${sg.marketName} · ${sg.priceText}", color = MkColors.Muted, fontSize = 12.5.sp)
+                                Text(sg.name.orEmpty(), fontWeight = FontWeight.SemiBold, maxLines = 1)
+                                Text(listOfNotNull(sg.marketName, sg.priceText).filter { t -> t.isNotBlank() }.joinToString(" · "), color = MkColors.Muted, fontSize = 12.5.sp)
                             }
                             Icon(Icons.Outlined.NorthWest, contentDescription = null, tint = MkColors.Subtle, modifier = Modifier.size(18.dp))
                         }
@@ -142,11 +142,11 @@ private fun Results(s: SearchState, vm: SearchViewModel, onOpenProduct: (Long) -
 /** Süzgeçler: market, kategori, katalog durumu, sıralama (API /products parametreleri). */
 @Composable
 private fun Filters(s: SearchState, vm: SearchViewModel) {
-    val marketName = s.markets.firstOrNull { it.slug == s.query.market }?.name
+    val marketName = s.markets.firstOrNull { it.slug == s.query.market }?.label
     val categoryName = s.categories.firstOrNull { it.slug == s.query.category }?.name
     LazyRow(contentPadding = PaddingValues(horizontal = 16.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        item { Picker(marketName ?: "Market", s.query.market != null, listOf<Pair<String?, String>>(null to "Tüm marketler") + s.markets.map { it.slug to it.name }, vm::setMarket) }
-        item { Picker(categoryName ?: "Kategori", s.query.category != null, listOf<Pair<String?, String>>(null to "Tüm kategoriler") + s.categories.map { it.slug to it.name }, vm::setCategory) }
+        item { Picker(marketName ?: "Market", s.query.market != null, listOf<Pair<String?, String>>(null to "Tüm marketler") + s.markets.map { it.slug to it.label }, vm::setMarket) }
+        item { Picker(categoryName ?: "Kategori", s.query.category != null, listOf<Pair<String?, String>>(null to "Tüm kategoriler") + s.categories.map { it.slug to it.name.orEmpty() }, vm::setCategory) }
         item { Picker("Durum: ${s.query.status.label}", s.query.status != ProductQuery.Status.AKTIF, ProductQuery.Status.values().map { it to it.label }) { vm.setStatus(it ?: ProductQuery.Status.AKTIF) } }
         item { Picker(s.query.sort.label, s.query.sort != ProductQuery.Sort.NEW, ProductQuery.Sort.values().map { it to it.label }) { vm.setSort(it ?: ProductQuery.Sort.NEW) } }
     }

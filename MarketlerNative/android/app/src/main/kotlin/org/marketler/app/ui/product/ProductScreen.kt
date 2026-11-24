@@ -82,16 +82,16 @@ private fun ProductContent(d: ProductDetail, modifier: Modifier, onOpenProduct: 
             Column(Modifier.padding(horizontal = 16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     MarketBadge(it.market, height = 32.dp)
-                    Text(it.category.name, color = MkColors.Muted, fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1f), maxLines = 1, overflow = TextOverflow.Ellipsis)
+                    Text(it.category.name.orEmpty(), color = MkColors.Muted, fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1f), maxLines = 1, overflow = TextOverflow.Ellipsis)
                     StatusPill(it.catalog.status, it.catalog.statusText)
                 }
-                Text(it.name, style = MaterialTheme.typography.headlineSmall)
+                Text(it.nameText, style = MaterialTheme.typography.headlineSmall)
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                     PriceBlock(it, big = true)
-                    it.discountPct?.let { p -> DiscountBadge(p) }
+                    it.shownDiscountPct?.let { p -> DiscountBadge(p) }
                 }
-                it.unitPrice?.let { u -> Text(u.text, color = MkColors.Muted, fontWeight = FontWeight.SemiBold) }
-                Text("Kampanya: ${it.campaignText}", color = MkColors.Subtle, fontSize = 13.5.sp)
+                it.shownUnitPrice?.let { u -> Text(u.text.orEmpty(), color = MkColors.Muted, fontWeight = FontWeight.SemiBold) }
+                if (it.campaignLabel.isNotBlank()) Text("Kampanya: ${it.campaignLabel}", color = MkColors.Subtle, fontSize = 13.5.sp)
             }
         }
         d.history?.let { h ->
@@ -117,8 +117,8 @@ private fun ProductContent(d: ProductDetail, modifier: Modifier, onOpenProduct: 
                 SectionHeader("Katalog")
                 Surface(shape = RoundedCornerShape(14.dp), color = MkColors.Surface, border = BorderStroke(1.dp, MkColors.Line), modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 10.dp).fillMaxWidth()) {
                     Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                        Text(c.title, style = MaterialTheme.typography.titleSmall)
-                        Text("${c.dateText} · ${c.itemCount} ürün", color = MkColors.Muted, fontSize = 13.sp)
+                        Text(c.titleLabel, style = MaterialTheme.typography.titleSmall)
+                        Text(listOf(c.dateLabel, "${c.itemCount} ürün").filter { s -> s.isNotBlank() }.joinToString(" · "), color = MkColors.Muted, fontSize = 13.sp)
                         Text("Broşür sayfaları ve katalog ekranı sonraki aşamada (FAZ 2.5) eklenecek.", color = MkColors.Subtle, fontSize = 12.5.sp)
                     }
                 }

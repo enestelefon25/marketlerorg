@@ -40,7 +40,6 @@ import org.marketler.app.ui.UiState
 import org.marketler.core.data.MarketlerRepository
 import org.marketler.core.model.Home
 import org.marketler.core.model.Market
-import org.marketler.core.model.MarketRef
 import org.marketler.core.ui.CatalogCard
 import org.marketler.core.ui.CompareCard
 import org.marketler.core.ui.DataSourceBanner
@@ -98,10 +97,10 @@ private fun HomeContent(
         item(key = "markets") {
             SectionHeader("Marketler")
             Spacer(Modifier.height(10.dp))
-            Grid(home.markets, columns = 3, spacing = 10.dp) { m, mod -> MarketTile(m, onClick = { onOpenMarket(m.slug) }, modifier = mod) }
+            Grid(home.markets, columns = 3, spacing = 10.dp) { m, mod -> MarketTile(m, onClick = { m.slug?.let(onOpenMarket) }, modifier = mod) }
         }
         item(key = "featured") {
-            SectionHeader(home.featured.title, subtitle = home.featured.subtitle, action = "Tüm ürünler", onAction = { onOpenCategory("") })
+            SectionHeader(home.featured.title.orEmpty(), subtitle = home.featured.subtitle, action = "Tüm ürünler", onAction = { onOpenCategory("") })
             Spacer(Modifier.height(10.dp))
             if (home.featured.items.isEmpty()) EmptyState("Şu an listelenecek ürün yok.", "Güncel kataloglarda ürün olduğunda burada gerçek fiyatlarıyla görünür.")
             else Grid(home.featured.items, columns = 2, spacing = 12.dp) { it, mod -> ProductCard(it, onClick = { onOpenProduct(it.id) }, modifier = mod) }
@@ -143,8 +142,8 @@ private fun HomeContent(
                     Row(Modifier.fillMaxWidth().clickable { onOpenTab("catalogs") }.padding(vertical = 6.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                         MarketBadge(c.market, height = 30.dp)
                         Column(Modifier.weight(1f)) {
-                            Text(c.title, style = MaterialTheme.typography.titleSmall, maxLines = 1)
-                            Text(c.dateText, color = MkColors.Muted, fontSize = 13.sp)
+                            Text(c.titleLabel, style = MaterialTheme.typography.titleSmall, maxLines = 1)
+                            if (c.dateLabel.isNotBlank()) Text(c.dateLabel, color = MkColors.Muted, fontSize = 13.sp)
                         }
                         StatusPill(c.status, c.statusText)
                     }
@@ -179,8 +178,8 @@ private fun <T> Grid(items: List<T>, columns: Int, spacing: Dp, cell: @Composabl
 private fun MarketTile(m: Market, onClick: () -> Unit, modifier: Modifier = Modifier) {
     Surface(onClick = onClick, shape = RoundedCornerShape(16.dp), color = MkColors.Surface, border = BorderStroke(1.dp, MkColors.Line), modifier = modifier) {
         Column(Modifier.padding(10.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-            MarketBadge(MarketRef(m.id, m.slug, m.name, m.color), height = 32.dp)
-            Text(m.name, fontWeight = FontWeight.ExtraBold, color = MkColors.Ink)
+            MarketBadge(m.ref, height = 32.dp)
+            Text(m.label, fontWeight = FontWeight.ExtraBold, color = MkColors.Ink)
             Text(if (m.liveCount > 0) "${m.liveCount} güncel katalog" else "Şu an aktif katalog yok", color = MkColors.Muted, fontSize = 12.5.sp)
         }
     }

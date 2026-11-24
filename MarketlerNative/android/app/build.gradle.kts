@@ -20,8 +20,8 @@ android {
         applicationId = "org.marketler.app"
         minSdk = 24
         targetSdk = 36
-        versionCode = 1
-        versionName = "0.2.1-mock"   // FAZ 2.1: yalnızca mock veri
+        versionCode = 2
+        versionName = "0.2.2.1-mock"   // FAZ 2.2.1: ağ katmanı eklendi; ekranlar hâlâ mock veriyle (bağlantı FAZ 2.2.2)
     }
 
     signingConfigs {

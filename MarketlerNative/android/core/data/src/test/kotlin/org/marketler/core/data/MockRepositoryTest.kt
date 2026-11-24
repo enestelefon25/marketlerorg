@@ -17,7 +17,7 @@ class MockRepositoryTest {
     @Test fun mockVerisiRev3SozlesmesineGoreOkunur() = runTest {
         val home = repo.home()
         assertEquals(3, home.markets.size)
-        assertTrue(home.featured.title.isNotBlank())
+        assertTrue(!home.featured.title.isNullOrBlank())
         assertTrue(home.featured.items.isNotEmpty())
         assertEquals(8, home.categoryShortcuts.size)
         assertEquals(14, repo.categories().size)
@@ -28,7 +28,7 @@ class MockRepositoryTest {
     @Test fun fiyatlarMetinOlarakGelirVeBigDecimalOkunur() = runTest {
         val all = repo.products(ProductQuery(status = ProductQuery.Status.HEPSI, limit = 500)).items
         assertTrue(all.size >= 60)
-        all.forEach { assertEquals(it.price, BigDecimal(it.price).setScale(2).toPlainString()); assertTrue(it.priceText.endsWith(" TL")) }
+        all.forEach { assertEquals(it.price, BigDecimal(it.price!!).setScale(2).toPlainString()); assertTrue(it.priceText!!.endsWith(" TL")) }
     }
 
     @Test fun indirimYalnizcaSunucuVerdiyseVardir() = runTest {
@@ -53,7 +53,7 @@ class MockRepositoryTest {
 
     @Test fun aramaKelimelerinHepsiAddaGecmeli() = runTest {
         val p = repo.products(ProductQuery(q = "süt", limit = 500, status = ProductQuery.Status.HEPSI))
-        assertTrue(p.items.size >= 5); p.items.forEach { assertTrue(it.name.lowercase().contains("süt")) }
+        assertTrue(p.items.size >= 5); p.items.forEach { assertTrue(it.nameText.lowercase().contains("süt")) }
         assertEquals(0, repo.products(ProductQuery(q = "zzzqqq")).total)
     }
 
@@ -72,11 +72,11 @@ class MockRepositoryTest {
     @Test fun siralamaVeEsitlikteKalemNo() = runTest {
         val asc = repo.products(ProductQuery(status = ProductQuery.Status.HEPSI, sort = ProductQuery.Sort.ASC, limit = 500)).items
         for (i in 1 until asc.size) {
-            val c = asc[i - 1].priceValue.compareTo(asc[i].priceValue)
+            val c = asc[i - 1].priceValue!!.compareTo(asc[i].priceValue!!)
             assertTrue(c <= 0); if (c == 0) assertTrue(asc[i - 1].id < asc[i].id)
         }
         val desc = repo.products(ProductQuery(status = ProductQuery.Status.HEPSI, sort = ProductQuery.Sort.DESC, limit = 500)).items
-        for (i in 1 until desc.size) assertTrue(desc[i - 1].priceValue >= desc[i].priceValue)
+        for (i in 1 until desc.size) assertTrue(desc[i - 1].priceValue!! >= desc[i].priceValue!!)
     }
 
     @Test fun sayfalamadaTekrarVeKayipYok() = runTest {
@@ -93,9 +93,9 @@ class MockRepositoryTest {
         assertTrue(repo.suggest("s").isEmpty())
         val s = repo.suggest("sü")
         assertTrue(s.isNotEmpty() && s.size <= 5)
-        s.forEach { assertTrue(TurkishText.fold(it.name).contains("su")) }
+        s.forEach { assertTrue(TurkishText.fold(it.name!!).contains("su")) }
         assertTrue(repo.suggest("isitek").isNotEmpty())              // ISITEK / Isıtek yazım farkı sadeleştirilir
-        assertEquals(s.size, s.map { TurkishText.fold(it.name) + it.marketName }.toSet().size)
+        assertEquals(s.size, s.map { TurkishText.fold(it.name!!) + it.marketName }.toSet().size)
     }
 
     @Test fun urunDetayi() = runTest {

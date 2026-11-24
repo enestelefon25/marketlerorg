@@ -25,15 +25,31 @@ data class Page<T>(val items: List<T>, val page: Int, val limit: Int, val total:
     val hasMore: Boolean get() = page * limit < total
 }
 
-/** Veri kaynağı hatası: API hata kodlarının (A.3) uygulamadaki karşılığı. */
-sealed class DataError(message: String) : Exception(message) {
+/**
+ * Veri kaynağı hatası: API hata kodlarının (A.3) ve ağ sorunlarının uygulamadaki karşılığı.
+ * Mesajlar kullanıcıya gösterilebilir Türkçe metinlerdir; teknik ayrıntı (kod, HTTP durumu) ayrı alanlardadır.
+ */
+sealed class DataError(message: String, cause: Throwable? = null) : Exception(message, cause) {
+    /** 404 NOT_FOUND: kayıt yok veya gizli. */
     class NotFound(what: String) : DataError("$what bulunamadı.")
-    class Unavailable : DataError("Hizmet geçici olarak kullanılamıyor.")
+    /** 503 SERVICE_UNAVAILABLE: sunucu veritabanına ulaşamıyor ya da hız sınırı deposu kullanılamıyor. */
+    class Unavailable(val retryAfterSeconds: Long? = null) : DataError("Hizmet geçici olarak kullanılamıyor.")
+    /** 429 RATE_LIMITED. */
+    class RateLimited(val retryAfterSeconds: Long? = null) : DataError("Çok fazla istek gönderildi. Lütfen biraz bekleyin.")
+    /** Bağlantı yok, zaman aşımı, DNS, TLS: sunucuya ulaşılamadı. */
+    class Network(cause: Throwable? = null) : DataError("İnternet bağlantısı kurulamadı. Bağlantınızı kontrol edip tekrar deneyin.", cause)
+    /** 500 ve beklenmeyen diğer sunucu durumları. */
+    class Server(val httpStatus: Int, val code: String? = null) : DataError("Sunucuda beklenmeyen bir hata oluştu.")
+    /** 400 / 404 ENDPOINT_NOT_FOUND / 405 / 413: uygulamanın gönderdiği istek hatalı (uygulama hatası; günlüğe yazılır). */
+    class BadRequest(val httpStatus: Int, val code: String?, val serverMessage: String?) : DataError("İstek işlenemedi.")
+    /** Yanıt sözleşmeye uymuyor (bozuk JSON, beklenmeyen yapı). */
+    class Malformed(cause: Throwable? = null) : DataError("Sunucudan gelen veri okunamadı.", cause)
 }
 
 /**
- * Uygulamanın tek veri arayüzü. FAZ 2.1'de yalnızca MockRepository uygulanır (ağ bağlantısı YOK).
- * Sonraki aşamada aynı arayüzü Rev3 API'ye bağlanan bir uygulama karşılayacak; ekranlar değişmeyecek.
+ * Uygulamanın tek veri arayüzü. İki uygulaması var: MockRepository (gömülü örnek veri; testler ve mock derlemesi)
+ * ve RemoteRepository (Rev3 API, FAZ 2.2.1). İkisi de aynı veri kurallarını (DataRules) uygular.
+ * Hata durumunda DataError fırlatılır.
  */
 interface MarketlerRepository {
     /** Verinin üretildiği an (API'de meta.generated_at). Ekranda "son güncelleme" olarak gösterilir. */

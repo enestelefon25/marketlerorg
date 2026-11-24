@@ -60,11 +60,11 @@ import org.marketler.core.model.MarketRef
 
 /* ---------- yardımcılar ---------- */
 
-/** Sunucudan gelen "#RRGGBB" market rengi; geçersizse lacivert. */
-fun marketColor(hex: String): Color = try { Color(android.graphics.Color.parseColor(hex)) } catch (e: Exception) { MkColors.Navy }
+/** Sunucudan gelen "#RRGGBB" market rengi; yoksa (NULL) veya geçersizse nötr gri (renk uydurulmaz). */
+fun marketColor(hex: String?): Color = if (hex.isNullOrBlank()) MkColors.Subtle else try { Color(android.graphics.Color.parseColor(hex)) } catch (e: Exception) { MkColors.Subtle }
 
 /** Sitenin img/ klasöründeki market logoları (uygulamaya gömülü). Bilinmeyen market için null → renkli ad rozeti. */
-private fun marketLogoRes(slug: String): Int? = when (slug) {
+private fun marketLogoRes(slug: String?): Int? = when (slug) {
     "bim" -> R.drawable.market_bim
     "a101" -> R.drawable.market_a101
     "sok" -> R.drawable.market_sok
@@ -103,8 +103,8 @@ fun MarketBadge(market: MarketRef, modifier: Modifier = Modifier, height: Dp = 3
             .padding(horizontal = 8.dp, vertical = 5.dp),
         contentAlignment = Alignment.Center,
     ) {
-        if (res != null) Image(painterResource(res), contentDescription = market.name, contentScale = ContentScale.Fit, modifier = Modifier.height(height - 10.dp))
-        else Text(market.name, color = marketColor(market.color), fontWeight = FontWeight.ExtraBold, fontSize = 13.sp)
+        if (res != null) Image(painterResource(res), contentDescription = market.label, contentScale = ContentScale.Fit, modifier = Modifier.height(height - 10.dp))
+        else Text(market.label, color = marketColor(market.color), fontWeight = FontWeight.ExtraBold, fontSize = 13.sp)
     }
 }
 
@@ -134,11 +134,13 @@ fun ProductImagePlaceholder(market: MarketRef, modifier: Modifier = Modifier, ic
 
 @Composable
 fun PriceBlock(item: Item, modifier: Modifier = Modifier, big: Boolean = false, stacked: Boolean = false) {
-    val price = @Composable { Text(item.priceText, color = MkColors.Navy, fontWeight = FontWeight.ExtraBold, fontSize = if (big) 30.sp else if (stacked) 19.sp else 22.sp, letterSpacing = (-0.3).sp, maxLines = 1) }
-    val old = @Composable { Text(item.oldPriceText!!, color = MkColors.Subtle, textDecoration = TextDecoration.LineThrough, fontSize = if (big) 16.sp else if (stacked) 13.sp else 14.sp, maxLines = 1, modifier = if (stacked) Modifier else Modifier.padding(bottom = 3.dp)) }
+    /* Fiyat NULL ise "Fiyat belirtilmemiş" (ASLA 0 TL); eski fiyat da gösterilmez. */
+    val missing = !item.hasPrice
+    val price = @Composable { Text(item.priceLabel, color = if (missing) MkColors.Muted else MkColors.Navy, fontWeight = if (missing) FontWeight.SemiBold else FontWeight.ExtraBold, fontSize = if (missing) (if (big) 18.sp else 15.sp) else if (big) 30.sp else if (stacked) 19.sp else 22.sp, letterSpacing = (-0.3).sp, maxLines = 1) }
+    val old = @Composable { Text(item.shownOldPriceText.orEmpty(), color = MkColors.Subtle, textDecoration = TextDecoration.LineThrough, fontSize = if (big) 16.sp else if (stacked) 13.sp else 14.sp, maxLines = 1, modifier = if (stacked) Modifier else Modifier.padding(bottom = 3.dp)) }
     // stacked: dar kartta (iki sütunlu ızgara) eski fiyat alt satıra iner, fiyat sıkışmaz.
-    if (stacked) Column(modifier) { price(); if (item.oldPriceText != null) old() }
-    else Row(modifier, verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.spacedBy(10.dp)) { price(); if (item.oldPriceText != null) old() }
+    if (stacked) Column(modifier) { price(); if (item.shownOldPriceText != null) old() }
+    else Row(modifier, verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.spacedBy(10.dp)) { price(); if (item.shownOldPriceText != null) old() }
 }
 
 /** Sitedeki modern ürün kartının (mc2) karşılığı. */
@@ -149,15 +151,15 @@ fun ProductCard(item: Item, onClick: () -> Unit, modifier: Modifier = Modifier) 
             // İki sütunlu ızgarada dar kart: market logosu ve indirim üstte, kategori ayrı satırda.
             Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
                 MarketBadge(item.market, height = 28.dp)
-                item.discountPct?.let { DiscountBadge(it) }
+                item.shownDiscountPct?.let { DiscountBadge(it) }
             }
-            Text(item.category.name, color = MkColors.Muted, fontWeight = FontWeight.SemiBold, fontSize = 12.5.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            Text(item.category.name.orEmpty(), color = MkColors.Muted, fontWeight = FontWeight.SemiBold, fontSize = 12.5.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
             ProductImagePlaceholder(item.market, Modifier.fillMaxWidth().height(84.dp).clip(RoundedCornerShape(12.dp)))
-            Text(item.name, style = MaterialTheme.typography.titleSmall, color = MkColors.Ink, maxLines = 2, minLines = 2, overflow = TextOverflow.Ellipsis)
+            Text(item.nameText, style = MaterialTheme.typography.titleSmall, color = MkColors.Ink, maxLines = 2, minLines = 2, overflow = TextOverflow.Ellipsis)
             PriceBlock(item, stacked = true)
-            item.unitPrice?.let { Text(it.text, color = MkColors.Muted, fontWeight = FontWeight.SemiBold, fontSize = 13.sp) }
+            item.shownUnitPrice?.let { Text(it.text.orEmpty(), color = MkColors.Muted, fontWeight = FontWeight.SemiBold, fontSize = 13.sp) }
             item.noteLines.forEachIndexed { i, n -> Text(n, color = if (i == 0) MkColors.Best else MkColors.Subtle, fontWeight = if (i == 0) FontWeight.Bold else FontWeight.Normal, fontSize = 12.5.sp, maxLines = 2, overflow = TextOverflow.Ellipsis) }
-            Text("Kampanya: ${item.campaignText}", color = MkColors.Subtle, fontSize = 12.5.sp)
+            if (item.campaignLabel.isNotBlank()) Text("Kampanya: ${item.campaignLabel}", color = MkColors.Subtle, fontSize = 12.5.sp)
         }
     }
 }
@@ -168,18 +170,19 @@ fun ProductRow(item: Item, onClick: () -> Unit, modifier: Modifier = Modifier) {
     Row(modifier.fillMaxWidth().clickable(onClick = onClick).padding(horizontal = 16.dp, vertical = 12.dp), horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
         ProductImagePlaceholder(item.market, Modifier.size(64.dp).clip(RoundedCornerShape(12.dp)), iconSize = 24.dp)
         Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
-            Text(item.name, style = MaterialTheme.typography.titleSmall, color = MkColors.Ink, maxLines = 2, overflow = TextOverflow.Ellipsis)
+            Text(item.nameText, style = MaterialTheme.typography.titleSmall, color = MkColors.Ink, maxLines = 2, overflow = TextOverflow.Ellipsis)
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                Text(item.market.name, color = marketColor(item.market.color), fontWeight = FontWeight.ExtraBold, fontSize = 12.5.sp)
-                Text("· ${item.category.name}", color = MkColors.Subtle, fontSize = 12.5.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                Text(item.market.label, color = marketColor(item.market.color), fontWeight = FontWeight.ExtraBold, fontSize = 12.5.sp)
+                if (!item.category.name.isNullOrBlank()) Text("· ${item.category.name}", color = MkColors.Subtle, fontSize = 12.5.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
                 if (item.catalog.status != "live") StatusPill(item.catalog.status, item.catalog.statusText)
             }
-            item.unitPrice?.let { Text(it.text, color = MkColors.Muted, fontSize = 12.5.sp) }
+            item.shownUnitPrice?.let { Text(it.text.orEmpty(), color = MkColors.Muted, fontSize = 12.5.sp) }
         }
         Column(horizontalAlignment = Alignment.End) {
-            Text(item.priceText, color = MkColors.Navy, fontWeight = FontWeight.ExtraBold, fontSize = 17.sp)
-            item.oldPriceText?.let { Text(it, color = MkColors.Subtle, textDecoration = TextDecoration.LineThrough, fontSize = 12.5.sp) }
-            item.discountPct?.let { Spacer(Modifier.height(2.dp)); DiscountBadge(it) }
+            if (item.hasPrice) Text(item.priceLabel, color = MkColors.Navy, fontWeight = FontWeight.ExtraBold, fontSize = 17.sp)
+            else Text(item.priceLabel, color = MkColors.Muted, fontWeight = FontWeight.SemiBold, fontSize = 13.sp)
+            item.shownOldPriceText?.let { Text(it, color = MkColors.Subtle, textDecoration = TextDecoration.LineThrough, fontSize = 12.5.sp) }
+            item.shownDiscountPct?.let { Spacer(Modifier.height(2.dp)); DiscountBadge(it) }
         }
     }
 }
@@ -197,8 +200,8 @@ fun CatalogCard(catalog: CatalogSummary, onClick: () -> Unit, modifier: Modifier
                 StatusPill(catalog.status, catalog.statusText, Modifier.align(Alignment.TopEnd).padding(8.dp))
             }
             Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                Text(catalog.title, style = MaterialTheme.typography.titleSmall, maxLines = 2, minLines = 2, overflow = TextOverflow.Ellipsis)
-                Text(catalog.dateText, color = MkColors.Muted, fontSize = 13.sp)
+                Text(catalog.titleLabel, style = MaterialTheme.typography.titleSmall, maxLines = 2, minLines = 2, overflow = TextOverflow.Ellipsis)
+                if (catalog.dateLabel.isNotBlank()) Text(catalog.dateLabel, color = MkColors.Muted, fontSize = 13.sp)
                 Text("${catalog.itemCount} ürün", color = MkColors.Subtle, fontSize = 12.5.sp)
             }
         }
@@ -212,7 +215,7 @@ fun CatalogCard(catalog: CatalogSummary, onClick: () -> Unit, modifier: Modifier
 fun CompareCard(group: CompareGroup, onItemClick: (Long) -> Unit, modifier: Modifier = Modifier, currentItemId: Long? = null) {
     Surface(modifier, shape = MaterialTheme.shapes.large, color = MkColors.Surface, border = androidx.compose.foundation.BorderStroke(1.dp, MkColors.Line)) {
         Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Text(group.title, style = MaterialTheme.typography.titleSmall, maxLines = 2, overflow = TextOverflow.Ellipsis)
+            Text(group.titleLabel, style = MaterialTheme.typography.titleSmall, maxLines = 2, overflow = TextOverflow.Ellipsis)
             group.rows.forEach { r ->
                 val best = r.isBest == true
                 Row(
@@ -224,10 +227,10 @@ fun CompareCard(group: CompareGroup, onItemClick: (Long) -> Unit, modifier: Modi
                 ) {
                     MarketBadge(r.market, height = 28.dp)
                     Column(Modifier.weight(1f)) {
-                        Text(r.campaignText, color = MkColors.Subtle, fontSize = 12.sp)
+                        Text(r.campaignLabel, color = MkColors.Subtle, fontSize = 12.sp)
                         if (best) Text("En düşük", color = MkColors.Best, fontWeight = FontWeight.ExtraBold, fontSize = 12.5.sp)
                     }
-                    Text(r.priceText, color = if (best) MkColors.Best else MkColors.Navy, fontWeight = FontWeight.ExtraBold, fontSize = 17.sp)
+                    Text(r.priceLabel, color = if (best) MkColors.Best else MkColors.Navy, fontWeight = FontWeight.ExtraBold, fontSize = 17.sp)
                 }
             }
             group.savingText?.let { Text(it, color = MkColors.Ink, fontWeight = FontWeight.SemiBold, fontSize = 13.5.sp) }

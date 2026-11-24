@@ -1,0 +1,347 @@
+{
+    "aciklama": "Rev3 API yerel kopyasının gerçek HTTP yanıtları (tools/api_test_verisi_uret.php). SENTETİK veri + bilerek eklenmiş NULL alanlı kirli kayıtlar. Canlı sisteme bağlanılmadı.",
+    "uretim": "2026-11-25T00:20:52+03:00",
+    "kirli_kayitlar": {
+        "ad_null": 73,
+        "ad_bos": 74,
+        "fiyat_null_bim": 75,
+        "fiyat_var_a101": 76,
+        "fiyat_null_eski_var": 77,
+        "hash_null": 78,
+        "kategori_null": 79,
+        "market_null": 80
+    },
+    "yanitlar": [
+        {
+            "ad": "home",
+            "yol": "home",
+            "yontem": "GET",
+            "http": 200,
+            "basliklar": {
+                "content-type": "application/json; charset=utf-8",
+                "cache-control": "public, max-age=300",
+                "etag": "\"9ddb7a4b6ddc6a1b7398183eaf156d99\""
+            },
+            "dosya": "home.json"
+        },
+        {
+            "ad": "markets",
+            "yol": "markets",
+            "yontem": "GET",
+            "http": 200,
+            "basliklar": {
+                "content-type": "application/json; charset=utf-8",
+                "cache-control": "public, max-age=3600",
+                "etag": "\"094cf42b6638e8355bb001e964efa67e\""
+            },
+            "dosya": "markets.json"
+        },
+        {
+            "ad": "categories",
+            "yol": "categories",
+            "yontem": "GET",
+            "http": 200,
+            "basliklar": {
+                "content-type": "application/json; charset=utf-8",
+                "cache-control": "public, max-age=3600",
+                "etag": "\"f65434750a9125026812f5668ee99816\""
+            },
+            "dosya": "categories.json"
+        },
+        {
+            "ad": "products_hepsi_s1",
+            "yol": "products?status=hepsi&limit=50&page=1",
+            "yontem": "GET",
+            "http": 200,
+            "basliklar": {
+                "content-type": "application/json; charset=utf-8",
+                "cache-control": "public, max-age=300",
+                "etag": "\"c7a85b244dee61d2dc99c2e276c5c141\""
+            },
+            "dosya": "products_hepsi_s1.json"
+        },
+        {
+            "ad": "products_hepsi_s2",
+            "yol": "products?status=hepsi&limit=50&page=2",
+            "yontem": "GET",
+            "http": 200,
+            "basliklar": {
+                "content-type": "application/json; charset=utf-8",
+                "cache-control": "public, max-age=300",
+                "etag": "\"1f4d2066bd9619f907c87efc0396c95a\""
+            },
+            "dosya": "products_hepsi_s2.json"
+        },
+        {
+            "ad": "products_aktif_ilk",
+            "yol": "products?limit=24",
+            "yontem": "GET",
+            "http": 200,
+            "basliklar": {
+                "content-type": "application/json; charset=utf-8",
+                "cache-control": "public, max-age=300",
+                "etag": "\"61621f5a2c2b6a54c8779cbb7e66ce78\""
+            },
+            "dosya": "products_aktif_ilk.json"
+        },
+        {
+            "ad": "products_q_kirlitest",
+            "yol": "products?q=Kirlitest&status=hepsi",
+            "yontem": "GET",
+            "http": 200,
+            "basliklar": {
+                "content-type": "application/json; charset=utf-8",
+                "cache-control": "public, max-age=300",
+                "etag": "\"5e3e91bdf080d0826435b347b068490b\""
+            },
+            "dosya": "products_q_kirlitest.json"
+        },
+        {
+            "ad": "products_q_bos_sonuc",
+            "yol": "products?q=zzzqqq",
+            "yontem": "GET",
+            "http": 200,
+            "basliklar": {
+                "content-type": "application/json; charset=utf-8",
+                "cache-control": "public, max-age=300",
+                "etag": "\"2768fda8fef5523784c4db1a3ee418c5\""
+            },
+            "dosya": "products_q_bos_sonuc.json"
+        },
+        {
+            "ad": "products_sirala_asc",
+            "yol": "products?status=hepsi&sort=asc&limit=50",
+            "yontem": "GET",
+            "http": 200,
+            "basliklar": {
+                "content-type": "application/json; charset=utf-8",
+                "cache-control": "public, max-age=300",
+                "etag": "\"44982f8bc4faaf8f2bb3df3a9fe61d69\""
+            },
+            "dosya": "products_sirala_asc.json"
+        },
+        {
+            "ad": "product_ad_null",
+            "yol": "products/73",
+            "yontem": "GET",
+            "http": 200,
+            "basliklar": {
+                "content-type": "application/json; charset=utf-8",
+                "cache-control": "public, max-age=300",
+                "etag": "\"9ec8c46eb3ef57b72f2c8cc49a1394d7\""
+            },
+            "dosya": "product_ad_null.json"
+        },
+        {
+            "ad": "product_ad_bos",
+            "yol": "products/74",
+            "yontem": "GET",
+            "http": 200,
+            "basliklar": {
+                "content-type": "application/json; charset=utf-8",
+                "cache-control": "public, max-age=300",
+                "etag": "\"e619bf128bb951ea445a98d29d441a6f\""
+            },
+            "dosya": "product_ad_bos.json"
+        },
+        {
+            "ad": "product_fiyat_null_bim",
+            "yol": "products/75",
+            "yontem": "GET",
+            "http": 200,
+            "basliklar": {
+                "content-type": "application/json; charset=utf-8",
+                "cache-control": "public, max-age=300",
+                "etag": "\"d6b552945f83f437120750f31f800b15\""
+            },
+            "dosya": "product_fiyat_null_bim.json"
+        },
+        {
+            "ad": "product_fiyat_var_a101",
+            "yol": "products/76",
+            "yontem": "GET",
+            "http": 200,
+            "basliklar": {
+                "content-type": "application/json; charset=utf-8",
+                "cache-control": "public, max-age=300",
+                "etag": "\"f17647cde9388c9cbda84f327f637dc7\""
+            },
+            "dosya": "product_fiyat_var_a101.json"
+        },
+        {
+            "ad": "product_fiyat_null_eski_var",
+            "yol": "products/77",
+            "yontem": "GET",
+            "http": 200,
+            "basliklar": {
+                "content-type": "application/json; charset=utf-8",
+                "cache-control": "public, max-age=300",
+                "etag": "\"6dcc25a50e9ebd7096a4ac5caf5d50bd\""
+            },
+            "dosya": "product_fiyat_null_eski_var.json"
+        },
+        {
+            "ad": "product_hash_null",
+            "yol": "products/78",
+            "yontem": "GET",
+            "http": 200,
+            "basliklar": {
+                "content-type": "application/json; charset=utf-8",
+                "cache-control": "public, max-age=300",
+                "etag": "\"8a41465c954f25bdd3e5509b58b14c94\""
+            },
+            "dosya": "product_hash_null.json"
+        },
+        {
+            "ad": "product_kategori_null",
+            "yol": "products/79",
+            "yontem": "GET",
+            "http": 200,
+            "basliklar": {
+                "content-type": "application/json; charset=utf-8",
+                "cache-control": "public, max-age=300",
+                "etag": "\"2ae825038c8d37df9a45da7f1c97e3db\""
+            },
+            "dosya": "product_kategori_null.json"
+        },
+        {
+            "ad": "product_market_null",
+            "yol": "products/80",
+            "yontem": "GET",
+            "http": 200,
+            "basliklar": {
+                "content-type": "application/json; charset=utf-8",
+                "cache-control": "public, max-age=300",
+                "etag": "\"0ff3a702096163a12355d4f5084e6fad\""
+            },
+            "dosya": "product_market_null.json"
+        },
+        {
+            "ad": "product_normal_karsilastirmali",
+            "yol": "products/2",
+            "yontem": "GET",
+            "http": 200,
+            "basliklar": {
+                "content-type": "application/json; charset=utf-8",
+                "cache-control": "public, max-age=300",
+                "etag": "\"137d803b17ecb29efc8106b20938c270\""
+            },
+            "dosya": "product_normal_karsilastirmali.json"
+        },
+        {
+            "ad": "suggest_kirlitest",
+            "yol": "suggest?q=kirlitest",
+            "yontem": "GET",
+            "http": 200,
+            "basliklar": {
+                "content-type": "application/json; charset=utf-8",
+                "cache-control": "private, max-age=60",
+                "etag": "\"35ecccd96998c8dbd09abd7155849ae1\""
+            },
+            "dosya": "suggest_kirlitest.json"
+        },
+        {
+            "ad": "suggest_su",
+            "yol": "suggest?q=s%C3%BC",
+            "yontem": "GET",
+            "http": 200,
+            "basliklar": {
+                "content-type": "application/json; charset=utf-8",
+                "cache-control": "private, max-age=60",
+                "etag": "\"ec28aeea4d79cc8e126d57077aa09499\""
+            },
+            "dosya": "suggest_su.json"
+        },
+        {
+            "ad": "suggest_kisa",
+            "yol": "suggest?q=s",
+            "yontem": "GET",
+            "http": 200,
+            "basliklar": {
+                "content-type": "application/json; charset=utf-8",
+                "cache-control": "private, max-age=60",
+                "etag": "\"b9076d22a90dbf07f0a8736d66a80075\""
+            },
+            "dosya": "suggest_kisa.json"
+        },
+        {
+            "ad": "hata_404_urun",
+            "yol": "products/99999999",
+            "yontem": "GET",
+            "http": 404,
+            "basliklar": {
+                "content-type": "application/json; charset=utf-8",
+                "cache-control": "no-store"
+            },
+            "dosya": "hata_404_urun.json"
+        },
+        {
+            "ad": "hata_404_yol",
+            "yol": "yok",
+            "yontem": "GET",
+            "http": 404,
+            "basliklar": {
+                "content-type": "application/json; charset=utf-8",
+                "cache-control": "no-store"
+            },
+            "dosya": "hata_404_yol.json"
+        },
+        {
+            "ad": "hata_400_limit",
+            "yol": "products?limit=51",
+            "yontem": "GET",
+            "http": 400,
+            "basliklar": {
+                "content-type": "application/json; charset=utf-8",
+                "cache-control": "no-store"
+            },
+            "dosya": "hata_400_limit.json"
+        },
+        {
+            "ad": "hata_400_status",
+            "yol": "products?status=bilinmeyen",
+            "yontem": "GET",
+            "http": 400,
+            "basliklar": {
+                "content-type": "application/json; charset=utf-8",
+                "cache-control": "no-store"
+            },
+            "dosya": "hata_400_status.json"
+        },
+        {
+            "ad": "hata_405_yontem",
+            "yol": "products",
+            "yontem": "POST",
+            "http": 405,
+            "basliklar": {
+                "content-type": "application/json; charset=utf-8",
+                "cache-control": "no-store"
+            },
+            "dosya": "hata_405_yontem.json"
+        },
+        {
+            "ad": "hata_429_hiz",
+            "yol": "markets",
+            "yontem": "GET",
+            "http": 429,
+            "basliklar": {
+                "retry-after": "8",
+                "content-type": "application/json; charset=utf-8",
+                "cache-control": "no-store"
+            },
+            "dosya": "hata_429_hiz.json"
+        },
+        {
+            "ad": "hata_503_veritabani",
+            "yol": "home",
+            "yontem": "GET",
+            "http": 503,
+            "basliklar": {
+                "retry-after": "120",
+                "content-type": "application/json; charset=utf-8",
+                "cache-control": "no-store"
+            },
+            "dosya": "hata_503_veritabani.json"
+        }
+    ]
+}

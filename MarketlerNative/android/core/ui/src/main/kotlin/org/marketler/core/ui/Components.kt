@@ -133,11 +133,12 @@ fun ProductImagePlaceholder(market: MarketRef, modifier: Modifier = Modifier, ic
 }
 
 @Composable
-fun PriceBlock(item: Item, modifier: Modifier = Modifier, big: Boolean = false) {
-    Row(modifier, verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-        Text(item.priceText, color = MkColors.Navy, fontWeight = FontWeight.ExtraBold, fontSize = if (big) 30.sp else 22.sp, letterSpacing = (-0.3).sp)
-        if (item.oldPriceText != null) Text(item.oldPriceText!!, color = MkColors.Subtle, textDecoration = TextDecoration.LineThrough, fontSize = if (big) 16.sp else 14.sp, modifier = Modifier.padding(bottom = 3.dp))
-    }
+fun PriceBlock(item: Item, modifier: Modifier = Modifier, big: Boolean = false, stacked: Boolean = false) {
+    val price = @Composable { Text(item.priceText, color = MkColors.Navy, fontWeight = FontWeight.ExtraBold, fontSize = if (big) 30.sp else if (stacked) 19.sp else 22.sp, letterSpacing = (-0.3).sp, maxLines = 1) }
+    val old = @Composable { Text(item.oldPriceText!!, color = MkColors.Subtle, textDecoration = TextDecoration.LineThrough, fontSize = if (big) 16.sp else if (stacked) 13.sp else 14.sp, maxLines = 1, modifier = if (stacked) Modifier else Modifier.padding(bottom = 3.dp)) }
+    // stacked: dar kartta (iki sütunlu ızgara) eski fiyat alt satıra iner, fiyat sıkışmaz.
+    if (stacked) Column(modifier) { price(); if (item.oldPriceText != null) old() }
+    else Row(modifier, verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.spacedBy(10.dp)) { price(); if (item.oldPriceText != null) old() }
 }
 
 /** Sitedeki modern ürün kartının (mc2) karşılığı. */
@@ -145,14 +146,15 @@ fun PriceBlock(item: Item, modifier: Modifier = Modifier, big: Boolean = false) 
 fun ProductCard(item: Item, onClick: () -> Unit, modifier: Modifier = Modifier) {
     Surface(onClick = onClick, modifier = modifier, shape = MaterialTheme.shapes.large, color = MkColors.Surface, border = androidx.compose.foundation.BorderStroke(1.dp, MkColors.Line)) {
         Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                MarketBadge(item.market, height = 30.dp)
-                Text(item.category.name, Modifier.weight(1f), color = MkColors.Muted, fontWeight = FontWeight.SemiBold, fontSize = 13.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            // İki sütunlu ızgarada dar kart: market logosu ve indirim üstte, kategori ayrı satırda.
+            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
+                MarketBadge(item.market, height = 28.dp)
                 item.discountPct?.let { DiscountBadge(it) }
             }
-            ProductImagePlaceholder(item.market, Modifier.fillMaxWidth().height(96.dp).clip(RoundedCornerShape(12.dp)))
+            Text(item.category.name, color = MkColors.Muted, fontWeight = FontWeight.SemiBold, fontSize = 12.5.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            ProductImagePlaceholder(item.market, Modifier.fillMaxWidth().height(84.dp).clip(RoundedCornerShape(12.dp)))
             Text(item.name, style = MaterialTheme.typography.titleSmall, color = MkColors.Ink, maxLines = 2, minLines = 2, overflow = TextOverflow.Ellipsis)
-            PriceBlock(item)
+            PriceBlock(item, stacked = true)
             item.unitPrice?.let { Text(it.text, color = MkColors.Muted, fontWeight = FontWeight.SemiBold, fontSize = 13.sp) }
             item.noteLines.forEachIndexed { i, n -> Text(n, color = if (i == 0) MkColors.Best else MkColors.Subtle, fontWeight = if (i == 0) FontWeight.Bold else FontWeight.Normal, fontSize = 12.5.sp, maxLines = 2, overflow = TextOverflow.Ellipsis) }
             Text("Kampanya: ${item.campaignText}", color = MkColors.Subtle, fontSize = 12.5.sp)
@@ -190,8 +192,8 @@ fun CatalogCard(catalog: CatalogSummary, onClick: () -> Unit, modifier: Modifier
     val c = marketColor(catalog.market.color)
     Surface(onClick = onClick, modifier = modifier, shape = MaterialTheme.shapes.large, color = MkColors.Surface, border = androidx.compose.foundation.BorderStroke(1.dp, MkColors.Line)) {
         Column {
-            Box(Modifier.fillMaxWidth().height(110.dp).background(Brush.linearGradient(listOf(c.copy(alpha = 0.85f), c))), contentAlignment = Alignment.Center) {
-                MarketBadge(catalog.market, height = 38.dp)
+            Box(Modifier.fillMaxWidth().height(96.dp).background(Brush.linearGradient(listOf(c.copy(alpha = 0.85f), c))), contentAlignment = Alignment.Center) {
+                MarketBadge(catalog.market, height = 34.dp)
                 StatusPill(catalog.status, catalog.statusText, Modifier.align(Alignment.TopEnd).padding(8.dp))
             }
             Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {

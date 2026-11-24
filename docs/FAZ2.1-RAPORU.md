@@ -121,24 +121,32 @@ Bu adım **yeni özellik eklemez**, yalnızca bağlama biçimini değiştirir. H
   - Windows PowerShell'de tek bir dosya için: `Get-FileHash <dosya> -Algorithm SHA256`
 - Paketteki kod, `a6d3a73` işlemesindeki FAZ 2.1 koduyla **aynıdır.** Bu teslimde yalnızca belgeler güncellendi. Kod, uygulama kimliği, WebView projesi, API Rev3, canlı site ve veritabanı değişmedi.
 
-## 11. Telefon denemesi 1: bildirilen sorun ve düzeltme
-**Bildirilen sorun:** Ana sayfada logo, başlık ve arama kutusu dahil **tüm sayfa** sağa sola kayıyor.
+## 11. Telefon denemesi 1: bildirilen sorunlar ve düzeltmeler
+**Bildirilen sorun:** Ana sayfa sağa sola kayıyor. Sizin gönderdiğiniz video kare kare incelendi; videoda karşılaştırma için başka bir katalog uygulaması da var.
 
-**İnceleme:**
-- Ana sayfa kodunda sayfayı yatay kaydıran bir yapı yok.
-- Yana kayan tek parçalar marketler, öne çıkanlar ve kataloglar şeritleri. Bunlar logoyu ve başlığı hareket ettiremez.
-- Tüm pencereyi yana kaydırabilen tek şey Android'in **öngörülü geri (predictive back)** hareketi:
-  - Uygulama `targetSdk 36` ile derlendiği için Android 16'da bu hareket varsayılan olarak açık.
-  - Ekranın sol veya sağ kenarından parmakla kaydırınca bütün sayfa parmağı izleyip yana kayar ve küçülür.
-- Neden kesin değil; bu ortamda telefon olmadığı için doğrulanamadı.
+**Videoda görülen:**
+- Ana sayfanın büyük kısmı üç yatay şeritten oluşuyordu: marketler, öne çıkan fırsatlar, güncel kataloglar.
+- Aşağı kaydırırken parmak bu şeritlerden birine denk gelince içerik yana kayıyor; ekranın sağında yarım kartlar görünüyordu.
+- Karşılaştırdığınız uygulamada ana sayfa yalnızca dikey kayıyor, kartlar ızgara düzeninde.
+- Alt menüde "Kataloglar" yazısı "Katalogla" olarak kesiliyordu.
 
-**Düzeltme (tek dosya):** `app/src/main/AndroidManifest.xml`. `<application>` etiketine `android:enableOnBackInvokedCallback="false"` eklendi (`tools:targetApi="33"` ile).
-- Klasik geri davranışına dönülür: kenardan kaydırınca yalnızca ok simgesi çıkar, sayfa kaymaz.
-- Android 12 ve altında bu öznitelik yok sayılır.
-- Başka kod, uygulama kimliği ve sürüm numarası değişmedi.
+**Düzeltmeler:**
+| Dosya | Değişiklik |
+|---|---|
+| `app/.../ui/home/HomeScreen.kt` | Üç yatay şerit kaldırıldı, yerine ekran genişliğine sığan ızgaralar konuldu: marketler 3 sütun, öne çıkan fırsatlar 2 sütun, güncel kataloglar 2 sütun. **Ana sayfada artık yana kayan hiçbir alan yok.** İçerik ve veri aynı. |
+| `core/ui/.../Components.kt` | Ürün kartı ve katalog kartı dar sütuna uyarlandı: market logosu ve indirim üstte, kategori ayrı satırda, görsel alanları biraz alçaltıldı. `PriceBlock` için `stacked` seçeneği eklendi; dar kartta eski fiyat alt satıra iniyor. Ürün detayındaki fiyat görünümü değişmedi. |
+| `app/.../ui/AppNavigation.kt` | Alt menü yazıları 11 sp yapıldı ve satır kırılması kapatıldı ("Kataloglar" kesilmesin diye). |
+| `app/src/main/AndroidManifest.xml` | Bir önceki adımda öngörülü geri hareketi kapatılmıştı (`enableOnBackInvokedCallback="false"`). Asıl neden şeritler çıktı; bu ayar zararsız olduğu için yerinde bırakıldı. Kenardan kaydırınca sayfa küçülüp kaymaz. |
+
+**Denetim:**
+- Değişen arayüz kodu, bölüm 3'teki **masaüstü** tür denetiminden hatasız geçti. Bu bir Android derlemesi değildir.
+- `AppNavigation.kt` bu denetimin dışında; değişiklik yalnızca yazı boyutu.
+- Uygulama kimliği, sürüm numarası, veri, API ve WebView projesi değişmedi.
+- Yeni özellik eklenmedi.
 
 **Telefonda kontrol:**
 1. Yeni APK'yı derleyip kurun. Eskisinin üzerine kurulur, silmeniz gerekmez.
-2. Ana sayfada ekranın **ortasından** aşağı-yukarı kaydırın: sayfa yana kaymamalı.
-3. Ekranın **kenarından** içeri kaydırın: yalnızca geri oku çıkmalı, sayfa yana kaymamalı.
-- Sorun sürerse şunları gönderin: telefonun Android sürümü (Ayarlar → Telefon hakkında) ve mümkünse kısa bir ekran kaydı.
+2. Ana sayfada aşağı-yukarı kaydırın. Hiçbir bölüm yana kaymamalı, sağda yarım kart görünmemeli.
+3. Marketler 3 kutu yan yana, fırsatlar ve kataloglar 2'şerli görünmeli. Yazı taşması veya üst üste binme olmamalı.
+4. Alt menüde "Kataloglar" ve "Karşılaştır" tam okunmalı.
+- Sorun sürerse ekran görüntüsü veya kısa video gönderin.

@@ -18,6 +18,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -69,7 +70,8 @@ fun MarketlerAppRoot(repo: MarketlerRepository) {
                             }
                         },
                         icon = { Icon(t.icon, contentDescription = t.label) },
-                        label = { Text(t.label, maxLines = 1) },
+                        // Düzeltme: 5 sekmede "Kataloglar" yazısı kesiliyordu ("Katalogla"); yazı küçültüldü ve satır kırılmaz.
+                        label = { Text(t.label, maxLines = 1, softWrap = false, fontSize = 11.sp, letterSpacing = 0.sp) },
                         colors = NavigationBarItemDefaults.colors(selectedIconColor = MkColors.Navy, selectedTextColor = MkColors.Navy, indicatorColor = MkColors.Line),
                     )
                 }

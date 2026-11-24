@@ -14,7 +14,7 @@ GitHub Releases, `marketlerorg` deposu, `faz2.2.2` sürümü (ön sürüm). Önc
 | mock | https://github.com/enestelefon25/marketlerorg/releases/download/faz2.2.2/Marketler-FAZ2.2.2-mock-debug.apk |
 | yerel | https://github.com/enestelefon25/marketlerorg/releases/download/faz2.2.2/Marketler-FAZ2.2.2-yerel-debug.apk |
 | canli | https://github.com/enestelefon25/marketlerorg/releases/download/faz2.2.2/Marketler-FAZ2.2.2-canli-debug.apk |
-| Kaynak zip | https://github.com/enestelefon25/marketlerorg/releases/download/faz2.2.2/MarketlerNative-FAZ2.2.2.zip |
+| Kaynak zip | https://github.com/enestelefon25/marketlerorg/releases/download/faz2.2.2/MarketlerNative-FAZ2.2.2-kabul.zip |
 
 Sürüm sayfası: https://github.com/enestelefon25/marketlerorg/releases/tag/faz2.2.2
 

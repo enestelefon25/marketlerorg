@@ -1,11 +1,11 @@
-# Marketler.org FAZ 2.2.2 kaynak paketi: SHA-256 kontrol listesi
-# Kaynak: git işlemesi 25d2405 (kod 450e9c5)
-# APK'lar ayrıca teslim edildi:
+# Marketler.org FAZ 2.2.2 kaynak paketi (telefon kabul hazırlığı): SHA-256 kontrol listesi
+# Kaynak: git işlemesi 3d5242d. Uygulama kodu 450e9c5 ile aynı; yalnızca testler ve belgeler eklendi.
+# APK'lar (450e9c5'ten derlendi, değişmedi):
 #   02946ce8359bd7584c6b50dccb6ffcba124d3574b8856fc722c394e6c2c7e65b  Marketler-FAZ2.2.2-mock-debug.apk
 #   1d3a4b6d168e515abe2d36a3ac52f7af239f7ed42d89376d512c0b6ca126fb08  Marketler-FAZ2.2.2-yerel-debug.apk
 #   fe0394496aa4d610241043f4f152943c297c2e4835d4c8a55f1ef5f4ab2b271c  Marketler-FAZ2.2.2-canli-debug.apk
 # Bu dosyanın kendisi listede yok. Doğrulama: MarketlerNative-FAZ2.2.2 klasöründe  sha256sum -c docs/FAZ2.2.2-DOSYA-OZETLERI.txt
-# Dosya sayısı: 118
+# Dosya sayısı: 121
 4456141e78bc64ac2b85d0299e52d1ae2780645c72dfe656b3e65735a4c44349  MarketlerNative/android/.gitignore
 acc646a07662c9ad4db4f704d8d0b4d1142a26353f58fd84935913e794a4558b  MarketlerNative/android/README.md
 c1826f93cd542c84c5b647e9d47117b13257a3bc17469ce75c20fb8f1617e43e  MarketlerNative/android/app/build.gradle.kts
@@ -46,6 +46,7 @@ b787c000f5daea92e4c014030f97f7440e94807e112ac221da7aa1d54659a833  MarketlerNativ
 54b72496ebda4c47a767376bf14054ee4d4a6e6b12ec1721695d63cc3149d0e6  MarketlerNative/android/app/src/test/kotlin/org/marketler/app/EkranVeriTest.kt
 a16a4fc9a21162d8bdea7d67c171ebb8461a5ddf35c95303e87c67ed96c798fa  MarketlerNative/android/app/src/test/kotlin/org/marketler/app/NavigationTest.kt
 0b0a29877e4dc16ac38c9d0ca457dd7be406e5a0fb1e2dffbbd5b8243f4706c9  MarketlerNative/android/app/src/test/kotlin/org/marketler/app/YerelApiEkranTest.kt
+496fbfa45d528a708a44a9b62ebd1f7d12b1a1cf1d4b667723d3dacad4fe896d  MarketlerNative/android/app/src/testCanli/kotlin/org/marketler/app/CanliErisimKapaliTest.kt
 ae4d93390480226a4a664be8e6973aa2d3ef42b26e26440367da1ea562f7d106  MarketlerNative/android/app/src/yerel/AndroidManifest.xml
 133268ee807667331f0f96d7233e4e7de4f7c1b60df1225d2070e0137981b772  MarketlerNative/android/app/src/yerel/res/values/strings.xml
 6af815723ced4094ceefcc4c0194bd79c0b71dd7ae13a5e6843142a104b1afd5  MarketlerNative/android/app/src/yerel/res/xml/network_security_config.xml
@@ -68,6 +69,7 @@ d6a6c5fa0a4e4ed352a273eb3f905145a9804f4eef78fef1dcf709133c2f9a77  MarketlerNativ
 fb16f6c73381294680ff4c2c71ea9870dcebbfc5dce1df4bcc99cdd7264bb8ec  MarketlerNative/android/core/data/src/test/kotlin/org/marketler/core/data/MockRepositoryTest.kt
 cbf2cd50f62b110d021210b7ee34db605e34f5f1ff44974e18b94c0073a798a2  MarketlerNative/android/core/data/src/test/kotlin/org/marketler/core/data/remote/RemoteRepositoryTest.kt
 c18b9a93f7b2599e602022d77c97401150f5bacf7c01806d393111f9a57877e5  MarketlerNative/android/core/data/src/test/kotlin/org/marketler/core/data/remote/YerelApiUctanUcaTest.kt
+cdc19e081644b13a5f84d59328e1d202956692e118915eb2e3ba2231b20c13ba  MarketlerNative/android/core/data/src/test/kotlin/org/marketler/core/data/remote/YonlendirmeGuvenligiTest.kt
 c8fef08e538b62b6046387ab3026682400eddb6c6e6902c790032c44ce09cdbe  MarketlerNative/android/core/data/src/test/resources/api-yerel/categories.json
 1af65214c22016015804f282694dc7c47d794a8a755612f1f0ba52459ddca317  MarketlerNative/android/core/data/src/test/resources/api-yerel/hata_400_limit.json
 fbfe0e1ceaf3bcb22c837fa58e915585b67e50efe9d9d87d7380fe9405a8a076  MarketlerNative/android/core/data/src/test/resources/api-yerel/hata_400_status.json
@@ -123,4 +125,5 @@ bc11cac71c525eaedbeff360e7833cf0e7bade942ff07f9363734c15bc9d25c7  docs/FAZ2.2-UY
 c83ce4467fef39c477f0007ef3e6b874bb217c394b5c87773ed6ea9f039c3958  docs/FAZ2.2.1-RAPORU.md
 8bbbf38bfefbb72bf54f4f71de5dde034138786c9d64676ff475e683fa68dee5  docs/FAZ2.2.2-GUVENLIK-KONTROLU.txt
 56cf82d2e72e3613b3010d1b210439231a0812e2fb36e447f112b722c1d38469  docs/FAZ2.2.2-RAPORU.md
+a4f51c447ecb75fdf790bf91b83a8646866387546258f3ce8457c400e4166c06  docs/FAZ2.2.2-TELEFON-KABUL-TESTI.md
 66d3d8b97d4908442a367413ccccb62fd21d949f6ef85e99a85f017724c9b918  docs/KARARLAR.md

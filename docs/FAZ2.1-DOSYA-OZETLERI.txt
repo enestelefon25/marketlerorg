@@ -1,7 +1,8 @@
-# Marketler.org FAZ 2.1 Android paketi (düzeltme 2): SHA-256 kontrol listesi
-# Kaynak: git işlemesi e051000
+# Marketler.org FAZ 2.1 Android paketi (düzeltme 3): SHA-256 kontrol listesi
+# Kaynak: git işlemesi 7593542
+# APK ayrıca teslim edildi: Marketler-FAZ2.1-duzeltme3-debug.apk  21b5c66bb5feaf617e933d4808958bf9529387126955c577d8da3ccdaae966f4
 # Bu dosyanın kendisi listede yok. Doğrulama: MarketlerNative-FAZ2.1 klasöründe  sha256sum -c docs/FAZ2.1-DOSYA-OZETLERI.txt
-# Dosya sayısı: 67
+# Dosya sayısı: 69
 4456141e78bc64ac2b85d0299e52d1ae2780645c72dfe656b3e65735a4c44349  MarketlerNative/android/.gitignore
 7050240f7a46a1b78cb4436fd6fad01222cbe70116303f1eba62f8db8f30c5f2  MarketlerNative/android/README.md
 1cb3465170648f79ca0360632692aac516cbfffbe379b2655fe6cda9ee6d94cf  MarketlerNative/android/app/build.gradle.kts
@@ -9,7 +10,7 @@ b4b18b0db880f43ba8c1b5e11fb095e22237b87e98e6d48133e486385e610323  MarketlerNativ
 12ea50284f0f30551f1590b227122ca2a5f33f36614892826be012e30b7325f0  MarketlerNative/android/app/src/main/AndroidManifest.xml
 8cc7ee3d66f0f8edec93940bf43f04a59436708170ad5cb4b112e8c1b5a64ddd  MarketlerNative/android/app/src/main/kotlin/org/marketler/app/MainActivity.kt
 b8a4430916d0b7b954782db610a2e98b8dec049fb94266382dc3fb55e38db865  MarketlerNative/android/app/src/main/kotlin/org/marketler/app/MarketlerApplication.kt
-3f7fe35a568e23e2553e6a22fde43d6d0c0e6cb49c3632a769f5c43494a707c5  MarketlerNative/android/app/src/main/kotlin/org/marketler/app/ui/AppNavigation.kt
+ed80915c5e79391bee953b9d9984319bf18a78de098fe6800a6a284f1fcdcbb9  MarketlerNative/android/app/src/main/kotlin/org/marketler/app/ui/AppNavigation.kt
 3892e8937a75d59ac1f29b9a2fdcb5beb36ba3994b0c718a5c6612f6cd531646  MarketlerNative/android/app/src/main/kotlin/org/marketler/app/ui/ComingSoonScreen.kt
 bb138159a77309a764e13b6499c2a62b959c779efb83446d53d731e15bc7a400  MarketlerNative/android/app/src/main/kotlin/org/marketler/app/ui/UiState.kt
 2b4faed1092fa92f984c03f844e5912f9094815442f84b851ac552161d358e07  MarketlerNative/android/app/src/main/kotlin/org/marketler/app/ui/home/HomeScreen.kt
@@ -67,5 +68,7 @@ e1aa766b553904c257ae91e7e97de2a7a05009c3f3761a957f78928e4cf75b98  MarketlerNativ
 37e207d985182f2e47f454f2879603b387f5206028a4a251abd039f7530e9b5e  MarketlerNative/tools/mock_veri_uret.php
 bd53b4bd1715cf10319167a7346a67240401ad4e10ab9face79f840ac35ca417  docs/FAZ1-UC-NOKTALAR.md
 608bafdff8132db710a9c20525adcf30487d6292d7f3905c45b270ab61380b4a  docs/FAZ2-ANDROID-PLANI.md
-959eab90ec0ae09e11f788ea77a13c8b6ad63ef2725d919b1af96eb2d30794f6  docs/FAZ2.1-RAPORU.md
+3ff2b2c0954eb6bbec411f014f2eea70c238b61157a891a414b99aaf046f1d26  docs/FAZ2.1-RAPORU.md
+a16a4fc9a21162d8bdea7d67c171ebb8461a5ddf35c95303e87c67ed96c798fa  docs/FAZ2.1-dogrulama/NavigationTest.kt.txt
+1a5c4380b46642ec0929ab935050210436536861841eb51875e973cf7f885017  docs/FAZ2.1-dogrulama/test-ekleri.gradle.kts.txt
 66d3d8b97d4908442a367413ccccb62fd21d949f6ef85e99a85f017724c9b918  docs/KARARLAR.md

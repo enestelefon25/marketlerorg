@@ -1,0 +1,93 @@
+# FAZ 2.2.2 manifest ve ağ güvenliği kontrolü (otomatik çıktı)
+# APK'lar: 450e9c5 işlemesinden temiz kopyada derlendi. Araçlar: aapt2 / apksigner (build-tools 35.0.0), grep.
+# Tarih: 2026-11-24T21:53Z
+
+=== Marketler-FAZ2.2.2-mock-debug.apk
+SHA-256: 02946ce8359bd7584c6b50dccb6ffcba124d3574b8856fc722c394e6c2c7e65b
+package: name='org.marketler.app.mock.dev' versionCode='3' versionName='0.2.2.2-mock-debug'
+uses-permission: name='org.marketler.app.mock.dev.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION'
+application-label:'Marketler (örnek)'
+[manifest]
+  usesCleartextTraffic=false
+[network_security_config: YOK]
+[içerik taraması]
+  '10.0.2.2' geçen dosyalar: 
+  dex içindeki http:// adresleri: http://localhost/ http://schemas.android.com/apk/res/android http://schemas.android.com/tools http://www.w3.org/2000/svg 
+  dex içindeki https:// marketler adresleri: 
+  gizli bilgi kalıpları (DB_PASS|DB_USER|PRIVATE KEY|api_key|config.php): 
+[imza] SHA-256 digest: b42fcad39d46e2f6b9204216b032818590f68b322e2321a1324bb32a30cd4979
+
+=== Marketler-FAZ2.2.2-yerel-debug.apk
+SHA-256: 1d3a4b6d168e515abe2d36a3ac52f7af239f7ed42d89376d512c0b6ca126fb08
+package: name='org.marketler.app.yerel.dev' versionCode='3' versionName='0.2.2.2-yerel-debug'
+uses-permission: name='android.permission.INTERNET'
+uses-permission: name='org.marketler.app.yerel.dev.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION'
+application-label:'Marketler (yerel)'
+[manifest]
+  usesCleartextTraffic=false
+  networkSecurityConfig=@0x7f0c0001
+[network_security_config: res/xml/network_security_config.xml]
+  E: network-security-config
+  E: base-config
+  A: cleartextTrafficPermitted=false
+  E: domain-config
+  A: cleartextTrafficPermitted=true
+  E: domain
+  T: '10.0.2.2'
+[içerik taraması]
+  '10.0.2.2' geçen dosyalar: res/xml/network_security_config.xml classes7.dex 
+  dex içindeki http:// adresleri: http://10.0.2.2:8099/api/v1/ http://localhost/ http://schemas.android.com/apk/res/android http://schemas.android.com/tools http://www.w3.org/2000/svg 
+  dex içindeki https:// marketler adresleri: 
+  gizli bilgi kalıpları (DB_PASS|DB_USER|PRIVATE KEY|api_key|config.php): 
+[imza] SHA-256 digest: b42fcad39d46e2f6b9204216b032818590f68b322e2321a1324bb32a30cd4979
+
+=== Marketler-FAZ2.2.2-canli-debug.apk
+SHA-256: fe0394496aa4d610241043f4f152943c297c2e4835d4c8a55f1ef5f4ab2b271c
+package: name='org.marketler.app.dev' versionCode='3' versionName='0.2.2.2-canli-debug'
+uses-permission: name='android.permission.INTERNET'
+uses-permission: name='org.marketler.app.dev.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION'
+application-label:'Marketler.org'
+[manifest]
+  usesCleartextTraffic=false
+  networkSecurityConfig=@0x7f0c0001
+[network_security_config: res/xml/network_security_config.xml]
+  E: network-security-config
+  E: base-config
+  A: cleartextTrafficPermitted=false
+  E: trust-anchors
+  E: certificates
+  E: domain-config
+  A: cleartextTrafficPermitted=false
+  E: domain
+  T: 'marketler.org'
+[içerik taraması]
+  '10.0.2.2' geçen dosyalar: 
+  dex içindeki http:// adresleri: http://localhost/ http://schemas.android.com/apk/res/android http://schemas.android.com/tools http://www.w3.org/2000/svg 
+  dex içindeki https:// marketler adresleri: https://marketler.org/api/v1/ 
+  gizli bilgi kalıpları (DB_PASS|DB_USER|PRIVATE KEY|api_key|config.php): 
+[imza] SHA-256 digest: b42fcad39d46e2f6b9204216b032818590f68b322e2321a1324bb32a30cd4979
+
+=== app-canli-release-unsigned.apk
+SHA-256: 9fdb79809afab4687f1529126538a8d15c4d229bb56f8e6513daae40956de163
+package: name='org.marketler.app' versionCode='3' versionName='0.2.2.2-canli'
+uses-permission: name='android.permission.INTERNET'
+uses-permission: name='org.marketler.app.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION'
+application-label:'Marketler.org'
+[manifest]
+  usesCleartextTraffic=false
+  networkSecurityConfig=@0x7f0c0001
+[network_security_config: res/8G.xml]
+  E: network-security-config
+  E: base-config
+  A: cleartextTrafficPermitted=false
+  E: trust-anchors
+  E: certificates
+  E: domain-config
+  A: cleartextTrafficPermitted=false
+  E: domain
+  T: 'marketler.org'
+[içerik taraması]
+  '10.0.2.2' geçen dosyalar: 
+  dex içindeki http:// adresleri: http://schemas.android.com/apk/res/android 
+  dex içindeki https:// marketler adresleri: 
+  gizli bilgi kalıpları (DB_PASS|DB_USER|PRIVATE KEY|api_key|config.php): 

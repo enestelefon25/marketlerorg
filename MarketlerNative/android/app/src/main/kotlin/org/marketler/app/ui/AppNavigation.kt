@@ -63,7 +63,13 @@ fun MarketlerAppRoot(repo: MarketlerRepository) {
                     NavigationBarItem(
                         selected = route.startsWith(t.route),
                         onClick = {
-                            nav.navigate(if (t.route == "search") searchRoute() else t.route) {
+                            if (t.route == "home") {
+                                // Düzeltme (telefon denemesi 2): Ana Sayfa başlangıç hedefidir. Ona navigate(restoreState = true)
+                                // ile gidilince Navigation, popUpTo'nun başlangıç hedefine bağladığı kayıtlı yığını geri yükler
+                                // (ör. ana sayfadaki arama kutusundan açılan arama). Arama kapanıp aynı anda geri açıldığı için
+                                // düğme "tepki vermiyor" görünüyordu. Ana Sayfa için yalnızca yığın ana sayfaya kadar geri alınır.
+                                nav.popBackStack(nav.graph.findStartDestination().id, inclusive = false, saveState = true)
+                            } else nav.navigate(if (t.route == "search") searchRoute() else t.route) {
                                 popUpTo(nav.graph.findStartDestination().id) { saveState = true }
                                 launchSingleTop = true
                                 restoreState = true

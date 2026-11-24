@@ -4,6 +4,8 @@
 **FAZ 1 kapanış takibi:** Ayrı; durum `FAZ1-SON-DEGERLENDIRME.md` dosyasında değişmedi (D.3 ve sunucu bilgileri hâlâ bekleniyor; doğrulanmış gibi gösterilmiyor).
 
 ## 1. APK durumu (önce bunu okuyun)
+> **Güncelleme (telefon denemesi 1):** Android Studio derlemesi sizin bilgisayarınızda **başarılı oldu.** Gönderdiğiniz `app-debug.apk` incelendi: paket `org.marketler.app.dev`, mock veri dosyaları içinde. Telefonda bildirilen sorun ve düzeltmesi bölüm 11'de. Aşağıdaki maddeler, **bu ortamın** yaptıklarını anlatır.
+
 - **Bu ortamda Android'e özgü hiçbir derleme yapılmadı.** Android Gradle eklentisi (AGP) çalıştırılmadı. Kaynak dosyaları (`res/`) derlenmedi, `R` sınıfı üretilmedi. Manifest birleştirilmedi, R8 çalıştırılmadı, APK üretilmedi.
 - **Nedeni:** Ortam Google'ın Android deposuna erişemiyor. Kararınız gereği ağ izni de istenmedi.
 - **Bölüm 3'teki "tür denetimi" bir Android derlemesi değildir.** Arayüz kodu, JetBrains'in **masaüstü** Compose kütüphanesine ve bazı Android API'leri için yazılmış taslaklara karşı derlendi. Bu denetim yalnızca Kotlin sözdizimini ve Compose API kullanımını sınar. Android derlemesinin başarılı olacağını **göstermez.**
@@ -118,3 +120,25 @@ Bu adım **yeni özellik eklemez**, yalnızca bağlama biçimini değiştirir. H
   - Linux/macOS: `sha256sum -c docs/FAZ2.1-DOSYA-OZETLERI.txt`
   - Windows PowerShell'de tek bir dosya için: `Get-FileHash <dosya> -Algorithm SHA256`
 - Paketteki kod, `a6d3a73` işlemesindeki FAZ 2.1 koduyla **aynıdır.** Bu teslimde yalnızca belgeler güncellendi. Kod, uygulama kimliği, WebView projesi, API Rev3, canlı site ve veritabanı değişmedi.
+
+## 11. Telefon denemesi 1: bildirilen sorun ve düzeltme
+**Bildirilen sorun:** Ana sayfada logo, başlık ve arama kutusu dahil **tüm sayfa** sağa sola kayıyor.
+
+**İnceleme:**
+- Ana sayfa kodunda sayfayı yatay kaydıran bir yapı yok.
+- Yana kayan tek parçalar marketler, öne çıkanlar ve kataloglar şeritleri. Bunlar logoyu ve başlığı hareket ettiremez.
+- Tüm pencereyi yana kaydırabilen tek şey Android'in **öngörülü geri (predictive back)** hareketi:
+  - Uygulama `targetSdk 36` ile derlendiği için Android 16'da bu hareket varsayılan olarak açık.
+  - Ekranın sol veya sağ kenarından parmakla kaydırınca bütün sayfa parmağı izleyip yana kayar ve küçülür.
+- Neden kesin değil; bu ortamda telefon olmadığı için doğrulanamadı.
+
+**Düzeltme (tek dosya):** `app/src/main/AndroidManifest.xml`. `<application>` etiketine `android:enableOnBackInvokedCallback="false"` eklendi (`tools:targetApi="33"` ile).
+- Klasik geri davranışına dönülür: kenardan kaydırınca yalnızca ok simgesi çıkar, sayfa kaymaz.
+- Android 12 ve altında bu öznitelik yok sayılır.
+- Başka kod, uygulama kimliği ve sürüm numarası değişmedi.
+
+**Telefonda kontrol:**
+1. Yeni APK'yı derleyip kurun. Eskisinin üzerine kurulur, silmeniz gerekmez.
+2. Ana sayfada ekranın **ortasından** aşağı-yukarı kaydırın: sayfa yana kaymamalı.
+3. Ekranın **kenarından** içeri kaydırın: yalnızca geri oku çıkmalı, sayfa yana kaymamalı.
+- Sorun sürerse şunları gönderin: telefonun Android sürümü (Ayarlar → Telefon hakkında) ve mümkünse kısa bir ekran kaydı.

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- FAZ 2.1 (mock): INTERNET izni BİLEREK YOK. Uygulama ağa hiç çıkamaz; API'ye bağlantı kurulmaz. -->
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <application
         android:name=".MarketlerApplication"
@@ -10,7 +11,12 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:label="@string/app_name"
         android:supportsRtl="true"
-        android:theme="@style/Theme.Marketler">
+        android:theme="@style/Theme.Marketler"
+        android:enableOnBackInvokedCallback="false"
+        tools:targetApi="33">
+        <!-- Düzeltme (FAZ 2.1, telefonda bildirilen hata): targetSdk 36 ile Android 16'da "öngörülü geri" hareketi
+             varsayılan olarak açık; ekran kenarından kaydırınca TÜM sayfa parmağı izleyip sağa sola kayar.
+             Bildirilen "tüm sayfa sağa sola kayıyor" sorununun en olası nedeni bu. Klasik geri davranışına dönüldü. Eski sürümlerde bu öznitelik yok sayılır. -->
 
         <activity
             android:name=".MainActivity"

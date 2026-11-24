@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- "canli" sürümü: HTTP (şifresiz) trafik HİÇBİR adrese açık değil; yalnızca sistem sertifikalarına güvenilir
+     (kullanıcı tarafından eklenen sertifikalar kabul edilmez). Alan adı kısıtı (yalnızca marketler.org) Android ağ ayarıyla
+     yapılamadığı için uygulamanın ağ istemcisinde zorlanır (ApiConfig.allowedHost). -->
+<network-security-config>
+    <base-config cleartextTrafficPermitted="false">
+        <trust-anchors>
+            <certificates src="system" />
+        </trust-anchors>
+    </base-config>
+    <domain-config cleartextTrafficPermitted="false">
+        <domain includeSubdomains="false">marketler.org</domain>
+    </domain-config>
+</network-security-config>

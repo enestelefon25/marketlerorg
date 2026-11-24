@@ -37,6 +37,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
@@ -98,7 +99,8 @@ fun SearchScreen(
                             Icon(Icons.Outlined.Search, contentDescription = null, tint = MkColors.Subtle, modifier = Modifier.size(18.dp))
                             Column(Modifier.weight(1f)) {
                                 Text(sg.name.orEmpty(), fontWeight = FontWeight.SemiBold, maxLines = 1)
-                                Text(listOfNotNull(sg.marketName, sg.priceText).filter { t -> t.isNotBlank() }.joinToString(" · "), color = MkColors.Muted, fontSize = 12.5.sp)
+                                /* B1 kararı: öneride fiyat GÖSTERİLMEZ (sunucu NULL fiyatı "0,00 TL" gönderebiliyor). Fiyat ürün detayında. */
+                                sg.marketName?.takeIf { it.isNotBlank() }?.let { Text(it, color = MkColors.Muted, fontSize = 12.5.sp) }
                             }
                             Icon(Icons.Outlined.NorthWest, contentDescription = null, tint = MkColors.Subtle, modifier = Modifier.size(18.dp))
                         }
@@ -110,7 +112,7 @@ fun SearchScreen(
 
         Filters(s, vm)
 
-        Text(
+        if (s.loading || (s.error == null || s.items.isNotEmpty())) Text(
             if (s.loading) "Aranıyor…" else "${s.total} ürün bulundu",
             color = MkColors.Muted, fontWeight = FontWeight.SemiBold, fontSize = 13.sp,
             modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp),
@@ -134,6 +136,13 @@ private fun Results(s: SearchState, vm: SearchViewModel, onOpenProduct: (Long) -
         itemsIndexed(s.items, key = { _, it -> it.id }) { i, it ->
             ProductRow(it, onClick = { onOpenProduct(it.id) })
             if (i < s.items.lastIndex) HorizontalDivider(color = MkColors.Line, modifier = Modifier.padding(start = 92.dp))
+        }
+        if (s.error != null && !s.loadingMore) item(key = "more-error") {
+            /* Sonraki sayfa yüklenemedi: liste korunur, hata ve yeniden deneme listenin sonunda gösterilir. */
+            Column(Modifier.fillMaxWidth().padding(16.dp), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text(s.error, color = MkColors.Muted, fontSize = 13.sp)
+                TextButton(onClick = vm::retryMore) { Text("Tekrar dene") }
+            }
         }
         if (s.loadingMore) item(key = "more") { Box(Modifier.fillMaxWidth().padding(16.dp), contentAlignment = Alignment.Center) { CircularProgressIndicator(Modifier.size(28.dp), color = MkColors.Navy) } }
     }

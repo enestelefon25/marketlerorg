@@ -61,6 +61,7 @@ fun HomeScreen(
     onOpenCategory: (String) -> Unit,
     onOpenMarket: (String) -> Unit,
     onOpenTab: (String) -> Unit,
+    sourceLabel: String? = null,
 ) {
     val vm: HomeViewModel = viewModel { HomeViewModel(repo) }
     val state by vm.state.collectAsStateWithLifecycle()
@@ -69,14 +70,14 @@ fun HomeScreen(
         when (val s = state) {
             is UiState.Loading -> FullScreenSkeleton()
             is UiState.Error -> ErrorState(s.message, onRetry = vm::load)
-            is UiState.Content -> HomeContent(s.data, vm.isMock, vm.generatedAt, onOpenSearch, onOpenProduct, onOpenCategory, onOpenMarket, onOpenTab)
+            is UiState.Content -> HomeContent(s.data, vm.isMock, vm.generatedAt, sourceLabel, onOpenSearch, onOpenProduct, onOpenCategory, onOpenMarket, onOpenTab)
         }
     }
 }
 
 @Composable
 private fun HomeContent(
-    home: Home, isMock: Boolean, generatedAt: String?,
+    home: Home, isMock: Boolean, generatedAt: String?, sourceLabel: String?,
     onOpenSearch: () -> Unit, onOpenProduct: (Long) -> Unit, onOpenCategory: (String) -> Unit, onOpenMarket: (String) -> Unit, onOpenTab: (String) -> Unit,
 ) {
     LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(bottom = 24.dp), verticalArrangement = Arrangement.spacedBy(18.dp)) {
@@ -91,7 +92,7 @@ private fun HomeContent(
                         Text("Ürün adı yazın… Örn: ayçiçek yağı, süt", color = MkColors.Subtle)
                     }
                 }
-                DataSourceBanner(isMock, generatedAt)
+                DataSourceBanner(isMock, generatedAt, label = sourceLabel)
             }
         }
         item(key = "markets") {

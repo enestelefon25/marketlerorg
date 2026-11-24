@@ -22,6 +22,8 @@ data class SearchState(
     val query: ProductQuery = ProductQuery(),
     val items: List<Item> = emptyList(),
     val total: Int = 0,
+    /** Sunucu sayfalarına göre devam var mı (page*limit < total). Adsız ürünler süzüldüğü için öğe sayısıyla hesaplanmaz. */
+    val serverHasMore: Boolean = false,
     val loading: Boolean = true,
     val loadingMore: Boolean = false,
     val error: String? = null,
@@ -30,7 +32,7 @@ data class SearchState(
     val markets: List<Market> = emptyList(),
     val categories: List<Category> = emptyList(),
 ) {
-    val hasMore: Boolean get() = items.size < total
+    val hasMore: Boolean get() = serverHasMore
 }
 
 /** Arama: ara.php ile aynı süzgeçler (API /products) + yazarken öneri (API /suggest, 300 ms bekleme). */
@@ -44,10 +46,15 @@ class SearchViewModel(
     private var loadJob: Job? = null
 
     init {
+        loadFilters()
+        reload()
+    }
+
+    /** Süzgeç listeleri (market, kategori). Hata olursa sessizce boş kalır; sonraki yeniden yüklemede tekrar denenir. */
+    private fun loadFilters() {
         viewModelScope.launch {
             runCatching { repo.markets() to repo.categories() }.onSuccess { (m, c) -> _state.update { it.copy(markets = m, categories = c) } }
         }
-        reload()
     }
 
     fun onInput(text: String) {
@@ -74,13 +81,17 @@ class SearchViewModel(
 
     fun reload() {
         loadJob?.cancel()
-        _state.update { it.copy(loading = true, error = null, items = emptyList(), total = 0) }
+        if (_state.value.markets.isEmpty() || _state.value.categories.isEmpty()) loadFilters()
+        _state.update { it.copy(loading = true, error = null, items = emptyList(), total = 0, serverHasMore = false) }
         val q = _state.value.query.copy(page = 1)
         loadJob = viewModelScope.launch {
-            try { val p = repo.products(q); _state.update { it.copy(items = p.items, total = p.total, loading = false, query = q) } }
+            try { val p = repo.products(q); _state.update { it.copy(items = p.items.distinctBy { i -> i.id }, total = p.total, serverHasMore = p.hasMore, loading = false, query = q) } }
             catch (e: Exception) { _state.update { it.copy(loading = false, error = e.userMessage()) } }
         }
     }
+
+    /** Sonraki sayfa hatasından sonra yeniden dene (liste korunur). */
+    fun retryMore() { _state.update { it.copy(error = null) }; loadMore() }
 
     fun loadMore() {
         val s = _state.value
@@ -88,7 +99,11 @@ class SearchViewModel(
         _state.update { it.copy(loadingMore = true) }
         val next = s.query.copy(page = s.query.page + 1)
         loadJob = viewModelScope.launch {
-            try { val p = repo.products(next); _state.update { it.copy(items = it.items + p.items, total = p.total, loadingMore = false, query = next) } }
+            /* Canlı veride sayfalar arasında kayıt değişebilir: aynı ürün iki kez eklenmez (liste anahtarı benzersiz kalır). */
+            try {
+                val p = repo.products(next)
+                _state.update { st -> val seen = st.items.mapTo(HashSet()) { i -> i.id }; st.copy(items = st.items + p.items.filter { i -> seen.add(i.id) }, total = p.total, serverHasMore = p.hasMore, loadingMore = false, query = next) }
+            }
             catch (e: Exception) { _state.update { it.copy(loadingMore = false, error = e.userMessage()) } }
         }
     }

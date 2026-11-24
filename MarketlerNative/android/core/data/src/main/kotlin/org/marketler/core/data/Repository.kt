@@ -42,6 +42,8 @@ sealed class DataError(message: String, cause: Throwable? = null) : Exception(me
     class Server(val httpStatus: Int, val code: String? = null) : DataError("Sunucuda beklenmeyen bir hata oluştu.")
     /** 400 / 404 ENDPOINT_NOT_FOUND / 405 / 413: uygulamanın gönderdiği istek hatalı (uygulama hatası; günlüğe yazılır). */
     class BadRequest(val httpStatus: Int, val code: String?, val serverMessage: String?) : DataError("İstek işlenemedi.")
+    /** Bu sürümde veri kaynağı kapalı (ör. canlı API, canlıya alma onayına kadar). Ağa hiç istek gönderilmez. */
+    class Disabled(message: String) : DataError(message)
     /** Yanıt sözleşmeye uymuyor (bozuk JSON, beklenmeyen yapı). */
     class Malformed(cause: Throwable? = null) : DataError("Sunucudan gelen veri okunamadı.", cause)
 }

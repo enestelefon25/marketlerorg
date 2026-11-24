@@ -13,7 +13,7 @@ class MainActivity : ComponentActivity() {
         installSplashScreen()
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        val repo = (application as MarketlerApplication).repository
-        setContent { MarketlerTheme { MarketlerAppRoot(repo) } }
+        val app = application as MarketlerApplication
+        setContent { MarketlerTheme { MarketlerAppRoot(app.repository, app.sourceLabel) } }
     }
 }

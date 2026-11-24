@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- "yerel" sürümü: varsayılan olarak HTTP KAPALI. Tek istisna: Android emülatöründen bilgisayara ulaşan 10.0.2.2
+     (yerel Rev3 API kopyası, TLS'siz php -S). 127.0.0.1 ve başka adreslere HTTP izni YOK (kullanıcı kararı). -->
+<network-security-config>
+    <base-config cleartextTrafficPermitted="false" />
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="false">10.0.2.2</domain>
+    </domain-config>
+</network-security-config>

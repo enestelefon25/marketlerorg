@@ -1,24 +1,31 @@
-# Marketler.org: Native Android Uygulaması (FAZ 2.1, mock)
+# Marketler.org: Native Android Uygulaması (FAZ 2.2.2)
 
-**Bu sürüm:** `0.2.1-mock`. Ana sayfa, arama ve ürün detay ekranları, **yalnızca uygulamaya gömülü örnek (mock) veriyle**.
-**Ağ bağlantısı yok:** Manifestte `INTERNET` izni bilerek yok; uygulama API'ye veya herhangi bir sunucuya bağlanamaz.
+**Bu sürüm:** `0.2.2.2`. Ana sayfa, arama ve ürün detay ekranları; veri kaynağı derleme sürümüne göre: örnek veri, yerel API kopyası veya canlı API (canlı erişim onaya kadar kapalı).
+
+## Sürümler (build variant) — FAZ 2.2.2
+| Sürüm | Veri | Ağ | Uygulama kimliği (debug) | Telefondaki ad |
+|---|---|---|---|---|
+| `mock` | Gömülü örnek veri | **INTERNET izni yok** | `org.marketler.app.mock.dev` | Marketler (örnek) |
+| `yerel` (yalnızca debug) | Bilgisayardaki yerel Rev3 API kopyası | HTTP **yalnızca** `10.0.2.2` (emülatör → bilgisayar) | `org.marketler.app.yerel.dev` | Marketler (yerel) |
+| `canli` | `https://marketler.org/api/v1/` | Yalnızca HTTPS, yalnızca marketler.org | `org.marketler.app.dev` | Marketler.org |
+
+- `canli` sürümünde `CANLI_API_ACIK=false`: canlıya alma onayına kadar uygulama canlı API'ye **hiç istek göndermez**, ekranlarda "Canlı veri henüz yayında değil" yazar. Onaydan sonra `app/build.gradle.kts` içinde tek satır `true` yapılır.
+- `yerel` için bilgisayarda yerel API açık olmalı: `php MarketlerNative/tools/api_test_verisi_uret.php --site=<site klasörü> --acik-kal=3600` (yerel MariaDB gerekir). Bu sürüm yalnızca **Android emülatöründe** çalışır (10.0.2.2 = emülatörün bilgisayara ulaştığı adres).
 
 ## Android Studio ile açma ve APK üretme
 1. Android Studio → **Open** → bu `android` klasörünü seçin (içinde `settings.gradle.kts` olan klasör). "Trust Project" deyin.
-2. Gradle senkronizasyonunu bekleyin. Araç sürümleri, bilgisayarınızda WebView projesiyle derlenen sürümlerle aynıdır: AGP 8.12.0, Kotlin 2.2.0, Gradle 8.14.3, compileSdk 36. "AGP Upgrade" önerisini şimdilik kapatın.
-3. **Kurulabilir APK:** Menü **Build → Build App Bundle(s) / APK(s) → Build APK(s)**. Çıktı: `app/build/outputs/apk/debug/app-debug.apk`.
-   - Hata ayıklama sürümünün uygulama kimliği `org.marketler.app.dev`. Telefondaki WebView uygulamasının (`org.marketler.app`) **yerine geçmez, yanına kurulur.**
-4. Telefonda doğrudan çalıştırmak için üstteki **▶ Run** düğmesi.
-5. Birim testleri: `core/data` modülüne sağ tıklayıp **Run 'Tests in data'**, ya da komut satırında `./gradlew :core:data:test`.
-
-**İmzalı release (isteğe bağlı):** Proje kökünde `keystore.properties` (git dışı; `storeFile`, `storePassword`, `keyAlias`, `keyPassword`) varsa release sürümü imzalanır. Prototip aşamasında debug APK yeterlidir.
+2. Gradle senkronizasyonunu bekleyin. Araç sürümleri: AGP 8.12.0, Kotlin 2.2.0, Gradle 8.14.3, compileSdk 36. "AGP Upgrade" önerisini şimdilik kapatın.
+3. Sol kenardaki **Build Variants** panelinden sürümü seçin: `mockDebug`, `yerelDebug` veya `canliDebug`.
+4. **Kurulabilir APK:** **Build → Build App Bundle(s) / APK(s) → Build APK(s)**. Çıktı: `app/build/outputs/apk/<sürüm>/debug/app-<sürüm>-debug.apk`.
+   - Üç sürüm farklı kimlikle **yan yana** kurulur; telefondaki WebView uygulamasının (`org.marketler.app`) yerine geçmez.
+5. Testler: `./gradlew :core:data:test :app:testMockDebugUnitTest` (ekran testleri Robolectric ile; ilk çalıştırmada Android çalışma kitaplığı indirilir). Yerel API açıksa `MK_YEREL_API=http://127.0.0.1:8099/api/v1/` ile uçtan uca testler de çalışır.
 
 ## Modüller (karar: 4 modül)
 | Modül | Tür | İçerik |
 |---|---|---|
 | `app` | Android uygulaması | Gezinme (5 sekme), ekranlar ve ViewModel'ler: `ui/home`, `ui/search`, `ui/product` |
 | `core/model` | Saf Kotlin | API Rev3 veri modelleri (`docs/FAZ1-UC-NOKTALAR.md` ile birebir), favori anahtarı `itemId:storeId:hash` |
-| `core/data` | Saf Kotlin | `MarketlerRepository` arayüzü, `MockRepository` (gömülü JSON), birim testleri |
+| `core/data` | Saf Kotlin | `MarketlerRepository` arayüzü, `MockRepository` (gömülü JSON), ağ katmanı (`remote/`: Retrofit + kotlinx.serialization), veri kuralları (`DataRules`), birim testleri |
 | `core/ui` | Android kütüphanesi | Tema (lacivert `#172554`, mavi `#2da8ff`), logo, ortak bileşenler, market logoları |
 
 `core/model` ve `core/data` saf Kotlin olarak bırakıldı. Bu sayede Android SDK olmadan da derlenip test edilebiliyorlar. Room gerektiğinde (çevrimdışı önbellek aşaması) `core/data` Android kütüphanesine çevrilecek.

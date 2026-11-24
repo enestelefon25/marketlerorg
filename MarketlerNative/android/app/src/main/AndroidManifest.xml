@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- FAZ 2.1 (mock): INTERNET izni BİLEREK YOK. Uygulama ağa hiç çıkamaz; API'ye bağlantı kurulmaz. -->
+<!-- Ortak manifest: INTERNET izni BURADA YOK. "mock" sürümü ağa hiç çıkamaz.
+     "yerel" ve "canli" sürümleri izni ve ağ güvenlik ayarını kendi klasörlerindeki (src/yerel, src/canli) manifestle ekler.
+     usesCleartextTraffic=false: şifresiz (HTTP) trafik varsayılan olarak kapalı. -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
@@ -13,6 +15,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Marketler"
         android:enableOnBackInvokedCallback="false"
+        android:usesCleartextTraffic="false"
         tools:targetApi="33">
         <!-- Düzeltme (FAZ 2.1, telefonda bildirilen hata): targetSdk 36 ile Android 16'da "öngörülü geri" hareketi
              varsayılan olarak açık; ekran kenarından kaydırınca TÜM sayfa parmağı izleyip sağa sola kayar.

@@ -50,7 +50,7 @@ fun searchRoute(q: String? = null, category: String? = null, market: String? = n
 fun NavHostController.openProduct(id: Long) = navigate("product/$id")
 
 @Composable
-fun MarketlerAppRoot(repo: MarketlerRepository) {
+fun MarketlerAppRoot(repo: MarketlerRepository, sourceLabel: String? = null) {
     val nav = rememberNavController()
     val entry by nav.currentBackStackEntryAsState()
     val route = entry?.destination?.route ?: "home"
@@ -91,7 +91,8 @@ fun MarketlerAppRoot(repo: MarketlerRepository) {
                     onOpenProduct = { nav.openProduct(it) },
                     onOpenCategory = { nav.navigate(searchRoute(category = it)) },
                     onOpenMarket = { nav.navigate(searchRoute(market = it)) },
-                    onOpenTab = { r -> nav.navigate(r) { launchSingleTop = true } })
+                    onOpenTab = { r -> nav.navigate(r) { launchSingleTop = true } },
+                    sourceLabel = sourceLabel)
             }
             composable(
                 "search?q={q}&category={category}&market={market}&focus={focus}",

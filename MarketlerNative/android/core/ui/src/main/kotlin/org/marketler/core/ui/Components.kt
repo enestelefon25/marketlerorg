@@ -253,8 +253,8 @@ fun SectionHeader(title: String, modifier: Modifier = Modifier, subtitle: String
 
 /** Mock modda veri kaynağının ve tarihinin açıkça gösterilmesi. */
 @Composable
-fun DataSourceBanner(isMock: Boolean, generatedAt: String?, modifier: Modifier = Modifier) {
-    val text = (if (isMock) "Örnek veri (mock): gerçek fiyat değildir" else "Canlı veri") + (generatedAt?.let { " · güncelleme: ${it.take(16).replace('T', ' ')}" } ?: "")
+fun DataSourceBanner(isMock: Boolean, generatedAt: String?, modifier: Modifier = Modifier, label: String? = null) {
+    val text = (label ?: if (isMock) "Örnek veri (mock): gerçek fiyat değildir" else "Canlı veri") + (generatedAt?.let { " · güncelleme: ${it.take(16).replace('T', ' ')}" } ?: "")
     Row(modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp)).background(if (isMock) Color(0xFFFFF7ED) else MkColors.BestBg).padding(horizontal = 12.dp, vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
         Icon(Icons.Outlined.Info, contentDescription = null, tint = if (isMock) Color(0xFF9A3412) else MkColors.Best, modifier = Modifier.size(18.dp))

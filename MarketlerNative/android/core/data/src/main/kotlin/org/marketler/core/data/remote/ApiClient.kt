@@ -22,6 +22,8 @@ data class ApiConfig(
     val baseUrl: String,
     /** Üretimde true: yalnızca HTTPS kabul edilir (http adresiyle istemci oluşturulamaz). */
     val requireHttps: Boolean = true,
+    /** İstek gönderilebilecek TEK alan adı (taban adresin alan adı). Başka adrese giden her istek ağa çıkmadan reddedilir. */
+    val lockHost: Boolean = true,
     /** Sunucunun ETag / Cache-Control yanıtları için HTTP önbelleği (null = önbellek yok). */
     val cacheDir: File? = null,
     val cacheBytes: Long = 10L * 1024 * 1024,
@@ -38,6 +40,7 @@ object ApiClient {
         val url = config.baseUrl.toHttpUrl()
         require(url.toString().endsWith("/")) { "baseUrl '/' ile bitmeli" }
         require(!config.requireHttps || url.isHttps) { "Yalnızca HTTPS adresine izin var: ${url.host}" }
+        val host = url.host
         val http = client ?: OkHttpClient.Builder()
             .connectTimeout(config.connectTimeoutSec, TimeUnit.SECONDS)
             .readTimeout(config.readTimeoutSec, TimeUnit.SECONDS)
@@ -45,6 +48,10 @@ object ApiClient {
             .followRedirects(false)                     // yönlendirme ile başka adrese/HTTP'ye geçiş yok
             .apply { config.cacheDir?.let { cache(Cache(it, config.cacheBytes)) } }
             .addInterceptor { chain ->
+                val u = chain.request().url
+                /* Alan adı ve şema kilidi: yalnızca taban adresin alan adı; üretimde yalnızca HTTPS. Ağa çıkmadan reddedilir. */
+                if (config.lockHost && u.host != host) throw IOException("İzin verilmeyen adres: ${u.host}")
+                if (config.requireHttps && !u.isHttps) throw IOException("Yalnızca HTTPS: ${u.host}")
                 chain.proceed(chain.request().newBuilder().header("Accept", "application/json").header("User-Agent", config.userAgent).build())
             }
             .build()

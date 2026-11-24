@@ -4,6 +4,8 @@
 **FAZ 1 kapanış takibi:** Ayrı; durum `FAZ1-SON-DEGERLENDIRME.md` dosyasında değişmedi (D.3 ve sunucu bilgileri hâlâ bekleniyor; doğrulanmış gibi gösterilmiyor).
 
 ## 1. APK durumu (önce bunu okuyun)
+> **Güncelleme (telefon denemesi 2):** Bu ortamda artık **gerçek Android derlemesi yapıldı.** Ağ izni sizin onayınızla verildi: yalnızca `dl.google.com`. AGP 8.12.0, Android SDK platform 36 ve build-tools 35.0.0 kullanıldı. Sonuç: `assembleDebug` başarılı, APK üretildi (bölüm 12). Aşağıdaki "derleme yapılmadı" maddeleri, ilk teslimin durumunu anlatır.
+>
 > **Güncelleme (telefon denemesi 1):** Android Studio derlemesi sizin bilgisayarınızda **başarılı oldu.** Gönderdiğiniz `app-debug.apk` incelendi: paket `org.marketler.app.dev`, mock veri dosyaları içinde. Telefonda bildirilen sorun ve düzeltmesi bölüm 11'de. Aşağıdaki maddeler, **bu ortamın** yaptıklarını anlatır.
 
 - **Bu ortamda Android'e özgü hiçbir derleme yapılmadı.** Android Gradle eklentisi (AGP) çalıştırılmadı. Kaynak dosyaları (`res/`) derlenmedi, `R` sınıfı üretilmedi. Manifest birleştirilmedi, R8 çalıştırılmadı, APK üretilmedi.
@@ -150,3 +152,67 @@ Bu adım **yeni özellik eklemez**, yalnızca bağlama biçimini değiştirir. H
 3. Marketler 3 kutu yan yana, fırsatlar ve kataloglar 2'şerli görünmeli. Yazı taşması veya üst üste binme olmamalı.
 4. Alt menüde "Kataloglar" ve "Karşılaştır" tam okunmalı.
 - Sorun sürerse ekran görüntüsü veya kısa video gönderin.
+
+## 12. Telefon denemesi 2: Ana Sayfa düğmesi tepki vermiyor
+**Sizin telefon sonuçlarınız:**
+- Ana ekran açılıyor, arama çalışıyor, ürün detayı açılıyor.
+- Alt menüde **Ana Sayfa düğmesine basınca hiçbir şey olmuyor.**
+
+### Neden
+- Alt menüdeki beş düğme aynı kodu kullanıyordu: `navigate(rota) { popUpTo(başlangıç) { saveState = true }; launchSingleTop = true; restoreState = true }`.
+- Ana Sayfa, gezinme grafiğinin **başlangıç hedefi.** Navigation kütüphanesi `popUpTo(başlangıç) { saveState = true }` ile yığın boşaltılırken kaydedilen yığını yalnızca kapanan ekrana değil, **başlangıç hedefinin kendisine de** bağlar. Bu davranış AndroidX `NavController` kaynak kodunda okundu: "explicitly map the saved state to the destination you've actually passed to popUpTo".
+- Arama ekranı ana sayfanın içinden açılınca alt menü kullanılmadan açılmış olur. Bu yollar: arama kutusu, kategori kısayolu, market kutusu, "Tüm ürünler", "Tüm kataloglar".
+- Bu durumda Ana Sayfa'ya basınca:
+  1. Arama ekranı kapanıyor ve ana sayfaya "arama yığını" bağlanıyor.
+  2. Hemen ardından `restoreState = true` bu yığını geri yüklüyor.
+  3. Arama ekranı aynı anda yeniden açılıyor; kullanıcı hiçbir değişiklik görmüyor.
+- Her basışta aynı döngü tekrarlanıyor.
+- Ana sayfaya alt menüdeki "Ara" düğmesiyle gelinmişse hata çıkmıyordu. Bu yüzden hata, ekrana hangi yoldan gelindiğine bağlı olarak görünüyordu.
+
+### Diğer sekmeler
+- Ara, Kataloglar, Karşılaştır ve Asistan düğmeleri incelendi.
+- Bunlar başlangıç hedefi olmadığı için yalnızca kendi kayıtlı yığınlarını geri yüklüyor.
+- Testte hepsi doğru ekranı açtı. Bunlarda değişiklik yapılmadı.
+
+### Düzeltme (tek dosya, yalnızca gezinme)
+`app/src/main/kotlin/org/marketler/app/ui/AppNavigation.kt`: Ana Sayfa düğmesi artık `navigate(...)` çağırmıyor. Yığını ana sayfaya kadar geri alıyor: `nav.popBackStack(başlangıç, inclusive = false, saveState = true)`.
+- `saveState = true` korunduğu için Ara sekmesine dönüldüğünde son arama yine geri gelir. Bu, önceki davranışla aynı.
+- Diğer dört sekmenin kodu değişmedi.
+- Yeni özellik eklenmedi. API, veritabanı ve WebView projesi değişmedi.
+
+### Testler
+| Test | Ortam | Sonuç |
+|---|---|---|
+| **Gerçek Android derlemesi** (`clean assembleDebug`, temiz kopyada) | Bu ortam: AGP 8.12.0, Gradle 8.14.3, SDK platform 36, build-tools 35.0.0, JDK 21 | **Başarılı.** APK üretildi |
+| APK incelemesi (`aapt2 dump badging`, `apksigner verify`) | Bu ortam | Paket `org.marketler.app.dev`, sürüm `0.2.1-mock-debug`, targetSdk 36, **INTERNET izni yok**, debug imzası geçerli |
+| `core/data` birim testleri | Bu ortam | **14/14 geçti** |
+| Gezinme testi: 5 senaryo, gerçek Navigation ve Compose kütüphaneleriyle | Bu ortam, Robolectric 4.15.1 (Android 15 çalışma ortamı benzetimi) | **Düzeltme öncesi: 4/5 başarısız. Düzeltme sonrası: 5/5 geçti** |
+
+**Gezinme testi senaryoları:**
+1. Arama kutusu → Ana Sayfa (iki kez).
+2. "Tüm kataloglar" → Ana Sayfa.
+3. Kategori kısayolu → Ana Sayfa.
+4. Her sekme sırayla açılıp her birinden Ana Sayfa'ya dönüş, ardından sekmeden sekmeye doğrudan geçiş.
+5. Arama kutusu → Ara sekmesi → Ana Sayfa → Ara → Ana Sayfa.
+
+**Testte "ana sayfa açıldı" ölçütü:** Ana sayfa logosu görünüyor ve "Ana Sayfa" sekmesi seçili. Düzeltme öncesi kodda geçen tek senaryo 4. senaryo; o senaryoda ana sayfadan çıkış hep alt menüden yapılıyor. Bu, yukarıdaki nedeni doğruluyor.
+
+**Test dosyaları teslim edilen projeye eklenmedi.** Ek test bağımlılıkları gerektirdiği ve görev "yalnızca gezinme hatasını düzelt" olduğu için ayrı tutuldu. Kayıt amacıyla şuraya kondu: `docs/FAZ2.1-dogrulama/NavigationTest.kt.txt` ve `test-ekleri.gradle.kts.txt`.
+
+**Yapılamayanlar:**
+- Gerçek cihazda veya emülatörde deneme yapılamadı. Ortamda donanım hızlandırma (KVM) yok, bu yüzden emülatör çalışmıyor.
+- Robolectric gerçek cihaz değildir; telefonda deneme yine sizde.
+
+### Teslim edilen APK
+- **Dosya:** `Marketler-FAZ2.1-duzeltme3-debug.apk` (17.130.864 bayt).
+- **SHA-256:** `21b5c66bb5feaf617e933d4808958bf9529387126955c577d8da3ccdaae966f4`
+- **Kaynak:** `76f4270` işlemesi; temiz kopyadan `clean assembleDebug`.
+- **Kurulum uyarısı:** Bu APK, bu ortamın **debug anahtarıyla** imzalı. Telefondaki `Marketler.org` (`.dev`) uygulaması ise sizin bilgisayarınızın debug anahtarıyla imzalı. Android farklı imzalı APK'yı mevcut uygulamanın üzerine kurmaz ("Uygulama yüklenmedi" der). Bu yüzden önce telefondaki **Marketler.org** test uygulamasını kaldırın, sonra bu APK'yı kurun.
+  - WebView uygulaması (`org.marketler.app`) ayrı bir uygulamadır; ona dokunmayın.
+  - Aynı APK'yı kendiniz Android Studio'da derlerseniz kaldırma gerekmez.
+
+**Telefonda kontrol:**
+1. Ana sayfadaki arama kutusuna dokunun, sonra alt menüden **Ana Sayfa**: ana sayfa açılmalı.
+2. Bir kategori kısayoluna dokunun → **Ana Sayfa**: ana sayfa açılmalı.
+3. "Tüm kataloglar" → **Ana Sayfa**: ana sayfa açılmalı.
+4. Beş sekmeye sırayla basın: her biri kendi ekranını açmalı.

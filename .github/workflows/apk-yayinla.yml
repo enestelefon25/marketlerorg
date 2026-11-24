@@ -1,0 +1,22 @@
+name: APK yayınla (FAZ 2.2.2)
+on:
+  push:
+    branches: [apk-faz2.2.2]
+permissions:
+  contents: write
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: SHA-256 doğrula
+        run: sha256sum -c SHA256SUMS.txt
+      - name: Release oluştur (varsa dokunma)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if gh release view faz2.2.2 >/dev/null 2>&1; then echo "Release zaten var; değiştirilmedi."; exit 0; fi
+          gh release create faz2.2.2 Marketler-FAZ2.2.2-mock-debug.apk Marketler-FAZ2.2.2-yerel-debug.apk Marketler-FAZ2.2.2-canli-debug.apk MarketlerNative-FAZ2.2.2-kabul.zip SHA256SUMS.txt \
+            --target "$GITHUB_SHA" --prerelease \
+            --title "FAZ 2.2.2: telefon kabul testi (mock / yerel / canli debug APK)" \
+            --notes-file SHA256SUMS.txt

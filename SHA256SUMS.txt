@@ -1,0 +1,4 @@
+fe0394496aa4d610241043f4f152943c297c2e4835d4c8a55f1ef5f4ab2b271c  Marketler-FAZ2.2.2-canli-debug.apk
+02946ce8359bd7584c6b50dccb6ffcba124d3574b8856fc722c394e6c2c7e65b  Marketler-FAZ2.2.2-mock-debug.apk
+1d3a4b6d168e515abe2d36a3ac52f7af239f7ed42d89376d512c0b6ca126fb08  Marketler-FAZ2.2.2-yerel-debug.apk
+82f1976b91888d7fbd235fdb75c786b1f2703b8c97aa7ff531e91232282bdfda  MarketlerNative-FAZ2.2.2-kabul.zip

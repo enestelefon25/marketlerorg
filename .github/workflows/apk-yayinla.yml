@@ -1,0 +1,24 @@
+name: APK yayınla (FAZ 2.1 düzeltme 3)
+on:
+  push:
+    branches: [apk-faz2.1-duzeltme3]
+permissions:
+  contents: write
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: SHA-256 doğrula
+        run: echo "21b5c66bb5feaf617e933d4808958bf9529387126955c577d8da3ccdaae966f4  Marketler-FAZ2.1-duzeltme3-debug.apk" | sha256sum -c
+      - name: Release oluştur (varsa dokunma)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if gh release view faz2.1-duzeltme3 >/dev/null 2>&1; then
+            echo "Release zaten var; hiçbir şey değiştirilmedi."; exit 0
+          fi
+          gh release create faz2.1-duzeltme3 Marketler-FAZ2.1-duzeltme3-debug.apk \
+            --target "$GITHUB_SHA" --prerelease \
+            --title "FAZ 2.1 düzeltme 3 (debug APK, mock veri)" \
+            --notes "Native Android prototipi, yalnızca mock veri, ağ izni yok. Düzeltme: alt menüde Ana Sayfa düğmesi. applicationId org.marketler.app.dev, versionCode 1, versionName 0.2.1-mock-debug. SHA-256: 21b5c66bb5feaf617e933d4808958bf9529387126955c577d8da3ccdaae966f4. Kaynak: main dalındaki 76f4270 işlemesi. Kurmadan önce telefondaki eski Marketler.org test (.dev) uygulamasını kaldırın (farklı debug imzası)."

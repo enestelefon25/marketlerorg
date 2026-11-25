@@ -1,0 +1,109 @@
+# FAZ 2.2.2 düzeltme 1: manifest, ağ güvenliği ve kurulum uyumluluğu kontrolü (otomatik çıktı)
+# APK'lar: ac50096 işlemesinden temiz kopyada derlendi. Araçlar: aapt2 / apksigner (build-tools 35.0.0), grep.
+# Tarih: 2026-11-25T03:31Z
+
+=== Marketler-FAZ2.2.2-d1-mock-debug.apk
+SHA-256: cbe8e84b6d52f8d3f15662810982592d359ad1855b31f95c3c86bfa466493d3c  boyut: 17762869
+package: name='org.marketler.app.mock.dev' versionCode='4' versionName='0.2.2.2-d1-mock-debug'
+minSdkVersion:'24'
+targetSdkVersion:'36'
+uses-permission: name='org.marketler.app.mock.dev.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION'
+application-label:'Marketler (örnek)'
+[manifest]
+  usesCleartextTraffic=false
+  authorities="org.marketler.app.mock.dev.androidx-startup" 
+[network_security_config: YOK]
+[içerik taraması]
+  '10.0.2.2' geçen dosyalar: 
+  dex içindeki http:// adresleri: http://localhost/ http://schemas.android.com/apk/res/android http://schemas.android.com/tools http://www.w3.org/2000/svg 
+  dex içindeki marketler.org adresleri: 
+  okhttp3/retrofit2 sınıf başvurusu (dex): 10 / 6
+  gizli bilgi kalıpları (DB_PASS|DB_USER|PRIVATE KEY|api_key|config.php): 
+[imza] SHA-256 digest: b42fcad39d46e2f6b9204216b032818590f68b322e2321a1324bb32a30cd4979 · v2: 1
+
+=== Marketler-FAZ2.2.2-d1-yerel-debug.apk
+SHA-256: e9e185fa252ec180ec4117397bc537be4828c35a18aa4f380385a6f86b89aab4  boyut: 17763414
+package: name='org.marketler.app.yerel.dev' versionCode='4' versionName='0.2.2.2-d1-yerel-debug'
+minSdkVersion:'24'
+targetSdkVersion:'36'
+uses-permission: name='android.permission.INTERNET'
+uses-permission: name='org.marketler.app.yerel.dev.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION'
+application-label:'Marketler (yerel)'
+[manifest]
+  usesCleartextTraffic=false
+  networkSecurityConfig=@0x7f0c0001
+  authorities="org.marketler.app.yerel.dev.androidx-startup" 
+[network_security_config: res/xml/network_security_config.xml]
+  E: network-security-config
+  E: base-config
+  A: cleartextTrafficPermitted=false
+  E: domain-config
+  A: cleartextTrafficPermitted=true
+  E: domain
+  T: '10.0.2.2'
+[içerik taraması]
+  '10.0.2.2' geçen dosyalar: res/xml/network_security_config.xml classes7.dex 
+  dex içindeki http:// adresleri: http://10.0.2.2:8099/api/v1/ http://localhost/ http://schemas.android.com/apk/res/android http://schemas.android.com/tools http://www.w3.org/2000/svg 
+  dex içindeki marketler.org adresleri: 
+  okhttp3/retrofit2 sınıf başvurusu (dex): 10 / 6
+  gizli bilgi kalıpları (DB_PASS|DB_USER|PRIVATE KEY|api_key|config.php): 
+[imza] SHA-256 digest: b42fcad39d46e2f6b9204216b032818590f68b322e2321a1324bb32a30cd4979 · v2: 1
+
+=== Marketler-FAZ2.2.2-d1-canli-debug.apk
+SHA-256: 9b8bce9355fd394ef7804baa6160275e851497c30eb8f2c8823ca5d3dd2c30fd  boyut: 17763478
+package: name='org.marketler.app.dev' versionCode='4' versionName='0.2.2.2-d1-canli-debug'
+minSdkVersion:'24'
+targetSdkVersion:'36'
+uses-permission: name='android.permission.INTERNET'
+uses-permission: name='org.marketler.app.dev.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION'
+application-label:'Marketler.org'
+[manifest]
+  usesCleartextTraffic=false
+  networkSecurityConfig=@0x7f0c0001
+  authorities="org.marketler.app.dev.androidx-startup" 
+[network_security_config: res/xml/network_security_config.xml]
+  E: network-security-config
+  E: base-config
+  A: cleartextTrafficPermitted=false
+  E: trust-anchors
+  E: certificates
+  E: domain-config
+  A: cleartextTrafficPermitted=false
+  E: domain
+  T: 'marketler.org'
+[içerik taraması]
+  '10.0.2.2' geçen dosyalar: 
+  dex içindeki http:// adresleri: http://localhost/ http://schemas.android.com/apk/res/android http://schemas.android.com/tools http://www.w3.org/2000/svg 
+  dex içindeki marketler.org adresleri: https://marketler.org/api/v1/ 
+  okhttp3/retrofit2 sınıf başvurusu (dex): 10 / 6
+  gizli bilgi kalıpları (DB_PASS|DB_USER|PRIVATE KEY|api_key|config.php): 
+[imza] SHA-256 digest: b42fcad39d46e2f6b9204216b032818590f68b322e2321a1324bb32a30cd4979 · v2: 1
+
+=== app-canli-release-unsigned.apk
+SHA-256: 7e97a95a0cc8576e6da9f10bc0e442d99d17e2999e4b0bc8c1f2973dc8939f0e  boyut: 1397327
+package: name='org.marketler.app' versionCode='4' versionName='0.2.2.2-d1-canli'
+minSdkVersion:'24'
+targetSdkVersion:'36'
+uses-permission: name='android.permission.INTERNET'
+uses-permission: name='org.marketler.app.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION'
+application-label:'Marketler.org'
+[manifest]
+  usesCleartextTraffic=false
+  networkSecurityConfig=@0x7f0c0001
+  authorities="org.marketler.app.androidx-startup" 
+[network_security_config: res/8G.xml]
+  E: network-security-config
+  E: base-config
+  A: cleartextTrafficPermitted=false
+  E: trust-anchors
+  E: certificates
+  E: domain-config
+  A: cleartextTrafficPermitted=false
+  E: domain
+  T: 'marketler.org'
+[içerik taraması]
+  '10.0.2.2' geçen dosyalar: 
+  dex içindeki http:// adresleri: http://schemas.android.com/apk/res/android 
+  dex içindeki marketler.org adresleri: 
+  okhttp3/retrofit2 sınıf başvurusu (dex): 0 / 0
+  gizli bilgi kalıpları (DB_PASS|DB_USER|PRIVATE KEY|api_key|config.php): 

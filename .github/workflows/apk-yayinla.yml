@@ -1,0 +1,22 @@
+name: APK yayınla (FAZ 2.2.2 düzeltme 1)
+on:
+  push:
+    branches: [apk-faz2.2.2-duzeltme1]
+permissions:
+  contents: write
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: SHA-256 doğrula
+        run: sha256sum -c SHA256SUMS.txt
+      - name: Release oluştur (varsa dokunma)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if gh release view faz2.2.2-duzeltme1 >/dev/null 2>&1; then echo "Release zaten var; değiştirilmedi."; exit 0; fi
+          gh release create faz2.2.2-duzeltme1 Marketler-FAZ2.2.2-d1-mock-debug.apk Marketler-FAZ2.2.2-d1-yerel-debug.apk Marketler-FAZ2.2.2-d1-canli-debug.apk MarketlerNative-FAZ2.2.2-d1.zip SHA256SUMS.txt \
+            --target "$GITHUB_SHA" --prerelease \
+            --title "FAZ 2.2.2 düzeltme 1: arama öneri modu (versionCode 4)" \
+            --notes-file SHA256SUMS.txt

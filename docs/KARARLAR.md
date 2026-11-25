@@ -17,6 +17,8 @@ FAZ 0 raporu, projenin **başlangıç mimari belgesi** olarak geçerlidir. FAZ 0
 | 10 | Hedef: API'yi uzatmak değil; **çalışan, hızlı, güvenilir ve yayınlanabilir bir Android uygulaması** | Kullanıcı |
 | 11 | Faz adlandırması güncellendi: **FAZ 2 = Android uygulaması geliştirme** (FAZ 0 raporundaki "FAZ 2: API testleri" maddesi FAZ 1 içinde tamamlandı) | Kullanıcı |
 | 12 | Önceki onaylı davranışlar geçerlidir: `ara.php` eşitlikte `i.id`; hız sınırı ve HTTPS yalnızca güvenilir vekil başlığıyla; hız sınırı dosya hatasında 503 | Rev2–Rev3 |
+| 13 | **Kabul edilmiş temel sürüm (Android): FAZ 2.2.2 düzeltme 1.** Kod `ac50096` (git etiketi `faz2.2.2-d1-kabul`), versionCode 4, `0.2.2.2-d1`. APK SHA-256: mock `cbe8e84b…3d3c`, yerel `e9e185fa…aab4`, canli `9b8bce93…30fd` (tam değerler `FAZ2.2.2-D1-RAPORU.md`). Telefonda bütün testler başarılı. Canlı API erişimi bu sürümde **kapalı** | Kullanıcı (telefon kabul testi) |
+| 14 | Canlı API, FAZ 1 canlı ortam uygunluk kontrolleri (`CANLI-UYGUNLUK-KONTROLLERI.md`) tamamlanmadan **açılmaz** | Kullanıcı |
 
 **Açık (karar bekleyen) konular:**
 - `cmp_groups()` sıralama düzeltmesi (`inc.php` değişikliği gerektirir).

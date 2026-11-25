@@ -28,7 +28,10 @@ data class SearchState(
     val loadingMore: Boolean = false,
     val error: String? = null,
     val suggestions: List<Suggestion> = emptyList(),
+    /** Öneri modu: kullanıcı yazarken açıktır. Açıkken süzgeçler, ürün sayısı ve fiyatlı sonuç listesi GÖSTERİLMEZ. */
     val showSuggestions: Boolean = false,
+    /** Öneriler yükleniyor (bekleme süresi + istek). Bitince boş liste "öneri bulunamadı" demektir. */
+    val suggestionsLoading: Boolean = false,
     val markets: List<Market> = emptyList(),
     val categories: List<Category> = emptyList(),
 ) {
@@ -57,23 +60,36 @@ class SearchViewModel(
         }
     }
 
+    /**
+     * Arama kutusuna yazı. Yazı varsa öneri modu açılır (öneriler 300 ms beklemeyle istenir).
+     * Kutu temizlenirse öneri modu kapanır ve normal arama ekranına (boş sorgu) dönülür.
+     */
     fun onInput(text: String) {
-        _state.update { it.copy(input = text, showSuggestions = text.isNotBlank()) }
         suggestJob?.cancel()
+        if (text.isBlank()) {
+            if (_state.value.query.q.isNotEmpty()) { submit(""); return }   // önceki aramanın sonuçları kalmasın
+            _state.update { it.copy(input = text, showSuggestions = false, suggestions = emptyList(), suggestionsLoading = false) }
+            return
+        }
+        val canSuggest = text.trim().length >= MIN_SUGGEST_CHARS
+        _state.update { it.copy(input = text, showSuggestions = true, suggestions = if (canSuggest) it.suggestions else emptyList(), suggestionsLoading = canSuggest) }
+        if (!canSuggest) return
         suggestJob = viewModelScope.launch {
             delay(300)   // gereksiz istek göndermemek için bekleme (debounce)
             val s = runCatching { repo.suggest(text) }.getOrDefault(emptyList())
-            _state.update { if (it.input == text) it.copy(suggestions = s) else it }
+            _state.update { if (it.input == text) it.copy(suggestions = s, suggestionsLoading = false) else it }
         }
     }
 
     fun submit(text: String = _state.value.input) {
         suggestJob?.cancel()
-        _state.update { it.copy(input = text, showSuggestions = false, suggestions = emptyList(), query = it.query.copy(q = text.trim(), page = 1)) }
+        _state.update { it.copy(input = text, showSuggestions = false, suggestions = emptyList(), suggestionsLoading = false, query = it.query.copy(q = text.trim(), page = 1)) }
         reload()
     }
 
-    fun hideSuggestions() = _state.update { it.copy(showSuggestions = false) }
+    fun hideSuggestions() { suggestJob?.cancel(); _state.update { it.copy(showSuggestions = false, suggestionsLoading = false) } }
+
+    companion object { /** Sunucu kuralı: öneri en az 2 karakterle istenir. */ const val MIN_SUGGEST_CHARS = 2 }
     fun setMarket(slug: String?) { _state.update { it.copy(query = it.query.copy(market = slug, page = 1)) }; reload() }
     fun setCategory(slug: String?) { _state.update { it.copy(query = it.query.copy(category = slug, page = 1)) }; reload() }
     fun setStatus(s: ProductQuery.Status) { _state.update { it.copy(query = it.query.copy(status = s, page = 1)) }; reload() }

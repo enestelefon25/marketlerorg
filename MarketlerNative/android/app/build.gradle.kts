@@ -20,8 +20,8 @@ android {
         applicationId = "org.marketler.app"
         minSdk = 24
         targetSdk = 36
-        versionCode = 3
-        versionName = "0.2.2.2"   // FAZ 2.2.2: ekranlar veri kaynağına (mock / yerel / canlı) bağlandı
+        versionCode = 4
+        versionName = "0.2.2.2-d1"   // FAZ 2.2.2 düzeltme 1: arama öneri modu (B1: önerilerde fiyat yok)
     }
 
     /*

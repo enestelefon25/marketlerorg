@@ -155,13 +155,8 @@ class EkranVeriTest {
         waitText("Hizmet geçici olarak kullanılamıyor.")          // liste korunur, hata listenin sonunda
     }
 
-    @Test fun onerideFiyatGosterilmez() {
-        search("")
-        rule.onNode(androidx.compose.ui.test.hasSetTextAction()).performTextInput("kirlitest")
-        waitText("Kirlitest Deterjan 3 kg")
-        waitText("A101")
-        noText("89,90 TL"); noText("0,00 TL")
-    }
+    /* Önceki "onerideFiyatGosterilmez" testi yetersizdi (yalnızca iki sabit fiyat metnine bakıyordu, önerilerin çizildiğini
+       kanıtlamıyordu); yerine ekrandaki bütün içeriği denetleyen OneriModuTest (mock + kayıtlı API) geldi. */
 
     @Test fun urunDetayi_fiyatsizKarsilastirmayaGirmez() {
         product(dirty.getValue("fiyat_var_a101"))

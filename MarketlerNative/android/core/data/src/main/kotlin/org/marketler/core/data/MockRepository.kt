@@ -99,7 +99,7 @@ class MockRepository(
         }.sortedWith(compareByDescending<Hit> { it.score }.thenBy { it.len })
         val seen = HashSet<String>()
         return hits.asSequence().filter { seen.add(it.folded + "|" + it.item.market.name) }.take(5).map {
-            Suggestion(it.item.name, it.item.shownPriceText, it.item.market.name, it.item.catalog.slug, it.item.webUrl)
+            Suggestion(it.item.name, priceText = null, marketName = it.item.market.name, catalogSlug = it.item.catalog.slug, webUrl = it.item.webUrl)   // B1: öneride fiyat yok
         }.toList()
     }
 }

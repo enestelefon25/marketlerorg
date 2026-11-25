@@ -47,6 +47,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
+import androidx.activity.compose.BackHandler
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalFocusManager
@@ -90,24 +92,12 @@ fun SearchScreen(
             modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 10.dp).focusRequester(focus),
         )
 
-        if (s.showSuggestions && s.suggestions.isNotEmpty()) {
-            Surface(color = MkColors.Surface, modifier = Modifier.fillMaxWidth()) {
-                Column {
-                    s.suggestions.forEach { sg ->
-                        Row(Modifier.fillMaxWidth().clickable { vm.submit(sg.name.orEmpty()); focusManager.clearFocus() }.padding(horizontal = 16.dp, vertical = 12.dp),
-                            verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                            Icon(Icons.Outlined.Search, contentDescription = null, tint = MkColors.Subtle, modifier = Modifier.size(18.dp))
-                            Column(Modifier.weight(1f)) {
-                                Text(sg.name.orEmpty(), fontWeight = FontWeight.SemiBold, maxLines = 1)
-                                /* B1 kararı: öneride fiyat GÖSTERİLMEZ (sunucu NULL fiyatı "0,00 TL" gönderebiliyor). Fiyat ürün detayında. */
-                                sg.marketName?.takeIf { it.isNotBlank() }?.let { Text(it, color = MkColors.Muted, fontSize = 12.5.sp) }
-                            }
-                            Icon(Icons.Outlined.NorthWest, contentDescription = null, tint = MkColors.Subtle, modifier = Modifier.size(18.dp))
-                        }
-                        HorizontalDivider(color = MkColors.Line)
-                    }
-                }
-            }
+        /* Öneri modu (B1 düzeltmesi): yazarken YALNIZCA öneriler görünür; süzgeçler, ürün sayısı ve fiyatlı sonuç listesi
+           gizlenir. Öneriye dokunmak veya klavyeden "Ara" normal sonuçları açar; kutu temizlenince normal ekrana dönülür. */
+        if (s.showSuggestions) {
+            BackHandler { vm.hideSuggestions(); focusManager.clearFocus() }
+            SuggestionPanel(s, onPick = { vm.submit(it); focusManager.clearFocus() })
+            return@Column
         }
 
         Filters(s, vm)
@@ -126,6 +116,42 @@ fun SearchScreen(
         }
     }
 }
+
+/** Öneri listesi: her satırda YALNIZCA ürün adı ve market adı. Fiyat bilgisi hiç gösterilmez (B1). */
+@Composable
+private fun SuggestionPanel(s: SearchState, onPick: (String) -> Unit) {
+    Column(Modifier.fillMaxSize().testTag(TAG_SUGGESTIONS)) {
+        when {
+            s.suggestions.isNotEmpty() -> LazyColumn(Modifier.fillMaxSize()) {
+                itemsIndexed(s.suggestions) { _, sg ->
+                    Row(Modifier.fillMaxWidth().testTag(TAG_SUGGESTION_ROW).clickable { onPick(sg.name.orEmpty()) }.padding(horizontal = 16.dp, vertical = 12.dp),
+                        verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                        Icon(Icons.Outlined.Search, contentDescription = null, tint = MkColors.Subtle, modifier = Modifier.size(18.dp))
+                        Column(Modifier.weight(1f)) {
+                            Text(sg.name.orEmpty(), fontWeight = FontWeight.SemiBold, maxLines = 1)
+                            sg.marketName?.takeIf { it.isNotBlank() }?.let { Text(it, color = MkColors.Muted, fontSize = 12.5.sp) }
+                        }
+                        Icon(Icons.Outlined.NorthWest, contentDescription = null, tint = MkColors.Subtle, modifier = Modifier.size(18.dp))
+                    }
+                    HorizontalDivider(color = MkColors.Line)
+                }
+            }
+            s.suggestionsLoading -> SuggestionInfo("Öneriler aranıyor…")
+            s.input.trim().length < SearchViewModel.MIN_SUGGEST_CHARS -> SuggestionInfo("Öneri için en az 2 harf yazın. Aramak için klavyedeki Ara düğmesine basın.")
+            else -> SuggestionInfo("Bu yazıyla eşleşen öneri bulunamadı. Aramak için klavyedeki Ara düğmesine basın.")
+        }
+    }
+}
+
+@Composable
+private fun SuggestionInfo(text: String) {
+    Text(text, color = MkColors.Muted, fontSize = 13.5.sp, modifier = Modifier.fillMaxWidth().testTag(TAG_SUGGESTION_INFO).padding(horizontal = 16.dp, vertical = 14.dp))
+}
+
+/** Test işaretleri (görünüşü değiştirmez). */
+const val TAG_SUGGESTIONS = "oneri-paneli"
+const val TAG_SUGGESTION_ROW = "oneri-satiri"
+const val TAG_SUGGESTION_INFO = "oneri-bilgi"
 
 @Composable
 private fun Results(s: SearchState, vm: SearchViewModel, onOpenProduct: (Long) -> Unit) {
